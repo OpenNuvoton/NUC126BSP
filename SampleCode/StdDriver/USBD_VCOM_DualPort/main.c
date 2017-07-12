@@ -14,8 +14,9 @@
 /* If crystal-less is enabled, system won't use any crystal as clock source
    If using crystal-less, system will be 48MHz, otherwise, system is 72MHz
 */
-#define CRYSTAL_LESS    1
+#define CRYSTAL_LESS        1
 #define HIRC48_AUTO_TRIM    0x412   /* Use USB SOF to fine tune HIRC 48MHz */
+#define TRIM_INIT           (SYS_BASE+0x118)
 
 
 /*--------------------------------------------------------------------------*/
@@ -477,6 +478,8 @@ void VCOM_TransferData(void)
 /*---------------------------------------------------------------------------------------------------------*/
 int32_t main(void)
 {
+    uint32_t u32TrimInit;    
+    
     /* Unlock protected registers */
     SYS_UnlockReg();
 
@@ -498,6 +501,9 @@ int32_t main(void)
     USBD_Start();
 
 #ifdef CRYSTAL_LESS
+    /* Backup init trim */
+    u32TrimInit = M32(TRIM_INIT);
+
     /* Waiting for SOF before USB clock auto trim */
     USBD->INTSTS = USBD_INTSTS_SOFIF_Msk;
     while((USBD->INTSTS & USBD_INTSTS_SOFIF_Msk) == 0);
@@ -519,6 +525,9 @@ int32_t main(void)
             /* USB clock trim fail. Just retry */
             SYS->IRCTCTL1 = 0;  /* Disable Auto Trim */
             SYS->IRCTISTS = SYS_IRCTISTS_CLKERRIF1_Msk | SYS_IRCTISTS_TFAILIF1_Msk;
+            
+            /* Init TRIM */
+            M32(TRIM_INIT) = u32TrimInit;
             
             /* Waiting for SOF before USB clock auto trim */
             USBD->INTSTS = USBD_INTSTS_SOFIF_Msk;
