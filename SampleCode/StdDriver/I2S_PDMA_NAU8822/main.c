@@ -321,15 +321,15 @@ void PDMA_IRQHandler(void)
             /* Reset PDMA Scater-Gatter table */
             PDMA_ResetRxSGTable(u8RxIdx);
             u8RxIdx ^= 1;
+            PDMA_CLR_TD_FLAG(PDMA_TDSTS_TDIF2_Msk);
         }
         if(PDMA_GET_TD_STS() & 0x2)             /* channel 1 done */
         {
             /* Reset PDMA Scater-Gatter table */
             PDMA_ResetTxSGTable(u8TxIdx);
             u8TxIdx ^= 1;
+            PDMA_CLR_TD_FLAG(PDMA_TDSTS_TDIF1_Msk);
         }
-        PDMA_CLR_TD_FLAG(PDMA_TDSTS_TDIF1_Msk);
-        PDMA_CLR_TD_FLAG(PDMA_TDSTS_TDIF2_Msk);
     }
     else
         printf("unknown interrupt, status=0x%x!!\n", u32Status);
