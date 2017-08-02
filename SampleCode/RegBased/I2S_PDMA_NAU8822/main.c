@@ -304,9 +304,9 @@ int32_t main(void)
     SPI0->I2SCTL |= SPI_I2SCTL_I2SEN_Msk;
 #else
     /* Slave mode, 16-bit word width, mono mode, I2S format. */
-    SPI0->I2SCTL = I2S_MODE_SLAVE | I2S_DATABIT_16 | I2S_MONO | I2S_FORMAT_I2S;
+    SPI0->I2SCTL = SPII2S_MODE_SLAVE | SPII2S_DATABIT_16 | SPII2S_MONO | SPII2S_FORMAT_I2S;
     /* Set TX FIFO threshold to 2 and RX FIFO threshold to 1 */
-    SPI0->FIFOCTL = I2S_FIFO_TX_LEVEL_WORD_2 | I2S_FIFO_RX_LEVEL_WORD_2;
+    SPI0->FIFOCTL = SPII2S_FIFO_TX_LEVEL_WORD_2 | SPII2S_FIFO_RX_LEVEL_WORD_2;
     /* Sampling rate 16000 Hz; bit clock rate 512 kHz. */
     SPI0->I2SCLK = (SPI1->I2SCLK & ~SPI_I2SCLK_BCLKDIV_Msk) | (11 << SPI_I2SCLK_BCLKDIV_Pos);
     /* Enable I2S */
@@ -326,7 +326,7 @@ int32_t main(void)
     SPI0->I2SCTL |= SPI_I2SCTL_MCLKEN_Msk;
 
 #ifndef INPUT_IS_LIN
-    I2S_SET_MONO_RX_CHANNEL(SPI0, I2S_MONO_LEFT);       //NAU8822 will store data in left channel
+    SPII2S_SET_MONO_RX_CHANNEL(SPI0, SPII2S_MONO_LEFT);       //NAU8822 will store data in left channel
 #endif
 
     PDMA_Init();
@@ -358,15 +358,15 @@ void PDMA_IRQHandler(void)
             /* Reset PDMA Scater-Gatter table */
             PDMA_ResetRxSGTable(u8RxIdx);
             u8RxIdx ^= 1;
+            PDMA->TDSTS |= PDMA_TDSTS_TDIF2_Msk;
         }
         if((PDMA->TDSTS) & 0x2)             /* channel 1 done */
         {
             /* Reset PDMA Scater-Gatter table */
             PDMA_ResetTxSGTable(u8TxIdx);
             u8TxIdx ^= 1;
+            PDMA->TDSTS |= PDMA_TDSTS_TDIF1_Msk;
         }
-        PDMA->TDSTS |= PDMA_TDSTS_TDIF1_Msk;
-        PDMA->TDSTS |= PDMA_TDSTS_TDIF2_Msk;
     }
     else
         printf("unknown interrupt, status=0x%x!!\n", u32Status);
