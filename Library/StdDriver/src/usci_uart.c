@@ -269,54 +269,66 @@ uint32_t UUART_Open(UUART_T* uuart, uint32_t u32baudrate)
         u32PCLKFreq = CLK_GetPCLK1Freq();
     }
 
+    /* Caculate baud rate divider */
     u32Div = u32PCLKFreq / u32baudrate;
     u32Tmp = (u32PCLKFreq / u32Div) - u32baudrate;
     u32Tmp2 = u32baudrate - (u32PCLKFreq / (u32Div+1ul));
 
     if(u32Tmp >= u32Tmp2) u32Div = u32Div + 1ul;
+    
+    if(u32Div >= 65536ul) {
+        
+        /* Set the smallest baud rate that USCI_UART can generate */
+        u32PDSCnt = 0x4ul;
+        u32MinDSCnt = 0x10ul;
+        u32MinClkDiv = 0x400ul;        
+        
+    } else {
 
-    u32Tmp = 0x400ul * 0x10ul;
-    for(u32PDSCnt = 1ul; u32PDSCnt <= 0x04ul; u32PDSCnt++) {
-        if(u32Div <= (u32Tmp * u32PDSCnt)) break;
-    }
-
-    if(u32PDSCnt > 0x4ul) u32PDSCnt = 0x4ul;
-
-    u32Div = u32Div / u32PDSCnt;
-
-    /* Find best solution */
-    u32Min = (uint32_t) - 1;
-    u32MinDSCnt = 0ul;
-    u32MinClkDiv = 0ul;
-    u32Tmp = 0ul;
-
-    for(u32DSCnt = 6ul; u32DSCnt <= 0x10ul; u32DSCnt++) { /* DSCNT could be 0x5~0xF */
-
-        u32ClkDiv = u32Div / u32DSCnt;
-
-        if(u32ClkDiv > 0x400ul) {
-            u32ClkDiv = 0x400ul;
-            u32Tmp = u32Div - (u32ClkDiv * u32DSCnt);
-            u32Tmp2 = u32Tmp + 1ul;
-        } else {
-            u32Tmp = u32Div - (u32ClkDiv * u32DSCnt);
-            u32Tmp2 = ((u32ClkDiv+1ul) * u32DSCnt) - u32Div;
+        u32Tmp = 0x400ul * 0x10ul;
+        for(u32PDSCnt = 1ul; u32PDSCnt <= 0x04ul; u32PDSCnt++) {
+            if(u32Div <= (u32Tmp * u32PDSCnt)) break;
         }
 
-        if(u32Tmp >= u32Tmp2) {
-            u32ClkDiv = u32ClkDiv + 1ul;
-        } else u32Tmp2 = u32Tmp;
+        if(u32PDSCnt > 0x4ul) u32PDSCnt = 0x4ul;
 
-        if(u32Tmp2 < u32Min) {
-            u32Min = u32Tmp2;
-            u32MinDSCnt = u32DSCnt;
-            u32MinClkDiv = u32ClkDiv;
+        u32Div = u32Div / u32PDSCnt;
 
-            /* Break when get good results */
-            if(u32Min == 0ul) {
-                break;
+        /* Find best solution */
+        u32Min = (uint32_t) - 1;
+        u32MinDSCnt = 0ul;
+        u32MinClkDiv = 0ul;
+        u32Tmp = 0ul;
+
+        for(u32DSCnt = 6ul; u32DSCnt <= 0x10ul; u32DSCnt++) { /* DSCNT could be 0x5~0xF */
+
+            u32ClkDiv = u32Div / u32DSCnt;
+
+            if(u32ClkDiv > 0x400ul) {
+                u32ClkDiv = 0x400ul;
+                u32Tmp = u32Div - (u32ClkDiv * u32DSCnt);
+                u32Tmp2 = u32Tmp + 1ul;
+            } else {
+                u32Tmp = u32Div - (u32ClkDiv * u32DSCnt);
+                u32Tmp2 = ((u32ClkDiv+1ul) * u32DSCnt) - u32Div;
+            }
+
+            if(u32Tmp >= u32Tmp2) {
+                u32ClkDiv = u32ClkDiv + 1ul;
+            } else u32Tmp2 = u32Tmp;
+
+            if(u32Tmp2 < u32Min) {
+                u32Min = u32Tmp2;
+                u32MinDSCnt = u32DSCnt;
+                u32MinClkDiv = u32ClkDiv;
+
+                /* Break when get good results */
+                if(u32Min == 0ul) {
+                    break;
+                }
             }
         }
+        
     }
 
     /* Enable USCI_UART protocol */
@@ -408,58 +420,72 @@ uint32_t UUART_SetLine_Config(UUART_T* uuart, uint32_t u32baudrate, uint32_t u32
     }
 
     if(u32baudrate != 0ul) {
+        
+        /* Caculate baud rate divider */
         u32Div = u32PCLKFreq / u32baudrate;
         u32Tmp = (u32PCLKFreq / u32Div) - u32baudrate;
         u32Tmp2 = u32baudrate - (u32PCLKFreq / (u32Div+1ul));
 
         if(u32Tmp >= u32Tmp2) u32Div = u32Div + 1ul;
 
-        u32Tmp = 0x400ul * 0x10ul;
-        for(u32PDSCnt = 1ul; u32PDSCnt <= 0x04ul; u32PDSCnt++) {
-            if(u32Div <= (u32Tmp * u32PDSCnt)) break;
-        }
-
-        if(u32PDSCnt > 0x4ul) u32PDSCnt = 0x4ul;
-
-        u32Div = u32Div / u32PDSCnt;
-
-        /* Find best solution */
-        u32Min = (uint32_t) - 1;
-        u32MinDSCnt = 0ul;
-        u32MinClkDiv = 0ul;
-
-        for(u32DSCnt = 6ul; u32DSCnt <= 0x10ul; u32DSCnt++) { /* DSCNT could be 0x5~0xF */
-            u32ClkDiv = u32Div / u32DSCnt;
-
-            if(u32ClkDiv > 0x400ul) {
-                u32ClkDiv = 0x400ul;
-                u32Tmp = u32Div - (u32ClkDiv * u32DSCnt);
-                u32Tmp2 = u32Tmp + 1ul;
-            } else {
-                u32Tmp = u32Div - (u32ClkDiv * u32DSCnt);
-                u32Tmp2 = ((u32ClkDiv+1ul) * u32DSCnt) - u32Div;
+        if(u32Div >= 65536ul) {
+            
+            /* Set the smallest baud rate that USCI_UART can generate */
+            u32PDSCnt = 0x4ul;
+            u32MinDSCnt = 0x10ul;
+            u32MinClkDiv = 0x400ul;      
+            
+        } else {        
+        
+            u32Tmp = 0x400ul * 0x10ul;
+            for(u32PDSCnt = 1ul; u32PDSCnt <= 0x04ul; u32PDSCnt++) {
+                if(u32Div <= (u32Tmp * u32PDSCnt)) break;
             }
 
-            if(u32Tmp >= u32Tmp2) {
-                u32ClkDiv = u32ClkDiv + 1ul;
-            } else u32Tmp2 = u32Tmp;
+            if(u32PDSCnt > 0x4ul) u32PDSCnt = 0x4ul;
 
-            if(u32Tmp2 < u32Min) {
-                u32Min = u32Tmp2;
-                u32MinDSCnt = u32DSCnt;
-                u32MinClkDiv = u32ClkDiv;
+            u32Div = u32Div / u32PDSCnt;
 
-                /* Break when get good results */
-                if(u32Min == 0ul) {
-                    break;
+            /* Find best solution */
+            u32Min = (uint32_t) - 1;
+            u32MinDSCnt = 0ul;
+            u32MinClkDiv = 0ul;
+
+            for(u32DSCnt = 6ul; u32DSCnt <= 0x10ul; u32DSCnt++) { /* DSCNT could be 0x5~0xF */
+                u32ClkDiv = u32Div / u32DSCnt;
+
+                if(u32ClkDiv > 0x400ul) {
+                    u32ClkDiv = 0x400ul;
+                    u32Tmp = u32Div - (u32ClkDiv * u32DSCnt);
+                    u32Tmp2 = u32Tmp + 1ul;
+                } else {
+                    u32Tmp = u32Div - (u32ClkDiv * u32DSCnt);
+                    u32Tmp2 = ((u32ClkDiv+1ul) * u32DSCnt) - u32Div;
+                }
+
+                if(u32Tmp >= u32Tmp2) {
+                    u32ClkDiv = u32ClkDiv + 1ul;
+                } else u32Tmp2 = u32Tmp;
+
+                if(u32Tmp2 < u32Min) {
+                    u32Min = u32Tmp2;
+                    u32MinDSCnt = u32DSCnt;
+                    u32MinClkDiv = u32ClkDiv;
+
+                    /* Break when get good results */
+                    if(u32Min == 0ul) {
+                        break;
+                    }
                 }
             }
-        }
 
+        }
+        
         /* Set USCI_UART baud rate */
         uuart->BRGEN = ((u32MinClkDiv-1ul) << UUART_BRGEN_CLKDIV_Pos) |
                        ((u32MinDSCnt-1ul) << UUART_BRGEN_DSCNT_Pos) |
-                       ((u32PDSCnt-1ul) << UUART_BRGEN_PDSCNT_Pos);
+                       ((u32PDSCnt-1ul) << UUART_BRGEN_PDSCNT_Pos);        
+            
     } else {
         u32PDSCnt = ((uuart->BRGEN & UUART_BRGEN_PDSCNT_Msk) >> UUART_BRGEN_PDSCNT_Pos) + 1ul;
         u32MinDSCnt = ((uuart->BRGEN & UUART_BRGEN_DSCNT_Msk) >> UUART_BRGEN_DSCNT_Pos) + 1ul;
