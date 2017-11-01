@@ -88,16 +88,20 @@ void SYS_Init(void)
     /* Init I/O Multi-function                                                                                 */
     /*---------------------------------------------------------------------------------------------------------*/
     /* Set PD multi-function pins for UART0 RXD, TXD */
-    SYS->GPD_MFPL = SYS_GPD_MFPL_PD0MFP_UART0_RXD | SYS_GPD_MFPL_PD1MFP_UART0_TXD;
+    SYS->GPD_MFPL &= ~(SYS_GPD_MFPL_PD0MFP_Msk | SYS_GPD_MFPL_PD1MFP_Msk);
+    SYS->GPD_MFPL |= (SYS_GPD_MFPL_PD0MFP_UART0_RXD | SYS_GPD_MFPL_PD1MFP_UART0_TXD);
 
     /* Set PD multi-function pins for Timer0 toggle-output pin and Timer2 event counter pin */
+    SYS->GPD_MFPL &= ~(SYS_GPD_MFPL_PD4MFP_Msk | SYS_GPD_MFPL_PD3MFP_Msk);
     SYS->GPD_MFPL |= SYS_GPD_MFPL_PD4MFP_TM0 | SYS_GPD_MFPL_PD3MFP_TM2;
 
     /* Set PA multi-function pins for Timer2 external capture pin */
-    SYS->GPA_MFPL = SYS_GPA_MFPL_PA5MFP_TM2_EXT;
+    SYS->GPA_MFPL &= ~SYS_GPA_MFPL_PA5MFP_Msk;
+    SYS->GPA_MFPL |= SYS_GPA_MFPL_PA5MFP_TM2_EXT;
 
     /* Set PB multi-function pins for Timer3 toggle-output pin */
-    SYS->GPB_MFPL = SYS_GPB_MFPL_PB1MFP_TM3;
+    SYS->GPB_MFPL &= ~SYS_GPB_MFPL_PB1MFP_Msk;
+    SYS->GPB_MFPL |= SYS_GPB_MFPL_PB1MFP_TM3;
 }
 
 void UART0_Init(void)

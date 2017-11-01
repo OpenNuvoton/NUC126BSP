@@ -68,13 +68,16 @@ void SYS_Init(void)
     /* Init I/O Multi-function                                                                                 */
     /*---------------------------------------------------------------------------------------------------------*/
     /* Set PD multi-function pins for UART0 RXD, TXD */
-    SYS->GPD_MFPL = SYS_GPD_MFPL_PD0MFP_UART0_RXD | SYS_GPD_MFPL_PD1MFP_UART0_TXD;
+    SYS->GPD_MFPL &= ~(SYS_GPD_MFPL_PD0MFP_Msk | SYS_GPD_MFPL_PD1MFP_Msk);
+    SYS->GPD_MFPL |= (SYS_GPD_MFPL_PD0MFP_UART0_RXD | SYS_GPD_MFPL_PD1MFP_UART0_TXD);
 
     /* Set Timer0 PWM output pins, PD.4 */
+    SYS->GPD_MFPL &= ~SYS_GPD_MFPL_PD4MFP_Msk;
     SYS->GPD_MFPL |= SYS_GPD_MFPL_PD4MFP_TM0;
 
     /* Set PA.8 multi-function pin for Timer0 PWM brake pin */
-    SYS->GPA_MFPH = SYS_GPA_MFPH_PA8MFP_TM_BRAKE0;
+    SYS->GPA_MFPH &= ~SYS_GPA_MFPH_PA8MFP_Msk;
+    SYS->GPA_MFPH |= SYS_GPA_MFPH_PA8MFP_TM_BRAKE0;
 }
 
 void UART0_Init(void)

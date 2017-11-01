@@ -68,10 +68,12 @@ void SYS_Init(void)
     /* Init I/O Multi-function                                                                                 */
     /*---------------------------------------------------------------------------------------------------------*/
     /* Set PD multi-function pins for UART0 RXD, TXD */
-    SYS->GPD_MFPL = SYS_GPD_MFPL_PD0MFP_UART0_RXD | SYS_GPD_MFPL_PD1MFP_UART0_TXD;
+    SYS->GPD_MFPL &= ~(SYS_GPD_MFPL_PD0MFP_Msk | SYS_GPD_MFPL_PD1MFP_Msk);
+    SYS->GPD_MFPL |= (SYS_GPD_MFPL_PD0MFP_UART0_RXD | SYS_GPD_MFPL_PD1MFP_UART0_TXD);
 
     /* Set PB.7 multi-function pin for ACMP0 positive input pin */
-    SYS->GPB_MFPL = SYS_GPB_MFPL_PB7MFP_ACMP0_P0;
+    SYS->GPB_MFPL &= ~SYS_GPB_MFPL_PB7MFP_Msk;
+    SYS->GPB_MFPL |= SYS_GPB_MFPL_PB7MFP_ACMP0_P0;
     /* Disable digital input path of analog pin ACMP0_P0 to prevent leakage */
     GPIO_DISABLE_DIGITAL_PATH(PB, (1ul << 7));
 }
