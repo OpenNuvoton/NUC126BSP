@@ -103,10 +103,12 @@ void SYS_Init(void)
     /* Init I/O Multi-function                                                                                 */
     /*---------------------------------------------------------------------------------------------------------*/
     /* Set PB7 multi-function pin for ACMP0 positive input pin */
-    SYS->GPB_MFPL = SYS_GPB_MFPL_PB7MFP_ACMP0_P0;
+    SYS->GPB_MFPL &= ~(SYS_GPB_MFPL_PB7MFP_Msk);
+    SYS->GPB_MFPL |= SYS_GPB_MFPL_PB7MFP_ACMP0_P0;
 
     /* Set PD6 multi-function pin for ACMP0 output pin */
-    SYS->GPD_MFPL = SYS_GPD_MFPL_PD6MFP_ACMP0_O;
+    SYS->GPD_MFPL &= ~(SYS_GPD_MFPL_PD6MFP_Msk);
+    SYS->GPD_MFPL |= SYS_GPD_MFPL_PD6MFP_ACMP0_O;
 
     /* Set PD multi-function pins for UART0 RXD and TXD */
     SYS->GPD_MFPL &= ~(SYS_GPD_MFPL_PD0MFP_Msk | SYS_GPD_MFPL_PD1MFP_Msk);

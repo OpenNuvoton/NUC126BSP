@@ -140,7 +140,8 @@ void SYS_Init(void)
     SystemCoreClockUpdate();
 
     /* Set PD multi-function pins for UART0 RXD and TXD */
-    SYS->GPD_MFPL = SYS_GPD_MFPL_PD0MFP_UART0_RXD | SYS_GPD_MFPL_PD1MFP_UART0_TXD;
+    SYS->GPD_MFPL &= ~(SYS_GPD_MFPL_PD0MFP_Msk | SYS_GPD_MFPL_PD1MFP_Msk);
+    SYS->GPD_MFPL |= SYS_GPD_MFPL_PD0MFP_UART0_RXD | SYS_GPD_MFPL_PD1MFP_UART0_TXD;
 
     /* Set PD5 as output mode and PD6 as Input mode */
     PD->MODE = (PD->MODE & 0xFFFFC3FF) | 0x00000400;

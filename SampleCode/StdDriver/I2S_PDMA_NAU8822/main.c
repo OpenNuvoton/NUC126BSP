@@ -163,13 +163,16 @@ void SYS_Init(void)
     /* Init I/O Multi-function                                                                                 */
     /*---------------------------------------------------------------------------------------------------------*/
     /* Set PD multi-function pins for UART0 RXD and TXD */
-    SYS->GPD_MFPL = (SYS_GPD_MFPL_PD0MFP_UART0_RXD | SYS_GPD_MFPL_PD1MFP_UART0_TXD);
+    SYS->GPD_MFPL &= ~(SYS_GPD_MFPL_PD0MFP_Msk | SYS_GPD_MFPL_PD1MFP_Msk);
+    SYS->GPD_MFPL |= (SYS_GPD_MFPL_PD0MFP_UART0_RXD | SYS_GPD_MFPL_PD1MFP_UART0_TXD);
 
     /* Set PE multi-function pins for I2C1 */
-    SYS->GPE_MFPL = SYS_GPE_MFPL_PE4MFP_I2C1_SCL | SYS_GPE_MFPL_PE5MFP_I2C1_SDA ;
+    SYS->GPE_MFPL &= ~(SYS_GPE_MFPL_PE4MFP_Msk | SYS_GPE_MFPL_PE5MFP_Msk);
+    SYS->GPE_MFPL |= SYS_GPE_MFPL_PE4MFP_I2C1_SCL | SYS_GPE_MFPL_PE5MFP_I2C1_SDA;
 
     /* Set PC multi-function pins for SPI0_I2SMCLK. */
-    SYS->GPC_MFPL = SYS_GPC_MFPL_PC5MFP_SPI0_I2SMCLK;
+    SYS->GPC_MFPL &= ~(SYS_GPC_MFPL_PC5MFP_Msk);
+    SYS->GPC_MFPL |= SYS_GPC_MFPL_PC5MFP_SPI0_I2SMCLK;
     /* Configure SPI0 related multi-function pins. */
     /* GPB[7:4] : SPI0_CLK (I2S_BCLK), SPI0_MISO (I2S_DI), SPI0_MOSI (I2S_DO), SPI0_SS (I2S_LRCLK). */
     SYS->GPB_MFPL &= ~(SYS_GPB_MFPL_PB4MFP_Msk | SYS_GPB_MFPL_PB5MFP_Msk | SYS_GPB_MFPL_PB6MFP_Msk | SYS_GPB_MFPL_PB7MFP_Msk);
