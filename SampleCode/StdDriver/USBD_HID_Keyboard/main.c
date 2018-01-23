@@ -14,7 +14,7 @@
    If using crystal-less, system will be 48MHz, otherwise, system is 72MHz
 */
 #define CRYSTAL_LESS        1
-#define HIRC48_AUTO_TRIM    0x412   /* Use USB SOF to fine tune HIRC 48MHz */
+#define HIRC48_AUTO_TRIM    0x412   /* Use USB signal to fine tune HIRC 48MHz */
 #define TRIM_INIT           (SYS_BASE+0x118)
 
 /*--------------------------------------------------------------------------*/
@@ -166,11 +166,11 @@ int32_t main(void)
     /* Backup init trim */
     u32TrimInit = M32(TRIM_INIT);
 
-    /* Waiting for SOF before USB clock auto trim */
+    /* Waiting for USB bus stable */
     USBD->INTSTS = USBD_INTSTS_SOFIF_Msk;
     while((USBD->INTSTS & USBD_INTSTS_SOFIF_Msk) == 0);
 
-    /* Enable USB clock trim function */
+    /* Enable USB crystal-less */
     SYS->IRCTCTL1 = HIRC48_AUTO_TRIM;
 #endif
 
@@ -183,21 +183,21 @@ int32_t main(void)
     while(1)
     {
 #ifdef CRYSTAL_LESS
-        /* Re-start auto trim when any error found */
+        /* Re-start crystal-less when any error found */
         if(SYS->IRCTISTS & (SYS_IRCTISTS_CLKERRIF1_Msk | SYS_IRCTISTS_TFAILIF1_Msk))
         {
             /* USB clock trim fail. Just retry */
-            SYS->IRCTCTL1 = 0;  /* Disable Auto Trim */
+            SYS->IRCTCTL1 = 0;  /* Disable crystal-less */
             SYS->IRCTISTS = SYS_IRCTISTS_CLKERRIF1_Msk | SYS_IRCTISTS_TFAILIF1_Msk;
             
             /* Init TRIM */
             M32(TRIM_INIT) = u32TrimInit;
             
-            /* Waiting for SOF before USB clock auto trim */
+            /* Waiting for USB bus stable */
             USBD->INTSTS = USBD_INTSTS_SOFIF_Msk;
             while((USBD->INTSTS & USBD_INTSTS_SOFIF_Msk) == 0);
             
-            SYS->IRCTCTL1 = HIRC48_AUTO_TRIM; /* Re-enable Auto Trim */
+            SYS->IRCTCTL1 = HIRC48_AUTO_TRIM; /* Re-enable crystal-less */
             printf("USB trim fail. Just retry.\n");
         }
 #endif
