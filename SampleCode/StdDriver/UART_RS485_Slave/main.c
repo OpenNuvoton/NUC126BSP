@@ -17,7 +17,7 @@
 #define PLL_CLOCK           72000000
 
 
-#define IS_USE_RS485NMM     1      //1:Select NMM_Mode , 0:Select AAD_Mode
+#define IS_USE_RS485NMM     0      //1:Select NMM_Mode , 0:Select AAD_Mode
 #define MATCH_ADDRSS1       0xC0
 #define MATCH_ADDRSS2       0xA2
 #define UNMATCH_ADDRSS1     0xB1
@@ -125,10 +125,10 @@ void RS485_9bitModeSlave()
     printf("+-----------------------------------------------------------+\n");
 
     /* Set RS485-AAD Mode and address match is 0xC0 */
-    UART_SelectRS485Mode(UART1, UART_ALT_CSR_RS485_AAD_Msk | UART_ALT_CSR_RS485_AUD_Msk, MATCH_ADDRSS1);
+    UART_SelectRS485Mode(UART1, UART_ALTCTL_RS485AAD_Msk | UART_ALTCTL_RS485AUD_Msk, MATCH_ADDRSS1);
 
     /* Set RS485 address detection enable */
-    UART1->ALT_CSR |= UART_ALT_CSR_RS485_ADD_EN_Msk;
+    UART1->ALTCTL |= UART_ALTCTL_ADDRDEN_Msk;
 
 #endif
 

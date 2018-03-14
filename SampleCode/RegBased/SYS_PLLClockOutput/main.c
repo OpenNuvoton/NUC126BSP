@@ -260,7 +260,7 @@ int32_t main(void)
 
     printf("\n\nCPU @ %d Hz\n", SystemCoreClock);
     printf("+----------------------------------------+\n");
-    printf("|     NUC126 System Driver Sample Code    |\n");
+    printf("|     NUC126 System Driver Sample Code   |\n");
     printf("+----------------------------------------+\n");
 
     if(M32(FLAG_ADDR) == SIGNATURE)
