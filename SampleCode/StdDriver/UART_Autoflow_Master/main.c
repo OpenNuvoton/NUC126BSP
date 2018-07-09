@@ -23,7 +23,7 @@
 /* Define functions prototype                                                                              */
 /*---------------------------------------------------------------------------------------------------------*/
 extern char GetChar(void);
-int32_t main(void);
+//int32_t main(void);
 void AutoFlow_FunctionTxTest(void);
 
 
