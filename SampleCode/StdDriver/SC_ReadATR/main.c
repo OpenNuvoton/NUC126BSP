@@ -18,7 +18,7 @@
 /*---------------------------------------------------------------------------------------------------------*/
 /* The interrupt services routine of smartcard port                                                        */
 /*---------------------------------------------------------------------------------------------------------*/
-void SC01_IRQHandler(void)
+void SC0_IRQHandler(void)
 {
     /* Please don't remove any of the function calls below */
     if(SCLIB_CheckCDEvent(0))

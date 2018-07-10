@@ -94,19 +94,6 @@ static uint32_t SCUART_GetClock(SC_T *sc)
   * @note       This function configures character width to 8 bits, 1 stop bit, and no parity.
   *             And can use \ref SCUART_SetLineConfig function to update these settings.
   */
-uint32_t SCUART_Open(SC_T* sc, uint32_t u32Baudrate)
-{
-    uint32_t u32Clk = SCUART_GetClock(sc), u32Div;
-
-    /* Calculate divider for target baudrate */
-    u32Div = ((u32Clk + (u32Baudrate >> 1) - 1) / u32Baudrate) - 1;
-
-    sc->CTL = SC_CTL_SCEN_Msk | SC_CTL_NSB_Msk;  // Enable smartcard interface and stop bit = 1
-    sc->UARTCTL = SCUART_CHAR_LEN_8 | SCUART_PARITY_NONE | SC_UARTCTL_UARTEN_Msk; // Enable UART mode, disable parity and 8 bit per character
-    sc->ETUCTL = u32Div;
-
-    return (u32Clk / (u32Div + 1));
-}
 
 /**
   * @brief      Read SC UART Data
