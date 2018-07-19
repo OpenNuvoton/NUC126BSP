@@ -3,7 +3,7 @@
  * @version  V2.00
  * $Revision: 1 $
  * $Date: 16/10/25 10:54a $
- * @brief    M451 USBD CCID smartcard interface control header
+ * @brief    USBD CCID smartcard interface control header
  *
  * @note
  * Copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.

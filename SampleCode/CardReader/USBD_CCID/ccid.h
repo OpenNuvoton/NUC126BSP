@@ -1,6 +1,6 @@
 /******************************************************************************
  * @file     ccid.h
- * @brief    M451 series CCID driver header file
+ * @brief    CCID driver header file
  * @version  V1.00
  * $Revision: 1 $
  * $Date: 16/10/25 10:54a $

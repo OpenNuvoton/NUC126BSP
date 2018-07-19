@@ -186,7 +186,7 @@ int32_t main(void)
     */
 
     printf("+------------------------------------------------------------------+\n");
-    printf("|    M451 Flash Memory Controller Driver Sample Code for LDROM     |\n");
+    printf("|       Flash Memory Controller Driver Sample Code for LDROM       |\n");
     printf("+------------------------------------------------------------------+\n");
 
     printf("\nCPU @ %dHz\n\n", SystemCoreClock);

@@ -190,7 +190,7 @@ int32_t main(void)
     UART0_Init();
 
     printf("+------------------------------------------------------------------+\n");
-    printf("|                       M451 IAP Sample Code                       |\n");
+    printf("|                          IAP Sample Code                         |\n");
     printf("+------------------------------------------------------------------+\n");
 
     printf("\nCPU @ %dHz\n\n", SystemCoreClock);

@@ -31,7 +31,7 @@ int32_t main(void)
 
     printf("\n\n");
     printf("+---------------------------------------+\n");
-    printf("|         M451 ACMP Sample Code         |\n");
+    printf("|            ACMP Sample Code           |\n");
     printf("+---------------------------------------+\n");
 
     printf("\nThis sample code demonstrates ACMP0 function. Using ACMP0_P0 (PB7) as ACMP0\n");
