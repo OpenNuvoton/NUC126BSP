@@ -256,18 +256,16 @@ int32_t main(void)
     /* Endpoint configuration */
     UAC_Init();
     USBD_Start();
-    
-    /* Backup init trim */
+
+    /* Enable USB device interrupt */
+    NVIC_EnableIRQ(USBD_IRQn);
+
+    /* Backup default trim */
     u32TrimInit = M32(TRIM_INIT);
     
-    /* Waiting for USB bus stable */
+    /* Clear SOF */
     USBD->INTSTS = USBD_INTSTS_SOFIF_Msk;
-    while((USBD->INTSTS & USBD_INTSTS_SOFIF_Msk) == 0);
-    
-    /* Enable USB crystal-less */
-    SYS->IRCTCTL1 = HIRC48_AUTO_TRIM;
-    
-    NVIC_EnableIRQ(USBD_IRQn);
+
     NVIC_EnableIRQ(SPI0_IRQn);
 
     while(1)
@@ -276,22 +274,34 @@ int32_t main(void)
         uint32_t u32Reg, u32Data;
         extern int32_t kbhit(void);
 
-        /* Re-start crystal-less when any error found */
+        /* Start USB trim if it is not enabled. */
+        if((SYS->IRCTCTL1 & SYS_IRCTCTL1_FREQSEL_Msk) != 2)
+        {
+            /* Start USB trim only when SOF */
+            if(USBD->INTSTS & USBD_INTSTS_SOFIF_Msk)
+            {
+                /* Clear SOF */
+                USBD->INTSTS = USBD_INTSTS_SOFIF_Msk;
+
+                /* Re-enable crystal-less */
+                SYS->IRCTCTL1 = HIRC48_AUTO_TRIM;
+            }
+        }
+
+        /* Disable USB Trim when error */
         if(SYS->IRCTISTS & (SYS_IRCTISTS_CLKERRIF1_Msk | SYS_IRCTISTS_TFAILIF1_Msk))
         {
-            /* USB clock trim fail. Just retry */
-            SYS->IRCTCTL1 = 0;  /* Disable crystal-less */
-            SYS->IRCTISTS = SYS_IRCTISTS_CLKERRIF1_Msk | SYS_IRCTISTS_TFAILIF1_Msk;
-            
             /* Init TRIM */
             M32(TRIM_INIT) = u32TrimInit;
-            
-            /* Waiting for USB bus stable */
+
+            /* Disable crystal-less */
+            SYS->IRCTCTL1 = 0;
+
+            /* Clear error flags */
+            SYS->IRCTISTS = SYS_IRCTISTS_CLKERRIF1_Msk | SYS_IRCTISTS_TFAILIF1_Msk;
+
+            /* Clear SOF */
             USBD->INTSTS = USBD_INTSTS_SOFIF_Msk;
-            while((USBD->INTSTS & USBD_INTSTS_SOFIF_Msk) == 0);
-            
-            SYS->IRCTCTL1 = HIRC48_AUTO_TRIM; /* Re-enable crystal-less */
-            printf("USB trim fail. Just retry.\n");
         }
         
         
