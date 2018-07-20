@@ -176,7 +176,7 @@ void UART1_IRQHandler(void)
 /*---------------------------------------------------------------------------------------------------------*/
 void UART_CTSWakeUp(void)
 {
-    /* Enable UART nCTS wake-up frunction */
+    /* Enable UART nCTS wake-up function */
     UART1->WKCTL |= UART_WKCTL_WKCTSEN_Msk;
 
     printf("System enter to Power-down mode.\n");
@@ -188,7 +188,7 @@ void UART_CTSWakeUp(void)
 /*---------------------------------------------------------------------------------------------------------*/
 void UART_DataWakeUp(void)
 {
-    /* Enable UART data wake-up frunction */
+    /* Enable UART data wake-up function */
     UART1->WKCTL |= UART_WKCTL_WKDATEN_Msk;
 
     /* Set UART data wake-up start bit compensation value.
@@ -218,7 +218,7 @@ void UART_RxThresholdWakeUp(void)
     UART_Open(UART1, 9600);
     UART1->BRCOMP = 0xA5;
 
-    /* Enable UART Rx Threshold and Rx time-out wake-up frunction */
+    /* Enable UART Rx Threshold and Rx time-out wake-up function */
     UART1->WKCTL |= UART_WKCTL_WKRFRTEN_Msk | UART_WKCTL_WKTOUTEN_Msk;
 
     /* Set Rx FIFO interrupt trigger level */
@@ -254,7 +254,7 @@ void UART_RS485WakeUp(void)
     /* Enable parity source selection function */
     UART1->LINE |= (UART_LINE_PSS_Msk | UART_LINE_PBE_Msk);
 
-    /* Enable UART RS485 address match, Rx Threshold and Rx time-out wake-up frunction */
+    /* Enable UART RS485 address match, Rx Threshold and Rx time-out wake-up function */
     UART1->WKCTL |= UART_WKCTL_WKRFRTEN_Msk | UART_WKCTL_WKRS485EN_Msk | UART_WKCTL_WKTOUTEN_Msk;
 
     /* Enable UART Rx time-out function */
