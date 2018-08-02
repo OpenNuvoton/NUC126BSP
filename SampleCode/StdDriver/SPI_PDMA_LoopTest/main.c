@@ -145,7 +145,7 @@ void SPI_Init(void)
     /* Configure SPI1 */
     /* Configure SPI1 as a slave, clock idle low, 32-bit transaction, drive output on falling clock edge and latch input on rising edge. */
     /* Configure SPI1 as a low level active device. SPI peripheral clock rate = f_PCLK0 */
-    SPI_Open(SPI1, SPI_SLAVE, SPI_MODE_0, 32, NULL);
+    SPI_Open(SPI1, SPI_SLAVE, SPI_MODE_0, 32, (uint32_t)NULL);
 }
 
 void SpiLoopTest_WithPDMA(void)
