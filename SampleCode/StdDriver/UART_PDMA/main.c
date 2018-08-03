@@ -53,7 +53,7 @@ void ClearBuf(uint32_t u32Addr, uint32_t u32Length, uint8_t u8Pattern)
 }
 
 /*---------------------------------------------------------------------------------------------------------*/
-/* Bulid Src Pattern function                                                                              */
+/* Build Src Pattern function                                                                              */
 /*---------------------------------------------------------------------------------------------------------*/
 void BuildSrcPattern(uint32_t u32Addr, uint32_t u32Length)
 {

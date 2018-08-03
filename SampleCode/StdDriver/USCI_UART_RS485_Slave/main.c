@@ -157,14 +157,14 @@ void RS485_FunctionTest()
         two Module test board to complete the test.
 
         Master:
-            1.Set RTS auto durection enabled and HW will control RTS pin. CTLOINV is set to '1'.
+            1.Set RTS auto direction enabled and HW will control RTS pin. CTLOINV is set to '1'.
             2.Master will send four different address with 10 bytes data to test Slave.
             3.Address bytes : the parity bit should be '1'.
             4.Data bytes : the parity bit should be '0'.
             5.RTS pin is low in idle state. When master is sending, RTS pin will be pull high.
 
         Slave:
-            1.Set RTS auto durection enabled and HW will control RTS pin. CTLOINV is set to '1'.
+            1.Set RTS auto direction enabled and HW will control RTS pin. CTLOINV is set to '1'.
             2.The received byte, parity bit is '1' , is considered "ADDRESS".
             3.The received byte, parity bit is '0' , is considered "DATA".
     */

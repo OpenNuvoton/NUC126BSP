@@ -249,7 +249,7 @@ void USCI_UART_PowerDownWakeUpTest(void)
     /* Disable UART wake-up function */
     UUART_DisableWakeup(UUART0);
 
-    /* Disble UART receive end interrupt */
+    /* Disable UART receive end interrupt */
     UUART_DISABLE_TRANS_INT(UUART0, UUART_INTEN_RXENDIEN_Msk);
     NVIC_DisableIRQ(USCI_IRQn);
 
