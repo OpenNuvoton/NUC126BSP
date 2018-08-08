@@ -244,15 +244,18 @@ static void get_sample (calibration *cal,int index, int x, int y, char *name)
         for (i = 0; i < NR_STEPS; i++)
         {
             put_cross (last_x >> 16, last_y >> 16, 2 | XORMODE);
-            //usleep (1000);
-            GUI_Delay(10);
-//            put_cross (last_x >> 16, last_y >> 16, 2 | XORMODE);
             GUI_Clear();
             last_x += dx;
             last_y += dy;
         }
     }
-
+#ifdef __DEMO_160x128__
+#else
+    put_string_center (xres / 2, yres / 4,
+                       "TSLIB calibration utility", 1);
+    put_string_center (xres / 2, yres / 4 + 20,
+                       "Touch crosshair to calibrate", 2);
+#endif
 
     put_cross(x, y, 2 | XORMODE);
     getxy (&cal->x [index], &cal->y [index]);

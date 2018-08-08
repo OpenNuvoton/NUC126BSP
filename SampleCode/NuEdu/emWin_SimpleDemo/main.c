@@ -1,6 +1,6 @@
 /****************************************************************************
  * @file     main.c
- * @version  V1.00
+ * @version  V2.00
  * @brief    To utilize emWin library to demonstrate interactive feature.
  *
  * @note
@@ -160,8 +160,14 @@ void MainTask(void)
     
     GUI_SetBkColor(GUI_WHITE);
     GUI_Clear();
+#ifdef __DEMO_160x128__
     GUI_DrawBitmap(&bmnuvoton_logo, 1, 55);
+#else
+    GUI_DrawBitmap(&bmnuvoton_logo, (320 - bmnuvoton_logo.XSize) >> 1, (240 - bmnuvoton_logo.YSize) >> 1);
+#endif
     GUI_Delay(3000);
+    GUI_SetBkColor(GUI_BLACK);
+    GUI_Clear();
     
     hWin = CreateFramewin();
     FRAMEWIN_SetText(hWin, acVersion);
@@ -226,7 +232,7 @@ int main(void)
     /* Enable FMC ISP function */
     FMC_Open();
 
-    /* SPI flash 128KB + 0x1C marker address */
+    /* SPI flash 192KB + 0x1C marker address */
     if (FMC_Read(__DEMO_TSFILE_ADDR__ + 0x1C) != 0x55AAA55A)
     {
         FMC_EnableAPUpdate();

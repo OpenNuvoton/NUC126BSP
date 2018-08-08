@@ -196,7 +196,7 @@ static void refresh_screen(void)
 {
     int i;
 
-    fillrect (0, 0, xres - 1, yres - 1, 0);
+    GUI_Clear();
     put_string_center (xres/2, yres/4,   "Touchscreen test program", 1);
     put_string_center (xres/2, yres/4+20,"Touch screen to move crosshair", 2);
 
@@ -292,7 +292,7 @@ int ts_test(int xsize, int ysize)
         if (quit_pressed)
             break;
     }
-    fillrect(0, 0, xres - 1, yres - 1, 0);
+    GUI_Clear();
 
     return 0;
 }

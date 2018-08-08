@@ -1,6 +1,6 @@
 /****************************************************************************
  * @file     main.c
- * @version  V1.00
+ * @version  V2.00
  * @brief    To utilize emWin library to demonstrate  widgets feature.
  *
  * @note
@@ -157,7 +157,7 @@ int main(void)
     /* Enable FMC ISP function */
     FMC_Open();
 
-    /* SPI flash 128KB + 0x1C marker address */
+    /* SPI flash 192KB + 0x1C marker address */
     if (FMC_Read(__DEMO_TSFILE_ADDR__ + 0x1C) != 0x55AAA55A)
     {
         FMC_EnableAPUpdate();
