@@ -17,9 +17,9 @@ only be used in accordance with the following terms:
 
 The  software has  been licensed by SEGGER Software GmbH to Nuvoton Technology Corporation
 at the address: No. 4, Creation Rd. III, Hsinchu Science Park, Taiwan
-for the purposes  of  creating  libraries  for its 
+for the purposes  of  creating  libraries  for its
 Arm Cortex-M and  Arm9 32-bit microcontrollers, commercialized and distributed by Nuvoton Technology Corporation
-under  the terms and conditions  of  an  End  User  
+under  the terms and conditions  of  an  End  User
 License  Agreement  supplied  with  the libraries.
 Full source code is available at: www.segger.com
 
@@ -98,47 +98,51 @@ Purpose     : Display controller configuration (single layer)
 *
 *       _Read1
 */
-U8 _Read1(void) {
-    #if 1
+U8 _Read1(void)
+{
+#if 1
     /* FIXME if panel supports read back feature */
     return 0;
-    #else
-	LCM_DC_SET;
+#else
+    LCM_DC_SET;
     SPI_CS_CLR;
-	SPI_WRITE_TX(SPI_LCD_PORT, 0x00);
-	SPI_READ_RX(SPI_LCD_PORT);
-	SPI_CS_SET;
-	return (SPI_READ_RX(SPI_LCD_PORT));
-    #endif
+    SPI_WRITE_TX(SPI_LCD_PORT, 0x00);
+    SPI_READ_RX(SPI_LCD_PORT);
+    SPI_CS_SET;
+    return (SPI_READ_RX(SPI_LCD_PORT));
+#endif
 }
 
 /*********************************************************************
 *
 *       _ReadM1
 */
-void _ReadM1(U8 * pData, int NumItems) {
-    #if 1
+void _ReadM1(U8 * pData, int NumItems)
+{
+#if 1
     /* FIXME if panel supports read back feature */
-    #else
-	LCM_DC_SET;
+#else
+    LCM_DC_SET;
     SPI_CS_CLR;
-	while (NumItems--) {
-  	SPI_WRITE_TX(SPI_LCD_PORT, 0x00);
-  	while(SPI_IS_BUSY(SPI_LCD_PORT));
-		*pData++ = SPI_READ_RX(SPI_LCD_PORT);
-	}
-	SPI_CS_SET;
-    #endif
+    while(NumItems--)
+    {
+        SPI_WRITE_TX(SPI_LCD_PORT, 0x00);
+        while(SPI_IS_BUSY(SPI_LCD_PORT));
+        *pData++ = SPI_READ_RX(SPI_LCD_PORT);
+    }
+    SPI_CS_SET;
+#endif
 }
 
 /*********************************************************************
 *
 *       _Write0
 */
-void _Write0(U8 Cmd) {
-	LCM_DC_CLR;
+void _Write0(U8 Cmd)
+{
+    LCM_DC_CLR;
     SPI_CS_CLR;
-    
+
     SPI_WRITE_TX(SPI_LCD_PORT, Cmd);
     while(SPI_IS_BUSY(SPI_LCD_PORT));
 
@@ -149,8 +153,9 @@ void _Write0(U8 Cmd) {
 *
 *       _Write1
 */
-void _Write1(U8 Data) {
-	LCM_DC_SET;
+void _Write1(U8 Data)
+{
+    LCM_DC_SET;
     SPI_CS_CLR;
 
     SPI_WRITE_TX(SPI_LCD_PORT, Data);
@@ -163,14 +168,17 @@ void _Write1(U8 Data) {
 *
 *       _WriteM1
 */
-void _WriteM1(U8 * pData, int NumItems) {
-	LCM_DC_SET;
+void _WriteM1(U8 * pData, int NumItems)
+{
+    LCM_DC_SET;
     SPI_CS_CLR;
-	while (NumItems--) {
+    while(NumItems--)
+    {
+        while(SPI_LCD_PORT->STATUS & SPI_STATUS_TXFULL_Msk);
         SPI_WRITE_TX(SPI_LCD_PORT, *pData++);
-        while(SPI_IS_BUSY(SPI_LCD_PORT));
-	}
-	SPI_CS_SET;
+    }
+    while(SPI_IS_BUSY(SPI_LCD_PORT));
+    SPI_CS_SET;
 }
 
 static void _Open_SPI(void)
@@ -188,7 +196,7 @@ static void _Open_SPI(void)
     CLK_SetModuleClock(SPI1_MODULE, CLK_CLKSEL2_SPI1SEL_PCLK0, 0);
 
     SPI_Open(SPI_LCD_PORT, SPI_MASTER, SPI_MODE_0, 8, 24000000);
-    
+
     /* Disable auto SS function, control SS signal manually. */
     SPI_DisableAutoSS(SPI_LCD_PORT);
     SPI_ENABLE(SPI_LCD_PORT);
@@ -201,10 +209,11 @@ static void _Open_SPI(void)
 * Purpose:
 *   Initializes the display controller
 */
-void _InitController(void) {
+void _InitController(void)
+{
     static uint8_t s_InitOnce = 0;
 
-    if (s_InitOnce == 0)
+    if(s_InitOnce == 0)
         s_InitOnce = 1;
     else
         return;
@@ -212,9 +221,9 @@ void _InitController(void) {
     _Open_SPI();
 
     /* Configure DC/RESET/LED pins */
-    GPIO_LCM_DC =0;
-    GPIO_LCM_RESET=0;
-    ILI9341_LED=0;
+    GPIO_LCM_DC = 0;
+    GPIO_LCM_RESET = 0;
+    ILI9341_LED = 0;
 
     /* Configure LCD */
     GPIO_LCM_DC = 1;
@@ -227,106 +236,106 @@ void _InitController(void) {
 
     //************* Start Initial Sequence **********//
 
-    _Write0(0xCF);  
-    _Write1(0x00); 
-    _Write1(0xD9); 
-    _Write1(0X30); 
+    _Write0(0xCF);
+    _Write1(0x00);
+    _Write1(0xD9);
+    _Write1(0X30);
 
-    _Write0(0xED);  
-    _Write1(0x64); 
-    _Write1(0x03); 
-    _Write1(0X12); 
-    _Write1(0X81); 
+    _Write0(0xED);
+    _Write1(0x64);
+    _Write1(0x03);
+    _Write1(0X12);
+    _Write1(0X81);
 
-    _Write0(0xE8);  
-    _Write1(0x85); 
-    _Write1(0x10); 
-    _Write1(0x78); 
+    _Write0(0xE8);
+    _Write1(0x85);
+    _Write1(0x10);
+    _Write1(0x78);
 
-    _Write0(0xCB);  
-    _Write1(0x39); 
-    _Write1(0x2C); 
-    _Write1(0x00); 
-    _Write1(0x34); 
-    _Write1(0x02); 
+    _Write0(0xCB);
+    _Write1(0x39);
+    _Write1(0x2C);
+    _Write1(0x00);
+    _Write1(0x34);
+    _Write1(0x02);
 
-    _Write0(0xF7);  
-    _Write1(0x20); 
+    _Write0(0xF7);
+    _Write1(0x20);
 
-    _Write0(0xEA);  
-    _Write1(0x00); 
-    _Write1(0x00); 
+    _Write0(0xEA);
+    _Write1(0x00);
+    _Write1(0x00);
 
-    _Write0(0xC0);    //Power control 
-    _Write1(0x21);   //VRH[5:0] 
+    _Write0(0xC0);    //Power control
+    _Write1(0x21);   //VRH[5:0]
 
-    _Write0(0xC1);    //Power control 
-    _Write1(0x12);   //SAP[2:0];BT[3:0] 
+    _Write0(0xC1);    //Power control
+    _Write1(0x12);   //SAP[2:0];BT[3:0]
 
-    _Write0(0xC5);    //VCM control 
-    _Write1(0x32); 
-    _Write1(0x3C); 
+    _Write0(0xC5);    //VCM control
+    _Write1(0x32);
+    _Write1(0x3C);
 
-    _Write0(0xC7);    //VCM control2 
-    _Write1(0XC1); 
+    _Write0(0xC7);    //VCM control2
+    _Write1(0XC1);
 
-    _Write0(0x36);    // Memory Access Control 
-    _Write1(0xe8); 
+    _Write0(0x36);    // Memory Access Control
+    _Write1(0xe8);
 
-    _Write0(0x3A);   
-    _Write1(0x55); 
+    _Write0(0x3A);
+    _Write1(0x55);
 
-    _Write0(0xB1);   
-    _Write1(0x00);   
-    _Write1(0x18); 
+    _Write0(0xB1);
+    _Write1(0x00);
+    _Write1(0x18);
 
-    _Write0(0xB6);    // Display Function Control 
-    _Write1(0x0A); 
-    _Write1(0xA2); 
+    _Write0(0xB6);    // Display Function Control
+    _Write1(0x0A);
+    _Write1(0xA2);
 
-    _Write0(0xF2);    // 3Gamma Function Disable 
-    _Write1(0x00); 
+    _Write0(0xF2);    // 3Gamma Function Disable
+    _Write1(0x00);
 
-    _Write0(0x26);    //Gamma curve selected 
-    _Write1(0x01); 
+    _Write0(0x26);    //Gamma curve selected
+    _Write1(0x01);
 
-    _Write0(0xE0);    //Set Gamma 
-    _Write1(0x0F); 
-    _Write1(0x20); 
-    _Write1(0x1E); 
-    _Write1(0x09); 
-    _Write1(0x12); 
-    _Write1(0x0B); 
-    _Write1(0x50); 
-    _Write1(0XBA); 
-    _Write1(0x44); 
-    _Write1(0x09); 
-    _Write1(0x14); 
-    _Write1(0x05); 
-    _Write1(0x23); 
-    _Write1(0x21); 
-    _Write1(0x00); 
+    _Write0(0xE0);    //Set Gamma
+    _Write1(0x0F);
+    _Write1(0x20);
+    _Write1(0x1E);
+    _Write1(0x09);
+    _Write1(0x12);
+    _Write1(0x0B);
+    _Write1(0x50);
+    _Write1(0XBA);
+    _Write1(0x44);
+    _Write1(0x09);
+    _Write1(0x14);
+    _Write1(0x05);
+    _Write1(0x23);
+    _Write1(0x21);
+    _Write1(0x00);
 
-    _Write0(0XE1);    //Set Gamma 
-    _Write1(0x00); 
-    _Write1(0x19); 
-    _Write1(0x19); 
-    _Write1(0x00); 
-    _Write1(0x12); 
-    _Write1(0x07); 
-    _Write1(0x2D); 
-    _Write1(0x28); 
-    _Write1(0x3F); 
-    _Write1(0x02); 
-    _Write1(0x0A); 
-    _Write1(0x08); 
-    _Write1(0x25); 
-    _Write1(0x2D); 
-    _Write1(0x0F); 
+    _Write0(0XE1);    //Set Gamma
+    _Write1(0x00);
+    _Write1(0x19);
+    _Write1(0x19);
+    _Write1(0x00);
+    _Write1(0x12);
+    _Write1(0x07);
+    _Write1(0x2D);
+    _Write1(0x28);
+    _Write1(0x3F);
+    _Write1(0x02);
+    _Write1(0x0A);
+    _Write1(0x08);
+    _Write1(0x25);
+    _Write1(0x2D);
+    _Write1(0x0F);
 
-    _Write0(0x11);    //Exit Sleep 
-    GUI_X_Delay(120); 
-    _Write0(0x29);    //Display on 
+    _Write0(0x11);    //Exit Sleep
+    GUI_X_Delay(120);
+    _Write0(0x29);    //Display on
 
     ILI9341_LED = 1;
 }
