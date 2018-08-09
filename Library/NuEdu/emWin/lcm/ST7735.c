@@ -17,9 +17,9 @@ only be used in accordance with the following terms:
 
 The  software has  been licensed by SEGGER Software GmbH to Nuvoton Technology Corporation
 at the address: No. 4, Creation Rd. III, Hsinchu Science Park, Taiwan
-for the purposes  of  creating  libraries  for its 
+for the purposes  of  creating  libraries  for its
 Arm Cortex-M and  Arm9 32-bit microcontrollers, commercialized and distributed by Nuvoton Technology Corporation
-under  the terms and conditions  of  an  End  User  
+under  the terms and conditions  of  an  End  User
 License  Agreement  supplied  with  the libraries.
 Full source code is available at: www.segger.com
 
@@ -96,79 +96,78 @@ Purpose     : Display controller configuration (single layer)
 *
 *       _Read1
 */
-U8 _Read1(void) {
-    #if 1
+U8 _Read1(void)
+{
+#if 1
     /* FIXME if panel supports read back feature */
     return 0;
-    #else
-	LCM_DC_SET;
+#else
+    LCM_DC_SET;
     SPI_CS_CLR;
-	SPI_WRITE_TX(SPI_LCD_PORT, 0x00);
-	SPI_READ_RX(SPI_LCD_PORT);
-	SPI_CS_SET;
-	return (SPI_READ_RX(SPI_LCD_PORT));
-    #endif
+    SPI_WRITE_TX(SPI_LCD_PORT, 0x00);
+    SPI_READ_RX(SPI_LCD_PORT);
+    SPI_CS_SET;
+    return (SPI_READ_RX(SPI_LCD_PORT));
+#endif
 }
 
 /*********************************************************************
 *
 *       _ReadM1
 */
-void _ReadM1(U8 * pData, int NumItems) {
-    #if 1
+void _ReadM1(U8 * pData, int NumItems)
+{
+#if 1
     /* FIXME if panel supports read back feature */
-    #else
-	LCM_DC_SET;
+#else
+    LCM_DC_SET;
     SPI_CS_CLR;
-	while (NumItems--) {
-  	SPI_WRITE_TX(SPI_LCD_PORT, 0x00);
-  	while(SPI_IS_BUSY(SPI_LCD_PORT));
-		*pData++ = SPI_READ_RX(SPI_LCD_PORT);
-	}
-	SPI_CS_SET;
-    #endif
+    while(NumItems--)
+    {
+        SPI_WRITE_TX(SPI_LCD_PORT, 0x00);
+        while(SPI_IS_BUSY(SPI_LCD_PORT));
+        *pData++ = SPI_READ_RX(SPI_LCD_PORT);
+    }
+    SPI_CS_SET;
+#endif
 }
 
 /*********************************************************************
 *
 *       _Write0
 */
-void _Write0(U8 Cmd) {
-	LCM_DC_CLR;
-    SPI_CS_CLR;
+void _Write0(U8 Cmd)
+{
+    LCM_DC_CLR;
     
     SPI_WRITE_TX(SPI_LCD_PORT, Cmd);
     while(SPI_IS_BUSY(SPI_LCD_PORT));
-
-    SPI_CS_SET;
 }
 
 /*********************************************************************
 *
 *       _Write1
 */
-void _Write1(U8 Data) {
-	LCM_DC_SET;
-    SPI_CS_CLR;
-
+void _Write1(U8 Data)
+{
+    LCM_DC_SET;
+    
     SPI_WRITE_TX(SPI_LCD_PORT, Data);
-
     while(SPI_IS_BUSY(SPI_LCD_PORT));
-    SPI_CS_SET;
 }
 
 /*********************************************************************
 *
 *       _WriteM1
 */
-void _WriteM1(U8 * pData, int NumItems) {
-	LCM_DC_SET;
-    SPI_CS_CLR;
-	while (NumItems--) {
+void _WriteM1(U8 * pData, int NumItems)
+{
+    LCM_DC_SET;
+    while(NumItems--)
+    {
+        while(SPI_LCD_PORT->STATUS & SPI_STATUS_TXFULL_Msk);
         SPI_WRITE_TX(SPI_LCD_PORT, *pData++);
-        while(SPI_IS_BUSY(SPI_LCD_PORT));
-	}
-	SPI_CS_SET;
+    }
 }
 
 void _Open_SPI(void)
@@ -177,17 +176,21 @@ void _Open_SPI(void)
     GPIO_SetMode(GPIOPORT_LCM_RESET, PINMASK_LCM_RESET, GPIO_MODE_OUTPUT);
     GPIO_SetMode(GPIOPORT_SPI1_SS, PINMASK_SPI1_SS, GPIO_MODE_OUTPUT); //cs pin for gpiod
 
-    SYS->GPD_MFPH &= ~(SYS_GPD_MFPH_PD13MFP_Msk | SYS_GPD_MFPH_PD14MFP_Msk | SYS_GPD_MFPH_PD15MFP_Msk);
-    SYS->GPD_MFPH |= (SYS_GPD_MFPH_PD13MFP_SPI1_MOSI | SYS_GPD_MFPH_PD15MFP_SPI1_CLK | SYS_GPD_MFPH_PD14MFP_SPI1_MISO);
+    SYS->GPD_MFPH &= ~(SYS_GPD_MFPH_PD12MFP_Msk | SYS_GPD_MFPH_PD13MFP_Msk | SYS_GPD_MFPH_PD14MFP_Msk | SYS_GPD_MFPH_PD15MFP_Msk);
+    SYS->GPD_MFPH |= (SYS_GPD_MFPH_PD12MFP_SPI1_SS | SYS_GPD_MFPH_PD13MFP_SPI1_MOSI | SYS_GPD_MFPH_PD15MFP_SPI1_CLK | SYS_GPD_MFPH_PD14MFP_SPI1_MISO);
 
+    /* PD12/13/14/15 high slew rate */
+    PD->SLEWCTL = 0xf << 12;
+    
+    
     /* Enable SPI1 */
     CLK_EnableModuleClock(SPI1_MODULE);
-    CLK_SetModuleClock(SPI1_MODULE, CLK_CLKSEL2_SPI1SEL_PCLK0, 0);
+    CLK_SetModuleClock(SPI1_MODULE, CLK_CLKSEL2_SPI1SEL_PLL, 0);
 
-    SPI_Open(SPI_LCD_PORT, SPI_MASTER, SPI_MODE_0, 8, 24000000);
-    
+    SPI_Open(SPI_LCD_PORT, SPI_MASTER, SPI_MODE_0, 8, 36000000);
+
     /* Disable auto SS function, control SS signal manually. */
-    SPI_DisableAutoSS(SPI_LCD_PORT);
+    SPI_EnableAutoSS(SPI_LCD_PORT, SPI_SS, SPI_SS_ACTIVE_LOW);
     SPI_ENABLE(SPI_LCD_PORT);
 }
 
@@ -198,16 +201,17 @@ void _Open_SPI(void)
 * Purpose:
 *   Initializes the display controller
 */
-void _InitController(void) {
+void _InitController(void)
+{
     int i;
     static uint8_t s_InitOnce = 0;
 
-    if (s_InitOnce == 0)
+    if(s_InitOnce == 0)
         s_InitOnce = 1;
     else
         return;
 
-	_Open_SPI();
+    _Open_SPI();
 
     LCM_RESET_SET;
     LCM_RESET_CLR;
@@ -308,15 +312,15 @@ void _InitController(void) {
 
     _Write0(0x2a);
     _Write1(0x02);
-    _Write1(0x00+2);
+    _Write1(0x00 + 2);
     _Write1(0x02);
-    _Write1(0x7F+2);
+    _Write1(0x7F + 2);
 
     _Write0(0x2b);
     _Write1(0x01);
-    _Write1(0x00+1);
+    _Write1(0x00 + 1);
     _Write1(0x01);
-    _Write1(0x9F+1);
+    _Write1(0x9F + 1);
 
     _Write0(0xF0); //Enable test command
     _Write1(0x01);
@@ -327,9 +331,9 @@ void _InitController(void) {
     _Write1(0x05);
 
     _Write0(0x2c);
-    for(i=0; i<0x5000; i++)
+    for(i = 0; i < 0x5000; i++)
     {
-        _Write1(0x00>>8);
+        _Write1(0x00 >> 8);
         _Write1(0x00);
     }
 

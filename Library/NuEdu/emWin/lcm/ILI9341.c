@@ -141,12 +141,10 @@ void _ReadM1(U8 * pData, int NumItems)
 void _Write0(U8 Cmd)
 {
     LCM_DC_CLR;
-    SPI_CS_CLR;
 
+    while(SPI_LCD_PORT->STATUS & SPI_STATUS_TXFULL_Msk);
     SPI_WRITE_TX(SPI_LCD_PORT, Cmd);
-    while(SPI_IS_BUSY(SPI_LCD_PORT));
-
-    SPI_CS_SET;
+    while((SPI_LCD_PORT->STATUS & SPI_STATUS_TXEMPTY_Msk) == 0);
 }
 
 /*********************************************************************
@@ -156,12 +154,10 @@ void _Write0(U8 Cmd)
 void _Write1(U8 Data)
 {
     LCM_DC_SET;
-    SPI_CS_CLR;
-
+    
+    while(SPI_LCD_PORT->STATUS & SPI_STATUS_TXFULL_Msk);
     SPI_WRITE_TX(SPI_LCD_PORT, Data);
-
-    while(SPI_IS_BUSY(SPI_LCD_PORT));
-    SPI_CS_SET;
+    while((SPI_LCD_PORT->STATUS & SPI_STATUS_TXEMPTY_Msk) == 0);
 }
 
 /*********************************************************************
@@ -171,14 +167,11 @@ void _Write1(U8 Data)
 void _WriteM1(U8 * pData, int NumItems)
 {
     LCM_DC_SET;
-    SPI_CS_CLR;
     while(NumItems--)
     {
         while(SPI_LCD_PORT->STATUS & SPI_STATUS_TXFULL_Msk);
         SPI_WRITE_TX(SPI_LCD_PORT, *pData++);
     }
-    while(SPI_IS_BUSY(SPI_LCD_PORT));
-    SPI_CS_SET;
 }
 
 static void _Open_SPI(void)
@@ -188,17 +181,20 @@ static void _Open_SPI(void)
     GPIO_SetMode(PC, BIT14, GPIO_MODE_OUTPUT);
     GPIO_SetMode(GPIOPORT_SPI1_SS, PINMASK_SPI1_SS, GPIO_MODE_OUTPUT); //cs pin for gpiod
 
-    SYS->GPD_MFPH &= ~(SYS_GPD_MFPH_PD13MFP_Msk | SYS_GPD_MFPH_PD14MFP_Msk | SYS_GPD_MFPH_PD15MFP_Msk);
-    SYS->GPD_MFPH |= (SYS_GPD_MFPH_PD13MFP_SPI1_MOSI | SYS_GPD_MFPH_PD15MFP_SPI1_CLK | SYS_GPD_MFPH_PD14MFP_SPI1_MISO);
-
+    SYS->GPD_MFPH &= ~(SYS_GPD_MFPH_PD12MFP_Msk | SYS_GPD_MFPH_PD13MFP_Msk | SYS_GPD_MFPH_PD14MFP_Msk | SYS_GPD_MFPH_PD15MFP_Msk);
+    SYS->GPD_MFPH |= (SYS_GPD_MFPH_PD12MFP_SPI1_SS | SYS_GPD_MFPH_PD13MFP_SPI1_MOSI | SYS_GPD_MFPH_PD15MFP_SPI1_CLK | SYS_GPD_MFPH_PD14MFP_SPI1_MISO);
+    
+    /* PD12/13/14/15 high slew rate */
+    PD->SLEWCTL = 0xf << 12;
+    
     /* Enable SPI1 */
     CLK_EnableModuleClock(SPI1_MODULE);
-    CLK_SetModuleClock(SPI1_MODULE, CLK_CLKSEL2_SPI1SEL_PCLK0, 0);
+    CLK_SetModuleClock(SPI1_MODULE, CLK_CLKSEL2_SPI1SEL_PLL, 0);
 
-    SPI_Open(SPI_LCD_PORT, SPI_MASTER, SPI_MODE_0, 8, 24000000);
+    SPI_Open(SPI_LCD_PORT, SPI_MASTER, SPI_MODE_0, 8, 36000000);
 
     /* Disable auto SS function, control SS signal manually. */
-    SPI_DisableAutoSS(SPI_LCD_PORT);
+    SPI_EnableAutoSS(SPI_LCD_PORT, SPI_SS, SPI_SS_ACTIVE_LOW);
     SPI_ENABLE(SPI_LCD_PORT);
 }
 
