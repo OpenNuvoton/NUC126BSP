@@ -550,9 +550,9 @@
               <FilePath>..\..\..\..\Library\NuEdu\emWin\tslib\font_8x8.c</FilePath>
             </File>
             <File>
-              <FileName>NUC126TouchPanel.c</FileName>
+              <FileName>TouchPanel.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\Library\NuEdu\emWin\tslib\NUC126TouchPanel.c</FilePath>
+              <FilePath>..\..\..\..\Library\NuEdu\emWin\tslib\TouchPanel.c</FilePath>
             </File>
             <File>
               <FileName>testutils.c</FileName>
@@ -1182,9 +1182,9 @@
               <FilePath>..\..\..\..\Library\NuEdu\emWin\tslib\font_8x8.c</FilePath>
             </File>
             <File>
-              <FileName>NUC126TouchPanel.c</FileName>
+              <FileName>TouchPanel.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\Library\NuEdu\emWin\tslib\NUC126TouchPanel.c</FilePath>
+              <FilePath>..\..\..\..\Library\NuEdu\emWin\tslib\TouchPanel.c</FilePath>
             </File>
             <File>
               <FileName>testutils.c</FileName>

@@ -50,7 +50,7 @@ Purpose     : Display controller configuration (single layer)
 
 #include "NUC126.h"
 
-#include "NUC126TouchPanel.h"
+#include "TouchPanel.h"
 
 #include "lcm.h"
 

@@ -22,7 +22,7 @@
 //#include "wblib.h"
 #include "tslib.h"
 #include "fbutils.h"
-#include "NUC126TouchPanel.h"
+#include "TouchPanel.h"
 #include "GUI.h"
 
 static int sort_by_x(const void* a, const void *b)

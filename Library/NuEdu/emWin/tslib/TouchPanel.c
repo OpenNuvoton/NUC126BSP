@@ -4,7 +4,7 @@
 //#include "stdlib.h"
 #include "GUI.h"
 //#include "W55FA93_adc.h"
-#include "NUC126TouchPanel.h"
+#include "TouchPanel.h"
 //#include "lcdconf.h"
 
 static volatile    uint32_t    g_u32AdcIntFlag_TP;

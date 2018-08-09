@@ -12,7 +12,7 @@
 
 #include "NUC126.h"
 
-#include "NUC126TouchPanel.h"
+#include "TouchPanel.h"
 
 #include "GUI.h"
 #include "FRAMEWIN.h"

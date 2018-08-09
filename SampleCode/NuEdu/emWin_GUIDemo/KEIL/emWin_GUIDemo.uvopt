@@ -970,8 +970,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\..\..\Library\NuEdu\emWin\tslib\NUC126TouchPanel.c</PathWithFileName>
-      <FilenameWithoutPath>NUC126TouchPanel.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\..\..\Library\NuEdu\emWin\tslib\TouchPanel.c</PathWithFileName>
+      <FilenameWithoutPath>TouchPanel.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>

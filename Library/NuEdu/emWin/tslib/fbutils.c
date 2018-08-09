@@ -24,7 +24,7 @@
 #include "fbutils.h"
 //#include "wbtypes.h"
 //#include "LCDconf.h"
-#include "NUC126TouchPanel.h"
+#include "TouchPanel.h"
 #include "GUI.h"
 #if 0
 union multiptr
