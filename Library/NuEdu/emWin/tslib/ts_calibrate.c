@@ -385,3 +385,26 @@ int ts_readfile(void)
     final_cal.a[6] = FMC_Read(__DEMO_TSFILE_ADDR__ + 0x18);
     return 0;
 }
+
+void ts_init(void)
+{
+    
+#ifdef __DEMO_160x128__
+    final_cal.a[0] = 0xFFFFFFEB;
+    final_cal.a[1] = 0x00000D1D;
+    final_cal.a[2] = 0xFFEE9924;
+    final_cal.a[3] = 0x00000BF3;
+    final_cal.a[4] = 0x00000004;
+    final_cal.a[5] = 0xFFE8E0E6;
+    final_cal.a[6] = 0x00010000;
+#else    
+    final_cal.a[0] = 0xFFFFFFDC;
+    final_cal.a[1] = 0x00001A57;
+    final_cal.a[2] = 0xFFCCFD2C;
+    final_cal.a[3] = 0x0000175E;
+    final_cal.a[4] = 0xFFFFFFED;
+    final_cal.a[5] = 0xFFD0DCCC;
+    final_cal.a[6] = 0x00010000;
+#endif
+    
+}

@@ -64,6 +64,8 @@
 */
 static const GUI_WIDGET_CREATE_INFO _aDialogCreate[7] =
 {
+    // USER START (Optionally insert additional widgets)
+#ifdef __DEMO_160x128__
     { FRAMEWIN_CreateIndirect, "Framewin", ID_FRAMEWIN_0, 0, 0, 160, 128, 0, 0x0  },
     { BUTTON_CreateIndirect, "+ 1", ID_BUTTON_0, 10, 6, 50, 20, 0, 0x0  },
     { BUTTON_CreateIndirect, "+ 10", ID_BUTTON_1, 10, 32, 50, 20, 0, 0x0 },
@@ -71,7 +73,15 @@ static const GUI_WIDGET_CREATE_INFO _aDialogCreate[7] =
     { BUTTON_CreateIndirect, "- 10", ID_BUTTON_3, 10, 84, 50, 20, 0, 0x0 },
     { EDIT_CreateIndirect, "Edit", ID_EDIT_0, 80, 26, 60, 20, 0, 0x64 },
     { TEXT_CreateIndirect, "Result :", ID_TEXT_0, 80, 2, 50, 20, 0, 0x0 },
-    // USER START (Optionally insert additional widgets)
+#else
+    { FRAMEWIN_CreateIndirect, "Framewin", ID_FRAMEWIN_0, 0, 0, 320, 240, 0, 0x0  },
+    { BUTTON_CreateIndirect, "+ 1", ID_BUTTON_0, 43, 38, 80, 20, 0, 0x0  },
+    { BUTTON_CreateIndirect, "+ 10", ID_BUTTON_1, 43, 77, 80, 20, 0, 0x0 },
+    { BUTTON_CreateIndirect, "- 1", ID_BUTTON_2, 45, 116, 80, 20, 0, 0x0 },
+    { BUTTON_CreateIndirect, "- 10", ID_BUTTON_3, 46, 158, 80, 20, 0, 0x0 },
+    { EDIT_CreateIndirect, "Edit", ID_EDIT_0, 204, 72, 80, 20, 0, 0x64 },
+    { TEXT_CreateIndirect, "Result :", ID_TEXT_0, 151, 74, 50, 20, 0, 0x0 },
+#endif
     // USER END
 };
 

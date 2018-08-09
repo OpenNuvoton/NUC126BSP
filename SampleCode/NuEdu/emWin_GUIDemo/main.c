@@ -21,6 +21,7 @@ volatile int g_enable_Touch;
 
 extern int ts_writefile(void);
 extern int ts_readfile(void);
+extern void ts_init(void);
 int ts_calibrate(int xsize, int ysize);
 void ts_test(int xsize, int ysize);
 
@@ -157,6 +158,9 @@ int main(void)
     /* Enable FMC ISP function */
     FMC_Open();
 
+#if 1 // Use default touch screen parameters
+    ts_init();
+#else // Get touch screen parameters
     /* SPI flash 192KB + 0x1C marker address */
     if (FMC_Read(__DEMO_TSFILE_ADDR__ + 0x1C) != 0x55AAA55A)
     {
@@ -171,7 +175,8 @@ int main(void)
     {
         ts_readfile();
     }
-
+#endif
+    
     /* Disable FMC ISP function */
     FMC_Close();
 
