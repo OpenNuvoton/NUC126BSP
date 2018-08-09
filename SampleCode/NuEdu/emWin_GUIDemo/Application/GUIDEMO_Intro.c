@@ -63,6 +63,13 @@ Purpose     : Introduction for emWin generic demo
 
 #define DIST_ANY_COMP      18
 
+#ifdef __DEMO_160x128__
+#else
+extern GUI_CONST_STORAGE GUI_BITMAP bmnuvoton_qrcode;
+
+volatile static char s_u8ShowNuvotonQRCodeFlag;
+#endif
+
 /*********************************************************************
 *
 *       GUIDEMO_Intro
@@ -81,17 +88,45 @@ void GUIDEMO_Intro(void)
     xCenter = xSize / 2;
     GUIDEMO_DrawBk();
     GUI_SetTextMode(GUI_TM_TRANS);
+#ifdef __DEMO_160x128__
+#else
+    //
+    // QR-Code for Nuvoton HMI www.nuvoton.com
+    //
+    if (s_u8ShowNuvotonQRCodeFlag)
+    {
+        GUI_SetBkColor(GUI_WHITE);
+        GUI_Clear();
+        GUI_DrawBitmap(&bmnuvoton_qrcode, (xSize - bmnuvoton_qrcode.XSize) >> 1, (ySize - bmnuvoton_qrcode.YSize) >> 1);
+        GUI_SetColor(GUI_RED);
+        GUI_SetFont(&GUI_FontRounded22);
+        GUI_DispStringHCenterAt("www.nuvoton.com", xCenter, 6);
+        GUIDEMO_Delay(10000);
+        GUIDEMO_DrawBk();
+    }
+    s_u8ShowNuvotonQRCodeFlag = 1;
+#endif
     //
     // emWin
     //
     GUI_SetColor(GUI_WHITE);
+#ifdef __DEMO_160x128__
     GUI_SetFont(&GUI_Font10S_ASCII);
     GUI_DispStringAt("emWin",                                                 80, (FACTOR_EMWIN * ySize)     >> SCREEN_DIV);
+#else
+    GUI_SetFont(&GUI_FontRounded22);
+    GUI_DispStringHCenterAt("emWin",                                                 xCenter, (FACTOR_EMWIN * ySize)     >> SCREEN_DIV);
+#endif
     //
     // emWin description
     //
+#ifdef __DEMO_160x128__
     GUI_SetFont(&GUI_Font10S_ASCII);
     GUI_DispStringAt("Universal graphic SW\nfor embedded applications", 80, ((FACTOR_DESC * ySize)      >> SCREEN_DIV) + 5);
+#else
+    GUI_SetFont(&GUI_FontSouvenir18);
+    GUI_DispStringHCenterAt("Universal graphic software\nfor embedded applications", xCenter, (FACTOR_DESC * ySize)      >> SCREEN_DIV);
+#endif
     //
     // Any text
     //
@@ -106,9 +141,17 @@ void GUIDEMO_Intro(void)
     // Version
     //
     GUI_SetColor(GUI_WHITE);
+#ifdef __DEMO_160x128__
     GUI_SetFont(&GUI_Font10S_ASCII);
+#else
+    GUI_SetFont(&GUI_FontSouvenir18);
+#endif
     strcat(acVersion, GUI_GetVersionString());
+#ifdef __DEMO_160x128__
     GUI_DispStringHCenterAt(acVersion,                                               xCenter, ((FACTOR_VERSION * ySize)  >> SCREEN_DIV) - 8);
+#else
+    GUI_DispStringHCenterAt(acVersion,                                               xCenter,  (FACTOR_VERSION * ySize)  >> SCREEN_DIV);
+#endif
     //
     // Logo
     //
@@ -117,9 +160,15 @@ void GUIDEMO_Intro(void)
     // www.segger.com
     //
     GUI_SetColor(GUI_WHITE);
+#ifdef __DEMO_160x128__
     GUI_SetFont(&GUI_Font10S_ASCII);
-    GUI_DispStringAt("www.segger.com", 0, (FACTOR_WWW * ySize) >> SCREEN_DIV);
+    GUI_DispStringAt("www.nuvoton.com", 0, (FACTOR_WWW * ySize) >> SCREEN_DIV);
     GUIDEMO_Delay(1000);
+#else
+    GUI_SetFont(&GUI_FontRounded22);
+    GUI_DispStringHCenterAt("www.nuvoton.com", xCenter - 4, (FACTOR_WWW * ySize) >> SCREEN_DIV);
+    GUIDEMO_Delay(5000);
+#endif
 }
 
 /*************************** End of file ****************************/

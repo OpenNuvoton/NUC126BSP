@@ -32,9 +32,9 @@ void ts_test(int xsize, int ysize);
 */
 /*********************************************************************
 *
-*       _SYS_Init
+*       SYS_Init
 */
-void _SYS_Init(void)
+void SYS_Init(void)
 {
     /* Unlock write-protected registers */
     SYS_UnlockReg();
@@ -118,7 +118,7 @@ int main(void)
     //
     // Init System, IP clock and multi-function I/O
     //
-    _SYS_Init();
+    SYS_Init();
     //
     // Init UART to 115200-8n1 for print message
     //

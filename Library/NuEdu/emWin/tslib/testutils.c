@@ -46,22 +46,22 @@ void getxy(int *x, int *y)
 again:
     do
     {
-        if ( Read_TouchPanel(&sumx, &sumy) > 0 )
+        if(Read_TouchPanel(&sumx, &sumy) > 0)
         {
-            if ( (sumx < 0) || ( sumy < 0 ) )
+            if((sumx < 0) || (sumy < 0))
                 continue;
             break;
         }
     }
-    while (1);
+    while(1);
 
     /* Now collect up to MAX_SAMPLES touches into the samp array. */
     index = 0;
     do
     {
-        if (index < MAX_SAMPLES-1)
+        if(index < MAX_SAMPLES - 1)
             index++;
-        if ( Read_TouchPanel(&sumx, &sumy) > 0)
+        if(Read_TouchPanel(&sumx, &sumy) > 0)
         {
             samp[index].x = sumx;
             samp[index].y = sumy;
@@ -69,14 +69,14 @@ again:
         }
         else
         {
-            samp[index].x = samp[index-1].x;
-            samp[index].y = samp[index-1].y;
+            samp[index].x = samp[index - 1].x;
+            samp[index].y = samp[index - 1].y;
             samp[index].pressure = 0;
         }
 
 //      printf("%d %d %d\n", samp[index].x, samp[index].y , samp[index].pressure);
     }
-    while (samp[index].pressure > 0);
+    while(samp[index].pressure > 0);
     //printf("Took %d samples...\n",index);
 
     /*
@@ -97,24 +97,24 @@ again:
      * number (index/2).  Calculate (index/2) now and we'll handle
      * the even odd stuff after we sort.
      */
-    middle = index/2;
-    if (x)
+    middle = index / 2;
+    if(x)
     {
         qsort(samp, index, sizeof(struct ts_sample), sort_by_x);
-        if (index & 1)
+        if(index & 1)
             *x = samp[middle].x;
         else
-            *x = (samp[middle-1].x + samp[middle].x) / 2;
+            *x = (samp[middle - 1].x + samp[middle].x) / 2;
     }
-    if (y)
+    if(y)
     {
         qsort(samp, index, sizeof(struct ts_sample), sort_by_y);
-        if (index & 1)
+        if(index & 1)
             *y = samp[middle].y;
         else
-            *y = (samp[middle-1].y + samp[middle].y) / 2;
+            *y = (samp[middle - 1].y + samp[middle].y) / 2;
     }
-    if ( (index <= 3) || ( *x < 0) || ( *y < 0 ) )
+    if((index <= 3) || (*x < 0) || (*y < 0))
         goto again;
 }
 
@@ -146,7 +146,7 @@ static int button_palette [6] =
     1, 5, 0
 };
 
-void button_draw (struct ts_button *button)
+void button_draw(struct ts_button *button)
 {
     int s = (button->flags & BUTTON_ACTIVE) ? 3 : 0;
 
@@ -160,32 +160,32 @@ void button_draw (struct ts_button *button)
                       button->text, button_palette [s + 2]);
 }
 
-int button_handle (struct ts_button *button, int x, int y, unsigned int p)
+int button_handle(struct ts_button *button, int x, int y, unsigned int p)
 {
     int inside = (x >= button->x) && (y >= button->y) &&
                  (x < button->x + button->w) &&
                  (y < button->y + button->h);
 
-    if (p > 0)
+    if(p > 0)
     {
-        if (inside)
+        if(inside)
         {
-            if (!(button->flags & BUTTON_ACTIVE))
+            if(!(button->flags & BUTTON_ACTIVE))
             {
                 button->flags |= BUTTON_ACTIVE;
-                button_draw (button);
+                button_draw(button);
             }
         }
-        else if (button->flags & BUTTON_ACTIVE)
+        else if(button->flags & BUTTON_ACTIVE)
         {
             button->flags &= ~BUTTON_ACTIVE;
-            button_draw (button);
+            button_draw(button);
         }
     }
-    else if (button->flags & BUTTON_ACTIVE)
+    else if(button->flags & BUTTON_ACTIVE)
     {
         button->flags &= ~BUTTON_ACTIVE;
-        button_draw (button);
+        button_draw(button);
         return 1;
     }
 
@@ -197,11 +197,11 @@ static void refresh_screen(void)
     int i;
 
     GUI_Clear();
-    put_string_center (xres/2, yres/4,   "Touchscreen test program", 1);
-    put_string_center (xres/2, yres/4+20,"Touch screen to move crosshair", 2);
+    put_string_center(xres / 2, yres / 4,   "Touchscreen test program", 1);
+    put_string_center(xres / 2, yres / 4 + 20, "Touch screen to move crosshair", 2);
 
-    for (i = 0; i < NR_BUTTONS; i++)
-        button_draw (&buttons [i]);
+    for(i = 0; i < NR_BUTTONS; i++)
+        button_draw(&buttons [i]);
 }
 
 int ts_test(int xsize, int ysize)
@@ -215,11 +215,11 @@ int ts_test(int xsize, int ysize)
     xres = xsize;
     yres = ysize;
 
-    x = xres/2;
-    y = yres/2;
+    x = xres / 2;
+    y = yres / 2;
 
-    for (i = 0; i < NR_COLORS; i++)
-        setcolor (i, palette [i]);
+    for(i = 0; i < NR_COLORS; i++)
+        setcolor(i, palette [i]);
 
     /* Initialize buttons */
     //memset (&buttons, 0, sizeof (buttons));
@@ -233,17 +233,17 @@ int ts_test(int xsize, int ysize)
     buttons [1].text = "Draw";
     buttons [2].text = "Quit";
 
-    refresh_screen ();
+    refresh_screen();
 
-    while (1)
+    while(1)
     {
         struct ts_sample samp;
 
         /* Show the cross */
-        if ((mode & 15) != 1)
+        if((mode & 15) != 1)
             put_cross(x, y, 2 | XORMODE);
 
-        if ( Read_TouchPanel(&sumx, &sumy) > 0)
+        if(Read_TouchPanel(&sumx, &sumy) > 0)
         {
             ts_phy2log(&sumx, &sumy);
             samp.x = sumx;
@@ -259,29 +259,29 @@ int ts_test(int xsize, int ysize)
         GUI_Delay(30);
 
         /* Hide it */
-        if ((mode & 15) != 1)
+        if((mode & 15) != 1)
             put_cross(x, y, 2 | XORMODE);
 
-        for (i = 0; i < NR_BUTTONS; i++)
-            if (button_handle(&buttons [i], samp.x, samp.y, samp.pressure))
-                switch (i)
+        for(i = 0; i < NR_BUTTONS; i++)
+            if(button_handle(&buttons [i], samp.x, samp.y, samp.pressure))
+                switch(i)
                 {
-                case 0:
-                    mode = 0;
-                    refresh_screen ();
-                    break;
-                case 1:
-                    mode = 1;
-                    refresh_screen ();
-                    break;
-                case 2:
-                    quit_pressed = 1;
+                    case 0:
+                        mode = 0;
+                        refresh_screen();
+                        break;
+                    case 1:
+                        mode = 1;
+                        refresh_screen();
+                        break;
+                    case 2:
+                        quit_pressed = 1;
                 }
 
-        if (samp.pressure > 0)
+        if(samp.pressure > 0)
         {
-            if (mode == 0x80000001)
-                line (x, y, samp.x, samp.y, 2);
+            if(mode == 0x80000001)
+                line(x, y, samp.x, samp.y, 2);
             //pixel(x, y, 2);
             x = samp.x;
             y = samp.y;
@@ -289,7 +289,7 @@ int ts_test(int xsize, int ysize)
         }
         else
             mode &= ~0x80000000;
-        if (quit_pressed)
+        if(quit_pressed)
             break;
     }
     GUI_Clear();

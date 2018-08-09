@@ -32,9 +32,9 @@ int Init_TouchPanel(void)
 static void _BubbleSort(uint16_t arr[], int len)
 {
     int i, j, temp;
-    for (i = 0; i < len - 1; ++i)
-        for (j = 0; j < len - 1 - i; ++j)
-            if (arr[j] > arr[j + 1])
+    for(i = 0; i < len - 1; ++i)
+        for(j = 0; j < len - 1 - i; ++j)
+            if(arr[j] > arr[j + 1])
             {
                 temp = arr[j];
                 arr[j] = arr[j + 1];
@@ -90,7 +90,7 @@ static uint16_t _Api_Get_TP_X(void)
     x_adc_in = ADC_GET_CONVERSION_DATA(ADC, 6);
 
     ADC_Close(ADC);
-    #if 0
+#if 0
     //Normalization
     if(x_adc_in <= ReportThreshold)
     {
@@ -118,11 +118,11 @@ static uint16_t _Api_Get_TP_X(void)
             }
         }
         x_adc_in -= nXBorderMin;
-        nNormalizationFactor = (nXBorderMax-nXBorderMin)*1000/ LCD_Resolution_X;
+        nNormalizationFactor = (nXBorderMax - nXBorderMin) * 1000 / LCD_Resolution_X;
         x_adc_in *= 1000;
         x_adc_in /= nNormalizationFactor;
     }
-    #endif
+#endif
     return x_adc_in;
 }
 
@@ -177,7 +177,7 @@ static uint16_t _Api_Get_TP_Y(void)
     while(g_u32AdcIntFlag_TP == 0);
     y_adc_in = ADC_GET_CONVERSION_DATA(ADC, 9);
     ADC_Close(ADC);
-    #if 0
+#if 0
     /*=== Calculate the Y ===*/
     if(y_adc_in <= ReportThreshold)
     {
@@ -205,11 +205,11 @@ static uint16_t _Api_Get_TP_Y(void)
             }
         }
         y_adc_in -= nYBorderMin;
-        nNormalizationFactor = (nYBorderMax-nYBorderMin)*1000 / LCD_Resolution_Y;
+        nNormalizationFactor = (nYBorderMax - nYBorderMin) * 1000 / LCD_Resolution_Y;
         y_adc_in *= 1000;
         y_adc_in /= nNormalizationFactor;
     }
-    #endif
+#endif
     return y_adc_in;
 }
 
@@ -217,7 +217,7 @@ int Read_TouchPanel(int *x, int *y)
 {
     *x = _Api_Get_TP_X();
     *y = _Api_Get_TP_Y();
-    if ( ((*x & 0x0F00) == 0x0F00) || ((*y & 0x0F00) == 0x0F00) )
+    if(((*x & 0x0F00) == 0x0F00) || ((*y & 0x0F00) == 0x0F00))
         return 0;
     else
         return 1;

@@ -3,7 +3,7 @@
  * Copyright (c) Nuvoton Technology Corp. All rights reserved. *
  *                                                              *
  ****************************************************************/
- 
+
 #ifndef __LCM_H__
 #define __LCM_H__
 

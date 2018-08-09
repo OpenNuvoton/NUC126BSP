@@ -454,12 +454,21 @@ static void _IntroduceDemo(const char * pTitle, const char * pDescription)
     // Title
     //
     GUI_SetTextMode(GUI_TM_TRANS);
+#ifdef __DEMO_160x128__
     GUI_SetFont(&GUI_Font10S_ASCII);
     GUI_DispStringHCenterAt(pTitle, xCenter, 60 - 10);
+#else
+    GUI_SetFont(&GUI_FontRounded22);
+    GUI_DispStringHCenterAt(pTitle, xCenter, 60);
+#endif
     //
     // Description
     //
+#ifdef __DEMO_160x128__
     GUI_SetFont(&GUI_Font10S_ASCII);
+#else
+    GUI_SetFont(&GUI_FontSouvenir18);
+#endif
     FontDistY = GUI_GetFontDistY();
     GUI_DispStringHCenterAt(pDescription, xCenter, yCenter - FontDistY + 10);
     //

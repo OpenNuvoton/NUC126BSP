@@ -218,7 +218,11 @@ void GUIDEMO_Speed(void)
     GUIDEMO_DrawBk();
     GUI_SetColor(GUI_WHITE);
     GUI_SetTextMode(GUI_TM_TRANS);
+#ifdef __DEMO_160x128__
     GUI_SetFont(&GUI_Font10S_ASCII);
+#else
+    GUI_SetFont(&GUI_FontRounded22);
+#endif
     GUI_DispStringHCenterAt(acText, xSize / 2, (ySize - GUI_GetFontSizeY()) / 2);
     GUIDEMO_ConfigureDemo(NULL, NULL, GUIDEMO_SHOW_CURSOR | GUIDEMO_SHOW_CONTROL);
     GUIDEMO_Delay(4000);

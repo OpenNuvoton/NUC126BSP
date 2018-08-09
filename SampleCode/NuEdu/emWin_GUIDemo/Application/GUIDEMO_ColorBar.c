@@ -83,7 +83,11 @@ void GUIDEMO_ColorBar(void)
 
     xSize    = LCD_GetXSize();
     ySize    = LCD_GetYSize();
+#ifdef __DEMO_160x128__
     ScreenX0 = 30;
+#else
+    ScreenX0 = 60;
+#endif
     ScreenY0 = 60;
     yStep    = (ySize - ScreenY0  * 2) / (NUM_COLORS * 2);
     if(yStep < 10)
@@ -96,9 +100,15 @@ void GUIDEMO_ColorBar(void)
     // Heading
     //
     GUI_SetColor(GUI_WHITE);
+#ifdef __DEMO_160x128__
     GUI_SetFont(&GUI_Font10S_ASCII);
     GUI_DispStringAt("Color bars", 80, 12);
     GUI_SetFont(&GUI_Font10S_ASCII);
+#else
+    GUI_SetFont(&GUI_FontRounded22);
+    GUI_DispStringHCenterAt("Color bars", xSize / 2, 12);
+    GUI_SetFont(&GUI_FontSouvenir18);
+#endif
     //
     // Colors
     //
@@ -106,11 +116,15 @@ void GUIDEMO_ColorBar(void)
     GUI_DispStringAt("Red",     1, FontY0);
     GUI_DispStringAt("Green",   1, FontY0 + yStep *  2);
     GUI_DispStringAt("Blue",    1, FontY0 + yStep *  4);
-//    GUI_DispStringAt("Grey",    1, FontY0 + yStep *  6);
-//    GUI_DispStringAt("Yellow",  1, FontY0 + yStep *  8);
-//    GUI_DispStringAt("Cyan",    1, FontY0 + yStep * 10);
-//    GUI_DispStringAt("Magenta", 1, FontY0 + yStep * 12);
+#ifdef __DEMO_160x128__
     GUI_SetFont(&GUI_Font10S_ASCII);
+#else
+    GUI_DispStringAt("Grey",    1, FontY0 + yStep *  6);
+    GUI_DispStringAt("Yellow",  1, FontY0 + yStep *  8);
+    GUI_DispStringAt("Cyan",    1, FontY0 + yStep * 10);
+    GUI_DispStringAt("Magenta", 1, FontY0 + yStep * 12);
+    GUI_SetFont(&GUI_Font8_ASCII);
+#endif
     //
     // LCD Controller
     //
@@ -133,7 +147,11 @@ void GUIDEMO_ColorBar(void)
         GUIDEMO_AddIntToString(acText, NumColors);
         GUIDEMO_AddStringToString(acText, " colors");
     }
+#ifdef __DEMO_160x128__
     GUI_DispStringAt(acText, 12, ySize - 14);
+#else
+    GUI_DispStringAt(acText, 12, ySize - 25);
+#endif
     //
     // Gradients
     //
@@ -157,14 +175,17 @@ void GUIDEMO_ColorBar(void)
         GUI_DrawGradientH(ScreenX0, ScreenY0 + yStep *  3, xSize - ScreenX0, (ScreenY0 + yStep *  4) - 1, GUI_GREEN,   ColorStartWhite);
         GUI_DrawGradientH(ScreenX0, ScreenY0 + yStep *  4, xSize - ScreenX0, (ScreenY0 + yStep *  5) - 1, GUI_BLUE,    ColorStartBlack);
         GUI_DrawGradientH(ScreenX0, ScreenY0 + yStep *  5, xSize - ScreenX0, (ScreenY0 + yStep *  6) - 1, GUI_BLUE,    ColorStartWhite);
-//        GUI_DrawGradientH(ScreenX0, ScreenY0 + yStep *  6, xSize - ScreenX0, (ScreenY0 + yStep *  7) - 1, GUI_GRAY,    ColorStartBlack);
-//        GUI_DrawGradientH(ScreenX0, ScreenY0 + yStep *  7, xSize - ScreenX0, (ScreenY0 + yStep *  8) - 1, GUI_GRAY,    ColorStartWhite);
-//        GUI_DrawGradientH(ScreenX0, ScreenY0 + yStep *  8, xSize - ScreenX0, (ScreenY0 + yStep *  9) - 1, GUI_YELLOW,  ColorStartBlack);
-//        GUI_DrawGradientH(ScreenX0, ScreenY0 + yStep *  9, xSize - ScreenX0, (ScreenY0 + yStep * 10) - 1, GUI_YELLOW,  ColorStartWhite);
-//        GUI_DrawGradientH(ScreenX0, ScreenY0 + yStep * 10, xSize - ScreenX0, (ScreenY0 + yStep * 11) - 1, GUI_CYAN,    ColorStartBlack);
-//        GUI_DrawGradientH(ScreenX0, ScreenY0 + yStep * 11, xSize - ScreenX0, (ScreenY0 + yStep * 12) - 1, GUI_CYAN,    ColorStartWhite);
-//        GUI_DrawGradientH(ScreenX0, ScreenY0 + yStep * 12, xSize - ScreenX0, (ScreenY0 + yStep * 13) - 1, GUI_MAGENTA, ColorStartBlack);
-//        GUI_DrawGradientH(ScreenX0, ScreenY0 + yStep * 13, xSize - ScreenX0, (ScreenY0 + yStep * 14) - 1, GUI_MAGENTA, ColorStartWhite);
+#ifdef __DEMO_160x128__
+#else
+        GUI_DrawGradientH(ScreenX0, ScreenY0 + yStep *  6, xSize - ScreenX0, (ScreenY0 + yStep *  7) - 1, GUI_GRAY,    ColorStartBlack);
+        GUI_DrawGradientH(ScreenX0, ScreenY0 + yStep *  7, xSize - ScreenX0, (ScreenY0 + yStep *  8) - 1, GUI_GRAY,    ColorStartWhite);
+        GUI_DrawGradientH(ScreenX0, ScreenY0 + yStep *  8, xSize - ScreenX0, (ScreenY0 + yStep *  9) - 1, GUI_YELLOW,  ColorStartBlack);
+        GUI_DrawGradientH(ScreenX0, ScreenY0 + yStep *  9, xSize - ScreenX0, (ScreenY0 + yStep * 10) - 1, GUI_YELLOW,  ColorStartWhite);
+        GUI_DrawGradientH(ScreenX0, ScreenY0 + yStep * 10, xSize - ScreenX0, (ScreenY0 + yStep * 11) - 1, GUI_CYAN,    ColorStartBlack);
+        GUI_DrawGradientH(ScreenX0, ScreenY0 + yStep * 11, xSize - ScreenX0, (ScreenY0 + yStep * 12) - 1, GUI_CYAN,    ColorStartWhite);
+        GUI_DrawGradientH(ScreenX0, ScreenY0 + yStep * 12, xSize - ScreenX0, (ScreenY0 + yStep * 13) - 1, GUI_MAGENTA, ColorStartBlack);
+        GUI_DrawGradientH(ScreenX0, ScreenY0 + yStep * 13, xSize - ScreenX0, (ScreenY0 + yStep * 14) - 1, GUI_MAGENTA, ColorStartWhite);
+#endif
     }
 }
 

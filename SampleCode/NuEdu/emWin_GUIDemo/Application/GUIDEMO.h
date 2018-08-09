@@ -89,12 +89,18 @@ extern "C" {     /* Make sure we have C-declarations in C++ programs */
 #define GUI_ID_NEXT       (GUI_ID_USER + 1)
 #define BK_COLOR_0        GUI_MAKE_COLOR(0xFF5555)
 #define BK_COLOR_1        GUI_MAKE_COLOR(0x880000)
-//#define NUMBYTES_NEEDED   0x200000UL
+#define NUMBYTES_NEEDED   0x200000UL
 #define CIRCLE_RADIUS     100
 #define LOGO_DIST_BORDER  5
+#ifdef __DEMO_160x128__
 #define CHAR_READING_TIME 10
 #define XSIZE_MIN         160
 #define YSIZE_MIN         128
+#else
+#define CHAR_READING_TIME 80
+#define XSIZE_MIN         320
+#define YSIZE_MIN         240
+#endif
 
 //
 // Use an or-combination of the following flags to configure the

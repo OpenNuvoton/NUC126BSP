@@ -59,10 +59,13 @@ void MainTask(void)
 #if GUI_WINSUPPORT
     WM_MULTIBUF_Enable(1);
 #endif
-    
     GUI_SetBkColor(GUI_WHITE);
     GUI_Clear();
+#ifdef __DEMO_160x128__
     GUI_DrawBitmap(&bmnuvoton_logo, 1, 55);
+#else
+    GUI_DrawBitmap(&bmnuvoton_logo, (320 - bmnuvoton_logo.XSize) >> 1, (240 - bmnuvoton_logo.YSize) >> 1);
+#endif
     GUI_Delay(3000);
     
     GUIDEMO_Main();
