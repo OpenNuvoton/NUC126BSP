@@ -11239,8 +11239,6 @@ typedef struct
      * |[18]    |VDETIEN   |Voltage Detector Interrupt Enable Bit
      * |        |          |0 = VDET interrupt Disabled.
      * |        |          |1 = VDET interrupt Enabled.          
-     * |        |          |0 = EBOD interrupt Disabled.
-     * |        |          |1 = EBOD interrupt Enabled.
      * |[19]    |VDETIF    |Voltage Detector Interrupt Flag
      * |        |          |0 = VDET does not detect any voltage draft at external pin down through or up through the voltage of Bandgap.
      * |        |          |1 = When VDET detects the external pin is dropped down through the voltage of Bandgap or the external pin is raised up through the voltage of Bandgap, this bit is set to 1 and the brown-out interrupt is requested if brown-out interrupt is enabled.
