@@ -65,7 +65,6 @@ Purpose     : Introduction for emWin generic demo
 
 #ifdef __DEMO_160x128__
 #else
-extern GUI_CONST_STORAGE GUI_BITMAP bmnuvoton_qrcode;
 
 volatile static char s_u8ShowNuvotonQRCodeFlag;
 #endif
@@ -155,7 +154,10 @@ void GUIDEMO_Intro(void)
     //
     // Logo
     //
-//    GUI_DrawBitmap(&bmSeggerLogo, (xSize - bmSeggerLogo.XSize) >> 1, (FACTOR_LOGO * ySize) >> SCREEN_DIV);
+#ifdef __DEMO_160x128__
+#else
+    GUI_DrawBitmap(&bmnuvoton_logo_140x70, (xSize - bmnuvoton_logo_140x70.XSize) >> 1, (FACTOR_LOGO * ySize) >> SCREEN_DIV);
+#endif
     //
     // www.segger.com
     //

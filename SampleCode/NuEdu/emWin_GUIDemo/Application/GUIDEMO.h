@@ -118,6 +118,68 @@ extern "C" {     /* Make sure we have C-declarations in C++ programs */
 *
 **********************************************************************
 */
+#ifdef __DEMO2__
+#ifndef   SHOW_GUIDEMO_AATEXT
+#define SHOW_GUIDEMO_AATEXT            (0)
+#endif
+#ifndef   SHOW_GUIDEMO_AUTOMOTIVE
+#define SHOW_GUIDEMO_AUTOMOTIVE        (0)
+#endif
+#ifndef   SHOW_GUIDEMO_BARGRAPH
+#define SHOW_GUIDEMO_BARGRAPH          (0)
+#endif
+#ifndef   SHOW_GUIDEMO_BITMAP
+#define SHOW_GUIDEMO_BITMAP            (0)
+#endif
+#ifndef   SHOW_GUIDEMO_COLORBAR
+#define SHOW_GUIDEMO_COLORBAR          (0)
+#endif
+#ifndef   SHOW_GUIDEMO_CURSOR
+#define SHOW_GUIDEMO_CURSOR            (0)
+#endif
+#ifndef   SHOW_GUIDEMO_FADING
+#define SHOW_GUIDEMO_FADING            (0)
+#endif
+#ifndef   SHOW_GUIDEMO_GRAPH
+#define SHOW_GUIDEMO_GRAPH             (0)
+#endif
+#ifndef   SHOW_GUIDEMO_ICONVIEW
+#define SHOW_GUIDEMO_ICONVIEW          (0)
+#endif
+#ifndef   SHOW_GUIDEMO_IMAGEFLOW
+#define SHOW_GUIDEMO_IMAGEFLOW         (0)
+#endif
+#ifndef   SHOW_GUIDEMO_LISTVIEW
+#define SHOW_GUIDEMO_LISTVIEW          (0)
+#endif
+#ifndef   SHOW_GUIDEMO_RADIALMENU
+#define SHOW_GUIDEMO_RADIALMENU        (0)
+#endif
+#ifndef   SHOW_GUIDEMO_SKINNING
+#define SHOW_GUIDEMO_SKINNING          (0)
+#endif
+#ifndef   SHOW_GUIDEMO_SPEED
+#define SHOW_GUIDEMO_SPEED             (0)
+#endif
+#ifndef   SHOW_GUIDEMO_SPEEDOMETER
+#define SHOW_GUIDEMO_SPEEDOMETER       (0)
+#endif
+#ifndef   SHOW_GUIDEMO_TRANSPARENTDIALOG
+#define SHOW_GUIDEMO_TRANSPARENTDIALOG (0)
+#endif
+#ifndef   SHOW_GUIDEMO_TREEVIEW
+#define SHOW_GUIDEMO_TREEVIEW          (0)
+#endif
+#ifndef   SHOW_GUIDEMO_VSCREEN
+#define SHOW_GUIDEMO_VSCREEN           (0)
+#endif
+#ifndef   SHOW_GUIDEMO_WASHINGMACHINE
+#define SHOW_GUIDEMO_WASHINGMACHINE    (0)
+#endif
+#ifndef   SHOW_GUIDEMO_ZOOMANDROTATE
+#define SHOW_GUIDEMO_ZOOMANDROTATE     (0)
+#endif
+#else
 #ifndef   SHOW_GUIDEMO_AATEXT
 #define SHOW_GUIDEMO_AATEXT            (0)
 #endif
@@ -177,6 +239,7 @@ extern "C" {     /* Make sure we have C-declarations in C++ programs */
 #endif
 #ifndef   SHOW_GUIDEMO_ZOOMANDROTATE
 #define SHOW_GUIDEMO_ZOOMANDROTATE     (0)
+#endif
 #endif
 
 /*********************************************************************
@@ -298,7 +361,7 @@ void GUIDEMO_ZoomAndRotate(void);
 *
 **********************************************************************
 */
-extern GUI_CONST_STORAGE GUI_BITMAP bmSeggerLogo;
+//extern GUI_CONST_STORAGE GUI_BITMAP bmSeggerLogo;
 extern GUI_CONST_STORAGE GUI_BITMAP bmSeggerLogo70x35;
 extern GUI_CONST_STORAGE GUI_BITMAP bmplay;
 extern GUI_CONST_STORAGE GUI_BITMAP bmforward;
@@ -325,6 +388,12 @@ extern GUI_CONST_STORAGE GUI_BITMAP bmDolphin_12;
 extern GUI_CONST_STORAGE GUI_BITMAP bmDolphin_13;
 extern GUI_CONST_STORAGE GUI_BITMAP bmDolphin_14;
 
+#ifdef __DEMO_160x128__
+#else
+extern GUI_CONST_STORAGE GUI_BITMAP bmnuvoton_qrcode;
+extern GUI_CONST_STORAGE GUI_BITMAP bmnuvoton_logo_140x70;
+extern GUI_CONST_STORAGE GUI_BITMAP bmnuvoton_logo_70x35;
+#endif
 #if defined(__cplusplus)
 }
 #endif

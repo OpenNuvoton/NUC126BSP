@@ -9,7 +9,7 @@
 *                                                                    *
 **********************************************************************
 
-** emWin V5.46 - Graphical user interface for embedded applications **
+** emWin V5.48 - Graphical user interface for embedded applications **
 All  Intellectual Property rights in the Software belongs to  SEGGER.
 emWin is protected by  international copyright laws.  Knowledge of the
 source code may not be used to write a similar product. This file may
@@ -49,7 +49,7 @@ Purpose     : Display controller configuration (single layer)
 #include "GUIDRV_FlexColor.h"
 
 #include "NUC126.h"
-
+#ifdef __DEMO_160x128__
 #include "TouchPanel.h"
 
 #include "lcm.h"
@@ -339,3 +339,4 @@ void _InitController(void)
 
     _Write0(0x29);    //Display on
 }
+#endif

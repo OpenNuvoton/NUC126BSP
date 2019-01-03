@@ -303,7 +303,11 @@ static void _DrawBk(void)
     xSize = LCD_GetXSize();
     ySize = LCD_GetYSize();
     GUI_DrawGradientV(0, 0, xSize, ySize, BK_COLOR_0, BK_COLOR_1);
+#ifdef __DEMO_160x128__
+#else
     GUI_DrawBitmap(&bmSeggerLogo70x35, LOGO_DIST_BORDER, LOGO_DIST_BORDER);
+    GUI_DrawBitmap(&bmnuvoton_logo_70x35, LOGO_DIST_BORDER, LOGO_DIST_BORDER+bmnuvoton_logo_70x35.YSize);
+#endif
 }
 #endif
 
@@ -361,7 +365,11 @@ static void _DrawBkCircle(void)
         //
         // Putting logo into memory device avoids flickering effect
         //
+#ifdef __DEMO_160x128__
+#else
         GUI_DrawBitmap(&bmSeggerLogo70x35, LOGO_DIST_BORDER, LOGO_DIST_BORDER);
+        GUI_DrawBitmap(&bmnuvoton_logo_70x35, LOGO_DIST_BORDER, LOGO_DIST_BORDER+bmnuvoton_logo_70x35.YSize);
+#endif
         //
         // Delete helper devices
         //
@@ -381,7 +389,11 @@ static void _DrawBkSimple(void)
 {
     GUI_SetBkColor(BK_COLOR_1);
     GUI_Clear();
+#ifdef __DEMO_160x128__
+#else
     GUI_DrawBitmap(&bmSeggerLogo70x35, LOGO_DIST_BORDER, LOGO_DIST_BORDER);
+    GUI_DrawBitmap(&bmnuvoton_logo_70x35, LOGO_DIST_BORDER, LOGO_DIST_BORDER+bmnuvoton_logo_70x35.YSize);
+#endif
 }
 
 /*********************************************************************
@@ -1087,17 +1099,28 @@ void GUIDEMO_DispTitle(char * pTitle)
     GUI_SetFont(&GUI_FontRounded22);
     StringLen = GUI_GetStringDistX(pTitle);
     xSize     = LCD_GetXSize();
+#ifdef __DEMO_160x128__
+    if((xSize - StringLen) / 2 - 5 < 70 + LOGO_DIST_BORDER)
+    {
+        RectTitle.x0 = 70 + LOGO_DIST_BORDER;
+    }
+#else
     if((xSize - StringLen) / 2 - 5 < bmSeggerLogo70x35.XSize + LOGO_DIST_BORDER)
     {
         RectTitle.x0 = bmSeggerLogo70x35.XSize + LOGO_DIST_BORDER;
     }
+#endif
     else
     {
         RectTitle.x0 = 0;
     }
     RectTitle.y0 = 0;
     RectTitle.x1 = xSize - 1;
+#ifdef __DEMO_160x128__
+    RectTitle.y1 = 70 + 2 * LOGO_DIST_BORDER - 1;
+#else
     RectTitle.y1 = bmSeggerLogo70x35.YSize + 2 * LOGO_DIST_BORDER - 1;
+#endif
     GUI_SetTextMode(GUI_TM_TRANS);
     GUI_DispStringInRect(pTitle, &RectTitle, GUI_TA_HCENTER | GUI_TA_VCENTER);
 }
@@ -1165,7 +1188,11 @@ int GUIDEMO_GetTime(void)
 */
 int GUIDEMO_GetTitleSizeY(void)
 {
+#ifdef __DEMO_160x128__
+    return 35 + 2 * LOGO_DIST_BORDER;
+#else
     return bmSeggerLogo70x35.YSize + 2 * LOGO_DIST_BORDER;
+#endif
 }
 
 /*********************************************************************

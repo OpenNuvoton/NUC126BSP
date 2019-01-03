@@ -350,7 +350,7 @@
           </ArmAdsMisc>
           <Cads>
             <interw>1</interw>
-            <Optim>0</Optim>
+            <Optim>3</Optim>
             <oTime>0</oTime>
             <SplitLS>0</SplitLS>
             <OneElfS>1</OneElfS>
@@ -665,11 +665,6 @@
               <FilePath>..\..\..\..\Library\NuEdu\emWin\tslib\fbutils.c</FilePath>
             </File>
             <File>
-              <FileName>font_8x8.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\Library\NuEdu\emWin\tslib\font_8x8.c</FilePath>
-            </File>
-            <File>
               <FileName>TouchPanel.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\Library\NuEdu\emWin\tslib\TouchPanel.c</FilePath>
@@ -693,21 +688,6 @@
               <FileName>nuvoton_qrcode.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\Library\NuEdu\emWin\tslib\nuvoton_qrcode.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>lcm</GroupName>
-          <Files>
-            <File>
-              <FileName>ILI9341.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\Library\NuEdu\emWin\lcm\ILI9341.c</FilePath>
-            </File>
-            <File>
-              <FileName>ST7735.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\Library\NuEdu\emWin\lcm\ST7735.c</FilePath>
               <FileOption>
                 <CommonProperty>
                   <UseCPPCompiler>2</UseCPPCompiler>
@@ -758,6 +738,21 @@
                   </Cads>
                 </FileArmAds>
               </FileOption>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>lcm</GroupName>
+          <Files>
+            <File>
+              <FileName>ILI9341.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\Library\NuEdu\emWin\lcm\ILI9341.c</FilePath>
+            </File>
+            <File>
+              <FileName>ST7735.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\Library\NuEdu\emWin\lcm\ST7735.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1422,11 +1417,6 @@
               <FilePath>..\..\..\..\Library\NuEdu\emWin\tslib\fbutils.c</FilePath>
             </File>
             <File>
-              <FileName>font_8x8.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\Library\NuEdu\emWin\tslib\font_8x8.c</FilePath>
-            </File>
-            <File>
               <FileName>TouchPanel.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\Library\NuEdu\emWin\tslib\TouchPanel.c</FilePath>
@@ -1450,16 +1440,6 @@
               <FileName>nuvoton_qrcode.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\Library\NuEdu\emWin\tslib\nuvoton_qrcode.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>lcm</GroupName>
-          <Files>
-            <File>
-              <FileName>ILI9341.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\Library\NuEdu\emWin\lcm\ILI9341.c</FilePath>
               <FileOption>
                 <CommonProperty>
                   <UseCPPCompiler>2</UseCPPCompiler>
@@ -1510,6 +1490,16 @@
                   </Cads>
                 </FileArmAds>
               </FileOption>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>lcm</GroupName>
+          <Files>
+            <File>
+              <FileName>ILI9341.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\Library\NuEdu\emWin\lcm\ILI9341.c</FilePath>
             </File>
             <File>
               <FileName>ST7735.c</FileName>
