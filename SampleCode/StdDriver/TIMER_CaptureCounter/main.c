@@ -182,7 +182,7 @@ int main(void)
     TIMER_Start(TIMER2);
 
     /* Check Timer2 capture trigger interrupt counts */
-    while(g_au32TMRINTCount[2] <= 10)
+    while(g_au32TMRINTCount[2] < 10)
     {
         if(g_au32TMRINTCount[2] != u32InitCount)
         {
@@ -248,7 +248,7 @@ int main(void)
     TIMER2->EXTCTL = TIMER_EXTCTL_CAPEN_Msk | TIMER_CAPTURE_FREE_COUNTING_MODE | TIMER_CAPTURE_EVENT_GET_LOW_PERIOD | TIMER_EXTCTL_CAPIEN_Msk;
 
     /* Check Timer2 capture trigger interrupt counts */
-    while(g_au32TMRINTCount[2] <= 10)
+    while(g_au32TMRINTCount[2] < 10)
     {
         if(g_au32TMRINTCount[2] != u32InitCount)
         {
