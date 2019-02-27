@@ -74,9 +74,9 @@ void SYS_Init(void)
     SYS->GPD_MFPL &= ~(SYS_GPD_MFPL_PD0MFP_Msk | SYS_GPD_MFPL_PD1MFP_Msk);
     SYS->GPD_MFPL |= (SYS_GPD_MFPL_PD0MFP_UART0_RXD | SYS_GPD_MFPL_PD1MFP_UART0_TXD);
 
-    /* Set PD multi-function pins for I2C0 SDA and SCL */
-    SYS->GPD_MFPL &= ~(SYS_GPD_MFPL_PD4MFP_Msk | SYS_GPD_MFPL_PD5MFP_Msk);
-    SYS->GPD_MFPL |= (SYS_GPD_MFPL_PD4MFP_I2C0_SDA | SYS_GPD_MFPL_PD5MFP_I2C0_SCL);
+    /* Set PA multi-function pins for I2C0 SDA and SCL */
+    SYS->GPA_MFPL &= ~(SYS_GPA_MFPL_PA2MFP_Msk | SYS_GPA_MFPL_PA3MFP_Msk);
+    SYS->GPA_MFPL |= (SYS_GPA_MFPL_PA2MFP_I2C0_SDA | SYS_GPA_MFPL_PA3MFP_I2C0_SCL);
 }
 
 void UART0_Init()
@@ -158,7 +158,7 @@ int32_t main(void)
     printf("\n");
     printf("Configure I2C0 as Master\n");
     printf("The I/O connection to I2C0\n");
-    printf("I2C0_SDA(PD.4), I2C0_SCL(PD.5)\n\n");
+    printf("I2C0_SDA(PA.2), I2C0_SCL(PA.3)\n\n");
 
     /* Init I2C0 */
     I2C0_Init();
