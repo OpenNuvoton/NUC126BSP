@@ -392,13 +392,13 @@ void SYS_Init(void)
     SYS->GPD_MFPL &= ~(SYS_GPD_MFPL_PD0MFP_Msk | SYS_GPD_MFPL_PD1MFP_Msk);
     SYS->GPD_MFPL |= (SYS_GPD_MFPL_PD0MFP_UART0_RXD | SYS_GPD_MFPL_PD1MFP_UART0_TXD);
 
-    /* Set I2C0 PD multi-function pins */
-    SYS->GPD_MFPL &= ~(SYS_GPD_MFPL_PD4MFP_Msk | SYS_GPD_MFPL_PD5MFP_Msk);
-    SYS->GPD_MFPL |= (SYS_GPD_MFPL_PD4MFP_I2C0_SDA | SYS_GPD_MFPL_PD5MFP_I2C0_SCL);
+    /* Set PA multi-function pins for I2C0 SDA and SCL */
+    SYS->GPA_MFPL &= ~(SYS_GPA_MFPL_PA2MFP_Msk | SYS_GPA_MFPL_PA3MFP_Msk);
+    SYS->GPA_MFPL |= (SYS_GPA_MFPL_PA2MFP_I2C0_SDA | SYS_GPA_MFPL_PA3MFP_I2C0_SCL);
 
-    /* Set I2C1 PE multi-function pins */
-    SYS->GPE_MFPL &= ~(SYS_GPE_MFPL_PE5MFP_Msk | SYS_GPE_MFPL_PE4MFP_Msk);
-    SYS->GPE_MFPL |= (SYS_GPE_MFPL_PE5MFP_I2C1_SDA | SYS_GPE_MFPL_PE4MFP_I2C1_SCL);
+    /* Set PC multi-function pins for I2C1 SDA and SCL */
+    SYS->GPC_MFPL &= ~(SYS_GPC_MFPL_PC5MFP_Msk | SYS_GPC_MFPL_PC4MFP_Msk);
+    SYS->GPC_MFPL |= (SYS_GPC_MFPL_PC5MFP_I2C1_SDA | SYS_GPC_MFPL_PC4MFP_I2C1_SCL);
 }
 
 void UART0_Init(void)
@@ -536,8 +536,8 @@ int32_t main(void)
 
     printf("\nConfigure I2C0 as a Master, I2C1 as a Slave.\n");
     printf("The I/O connection I2C0 to I2C1\n");
-    printf("I2C0_SDA(PD.4), I2C0_SCL(PD.5)\n");
-    printf("I2C1_SDA(PE.5), I2C1_SCL(PE.4)\n\n");
+    printf("I2C0_SDA(PA.2), I2C0_SCL(PA.3)\n");
+    printf("I2C1_SDA(PC.5), I2C1_SCL(PC.4)\n\n");
 
     /* Init I2C0, I2C1 */
     I2C0_Init();
