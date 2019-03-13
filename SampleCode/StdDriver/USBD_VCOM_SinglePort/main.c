@@ -305,7 +305,7 @@ int32_t main(void)
     printf("+------------------------------------------------------------+\n");
     printf("|          NuMicro USB Virtual COM Port Sample Code          |\n");
     printf("+------------------------------------------------------------+\n");
-    printf("Set PB.0 as UART RX pin and PB.1 as UART TX pin\n");
+    printf("Set PD.0 as UART RX pin and PD.1 as UART TX pin\n");
 
     /* Open USB controller */
     USBD_Open(&gsInfo, VCOM_ClassRequest, NULL);
