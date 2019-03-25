@@ -241,15 +241,15 @@ void AdcSingleCycleScanModePDMATest()
             /* Reload transfer count and operation mode of PDMA channel for ADC continuous scan mode test. */
             PDMA_ConfigReload();
 
+            /* Power on ADC module */
+            ADC_POWER_ON(ADC);
+
             /* Set the ADC operation mode as single-cycle, input mode as single-end and
                  enable the analog input channel 0, 1, 2 and 3 */
             ADC_Open(ADC, ADC_ADCR_DIFFEN_SINGLE_END, ADC_ADCR_ADMD_SINGLE_CYCLE, 0xF);
 
             /* Enable PDMA transfer */
             ADC_ENABLE_PDMA(ADC);
-
-            /* Power on ADC module */
-            ADC_POWER_ON(ADC);
 
             /* Clear destination buffer */
             for(u32DataCount = 0; u32DataCount < ADC_TEST_COUNT; u32DataCount++)
@@ -310,15 +310,15 @@ void AdcSingleCycleScanModePDMATest()
             /* Reload transfer count and operation mode of PDMA channel for ADC continuous scan mode test. */
             PDMA_ConfigReload();
 
+            /* Power on ADC module */
+            ADC_POWER_ON(ADC);
+
             /* Set the ADC operation mode as single-cycle, input mode as differential and
                enable analog input channel 0 and 2 */
             ADC_Open(ADC, ADC_ADCR_DIFFEN_DIFFERENTIAL, ADC_ADCR_ADMD_SINGLE_CYCLE, 0x5);
 
             /* Enable PDMA transfer */
             ADC_ENABLE_PDMA(ADC);
-
-            /* Power on ADC module */
-            ADC_POWER_ON(ADC);
 
             /* Clear destination buffer */
             for(u32DataCount = 0; u32DataCount < ADC_TEST_COUNT; u32DataCount++)
