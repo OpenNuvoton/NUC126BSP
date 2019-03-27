@@ -1,10 +1,10 @@
 /****************************************************************************
  * @file     main.c
- * @version  V2.00
+ * @version  V2.1
  * @brief    To utilize emWin library to demonstrate  widgets feature.
  *
  * @note
- * Copyright (C) 2018 Nuvoton Technology Corp. All rights reserved.
+ * Copyright (C) 2019 Nuvoton Technology Corp. All rights reserved.
  *
  ******************************************************************************/
 #include <stdio.h>
@@ -162,6 +162,8 @@ int main(void)
     ts_init();
 #else // Get touch screen parameters
     /* SPI flash 192KB + 0x1C marker address */
+    /* Please note that ts_calibrate() needs more cstack size or may encouter Hard_Fault_Handler() */
+	/* Please keep to utilize ts_init() instead */
     if (FMC_Read(__DEMO_TSFILE_ADDR__ + 0x1C) != 0x55AAA55A)
     {
         FMC_EnableAPUpdate();
