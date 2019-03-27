@@ -1,11 +1,7 @@
 
 #include "NUC126.h"
 
-//#include "stdlib.h"
-#include "GUI.h"
-//#include "W55FA93_adc.h"
 #include "TouchPanel.h"
-//#include "lcdconf.h"
 
 static volatile    uint32_t    g_u32AdcIntFlag_TP;
 
@@ -53,6 +49,9 @@ static uint16_t _Api_Get_TP_X(void)
 //    static uint16_t nMaxBorderCaliBuffer[5] = {0};
 //    static uint16_t nMinBorderCaliBuffer[5] = {0};
     /* Init ADC for TP */
+    /* Power on ADC module */
+    ADC_POWER_ON(ADC);
+
     /* Set input mode as single-end and enable the A/D converter */
     ADC_Open(ADC, ADC_ADCR_DIFFEN_SINGLE_END, ADC_ADCR_ADMD_SINGLE, BIT6);
 
@@ -70,9 +69,6 @@ static uint16_t _Api_Get_TP_X(void)
 
     /* Disable the GPB8 digital input path to avoid the leakage current. */
     GPIO_DISABLE_DIGITAL_PATH(PB, BIT9);            //YU
-
-    /* Power on ADC module */
-    ADC_POWER_ON(ADC);
 
     /* Enable the sample module 1 interrupt.  */
     ADC_EnableInt(ADC, ADC_ADF_INT);                //Enable sample module A/D ADINT1 interrupt.
@@ -141,6 +137,9 @@ static uint16_t _Api_Get_TP_Y(void)
 //    static uint16_t nMaxBorderCaliBuffer[5] = {0};
 //    static uint16_t nMinBorderCaliBuffer[5] = {0};
     /* Init ADC for TP */
+    /* Power on ADC module */
+    ADC_POWER_ON(ADC);
+
     /* Set input mode as single-end and enable the A/D converter */
     ADC_Open(ADC, ADC_ADCR_DIFFEN_SINGLE_END, ADC_ADCR_ADMD_SINGLE, BIT9);
 
@@ -158,9 +157,6 @@ static uint16_t _Api_Get_TP_Y(void)
 
     /* Disable the GPB9 digital input path to avoid the leakage current. */
     GPIO_DISABLE_DIGITAL_PATH(PE, BIT2);            //XR
-
-    /* Power on ADC module */
-    ADC_POWER_ON(ADC);
 
     /* Enable the sample module 1 interrupt.  */
     ADC_EnableInt(ADC, ADC_ADF_INT);    //Enable sample module A/D ADINT1 interrupt.
