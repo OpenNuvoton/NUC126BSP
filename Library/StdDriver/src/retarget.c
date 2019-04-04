@@ -491,9 +491,9 @@ void SendChar_ToUART(int ch)
         i32Tmp = i32Tail + 1;
         if(i32Tmp >= BUF_SIZE) i32Tmp = 0;
 
-        if((DEBUG_PORT->FSR & UART_FSR_TX_FULL_Msk) == 0)
+        if((DEBUG_PORT->FIFOSTS & UART_FIFOSTS_TXFULL_Msk) == 0)
         {
-            DEBUG_PORT->DATA = u8Buf[i32Tail];
+            DEBUG_PORT->DAT = u8Buf[i32Tail];
             i32Tail = i32Tmp;
         }
         else
