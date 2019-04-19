@@ -237,6 +237,9 @@ int main(void)
     ts_init();
 #else // Get touch screen parameters
     /* SPI flash 192KB + 0x1C marker address */
+    /* Please note that ts_calibrate() needs more cstack size or may encouter Hard_Fault_Handler() */
+    /* increase ctack size from 0x800 to 0x1000 in emWin_SimpleDemo.icf */
+    /* decrease GUI_NUMBYTES from 14KB to 8KB in GUIConf.c */
     if (FMC_Read(__DEMO_TSFILE_ADDR__ + 0x1C) != 0x55AAA55A)
     {
         FMC_EnableAPUpdate();
