@@ -64,7 +64,7 @@ void DataFlashRead(uint32_t addr, uint32_t size, uint32_t buffer)
         /* Read from cache */
         if(((alignAddr + i * 4) >= g_u32Tag) && ((alignAddr + i * 4) < g_u32Tag + FLASH_PAGE_SIZE))
         {
-            offset = (alignAddr + i * 4 - g_u32Tag) / 4;
+            offset = (addr + i * 4 - g_u32Tag) / 4;
             pu32[i] = g_sectorBuf[offset];
         }
         else
