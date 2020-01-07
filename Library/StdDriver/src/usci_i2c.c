@@ -568,7 +568,7 @@ uint8_t UI2C_WriteByte(UI2C_T *ui2c, uint8_t u8SlaveAddr, const uint8_t data)
             u8Ctrl = UI2C_CTL_PTRG | UI2C_CTL_STO;            
             u8Err = 1;
         }
-        else if((ui2c->PROTSTS & UI2C_PROTSTS_NACKIF_Msk) == UI2C_PROTSTS_STORIF_Msk)
+        else if((ui2c->PROTSTS & UI2C_PROTSTS_STORIF_Msk) == UI2C_PROTSTS_STORIF_Msk)
         {
             UI2C_CLR_PROT_INT_FLAG(ui2c, UI2C_PROTSTS_STORIF_Msk);                  /* Clear STOP INT Flag */ 
             u8Xfering = 0;
