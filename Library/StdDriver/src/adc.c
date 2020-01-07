@@ -44,6 +44,7 @@ void ADC_Open(ADC_T *adc,
               uint32_t u32OpMode,
               uint32_t u32ChMask)
 {
+    (void) adc;
 
     ADC->ADCR = (ADC->ADCR & (~(ADC_ADCR_DIFFEN_Msk | ADC_ADCR_ADMD_Msk))) | \
                 (u32InputMode) | \
@@ -61,6 +62,7 @@ void ADC_Open(ADC_T *adc,
   */
 void ADC_Close(ADC_T *adc)
 {
+    (void) adc;
     SYS->IPRST1 |= SYS_IPRST1_ADCRST_Msk;
     SYS->IPRST1 &= ~SYS_IPRST1_ADCRST_Msk;
     return;
@@ -90,6 +92,8 @@ void ADC_EnableHWTrigger(ADC_T *adc,
                          uint32_t u32Source,
                          uint32_t u32Param)
 {
+    (void) adc;
+
     if(u32Source == ADC_ADCR_TRGS_STADC)
     {
         ADC->ADCR = (ADC->ADCR & ~(ADC_ADCR_TRGS_Msk | ADC_ADCR_TRGCOND_Msk | ADC_ADCR_TRGEN_Msk)) | (u32Source) | (u32Param) | ADC_ADCR_TRGEN_Msk;
@@ -113,6 +117,7 @@ void ADC_EnableHWTrigger(ADC_T *adc,
   */
 void ADC_DisableHWTrigger(ADC_T *adc)
 {
+    (void) adc;
     ADC->ADCR &= ~(ADC_ADCR_TRGS_Msk | ADC_ADCR_TRGCOND_Msk | ADC_ADCR_TRGEN_Msk);
     return;
 }
@@ -130,6 +135,8 @@ void ADC_DisableHWTrigger(ADC_T *adc)
   */
 void ADC_EnableInt(ADC_T *adc, uint32_t u32Mask)
 {
+    (void) adc;
+
     if((u32Mask) & ADC_ADF_INT)
         ADC->ADCR |= ADC_ADCR_ADIE_Msk;
     if((u32Mask) & ADC_CMP0_INT)
@@ -153,6 +160,8 @@ void ADC_EnableInt(ADC_T *adc, uint32_t u32Mask)
   */
 void ADC_DisableInt(ADC_T *adc, uint32_t u32Mask)
 {
+    (void) adc;
+
     if((u32Mask) & ADC_ADF_INT)
         ADC->ADCR &= ~ADC_ADCR_ADIE_Msk;
     if((u32Mask) & ADC_CMP0_INT)
