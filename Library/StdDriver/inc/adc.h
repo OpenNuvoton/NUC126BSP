@@ -305,7 +305,7 @@ extern "C"
   * @details Enable PDMA to transfer the conversion data.
   * @note While enable PDMA transfer, software must set ADIE = 0 to disable interrupt.
   */
-#define ADC_ENABLE_PDMA(adc) (ADC->ADCR |= ADC_ADCR_PTEN_Msk)
+#define ADC_ENABLE_PDMA(adc) ((adc)->ADCR |= ADC_ADCR_PTEN_Msk)
 
 /**
   * @brief Disable PDMA transfer.
@@ -313,7 +313,7 @@ extern "C"
   * @return None
   * @details Disable PDMA to transfer the conversion data.
   */
-#define ADC_DISABLE_PDMA(adc) (ADC->ADCR &= ~ADC_ADCR_PTEN_Msk)
+#define ADC_DISABLE_PDMA(adc) ((adc)->ADCR &= ~ADC_ADCR_PTEN_Msk)
 
 /**
   * @brief Get PDMA current transfer data
@@ -321,7 +321,7 @@ extern "C"
   * @return  PDMA current transfer data
   * \hideinitializer
   */
-#define ADC_GET_PDMA_DATA(adc) (ADC->ADPDMA & ADC_ADPDMA_CURDAT_Msk)
+#define ADC_GET_PDMA_DATA(adc) ((adc)->ADPDMA & ADC_ADPDMA_CURDAT_Msk)
 
 
 void ADC_Open(ADC_T *adc,
