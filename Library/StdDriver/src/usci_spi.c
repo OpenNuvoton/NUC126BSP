@@ -47,7 +47,7 @@ uint32_t USPI_Open(USPI_T *uspi, uint32_t u32MasterSlave, uint32_t u32SPIMode,  
     uint32_t u32ClkDiv = 0;
     uint32_t u32Pclk;
 
-    if(uspi == USPI0 | uspi == USPI2)
+    if((uspi == USPI0) || (uspi == USPI2))
     {
         u32Pclk = CLK_GetPCLK0Freq();
     }
@@ -144,6 +144,7 @@ void USPI_DisableAutoSS(USPI_T *uspi)
   */
 void USPI_EnableAutoSS(USPI_T *uspi, uint32_t u32SSPinMask, uint32_t u32ActiveLevel)
 {
+    (void) u32SSPinMask;
     uspi->LINECTL = (uspi->LINECTL & ~USPI_LINECTL_CTLOINV_Msk) | u32ActiveLevel;
     uspi->PROTCTL |= USPI_PROTCTL_AUTOSS_Msk;
 }
@@ -159,7 +160,7 @@ uint32_t USPI_SetBusClock(USPI_T *uspi, uint32_t u32BusClock)
     uint32_t u32ClkDiv;
     uint32_t u32Pclk;
 
-    if(uspi == USPI0 | uspi == USPI2)
+    if((uspi == USPI0) || (uspi == USPI2))
     {
         u32Pclk = CLK_GetPCLK0Freq();
     }
@@ -188,7 +189,7 @@ uint32_t USPI_GetBusClock(USPI_T *uspi)
 
     u32ClkDiv = (uspi->BRGEN & USPI_BRGEN_CLKDIV_Msk) >> USPI_BRGEN_CLKDIV_Pos;
 
-    if(uspi == USPI0 | uspi == USPI2)
+    if((uspi == USPI0) || (uspi == USPI2))
     {
         return (CLK_GetPCLK0Freq() / ((u32ClkDiv + 1) << 1));
     }
