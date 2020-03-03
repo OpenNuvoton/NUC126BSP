@@ -54,14 +54,14 @@ extern "C"
 #define ADC_ADCR_TRGCOND_FALLING_EDGE   (2UL<<ADC_ADCR_TRGCOND_Pos)  /*!< STADC Falling edge active  */
 #define ADC_ADCR_TRGCOND_RISING_EDGE    (3UL<<ADC_ADCR_TRGCOND_Pos)  /*!< STADC Rising edge active   */
 
-#define ADC_ADCR_SMPTSEL_1_CLOCK        (0UL<<ADC_ADCR_SMPTSEL_Pos)  /*!< A/D conversion sampling time is 1 ADC peripheral clock cycle */
-#define ADC_ADCR_SMPTSEL_2_CLOCK        (1UL<<ADC_ADCR_SMPTSEL_Pos)  /*!< A/D conversion sampling time is 2 ADC peripheral clock cycles */
-#define ADC_ADCR_SMPTSEL_3_CLOCK        (2UL<<ADC_ADCR_SMPTSEL_Pos)  /*!< A/D conversion sampling time is 3 ADC peripheral clock cycles */
-#define ADC_ADCR_SMPTSEL_4_CLOCK        (3UL<<ADC_ADCR_SMPTSEL_Pos)  /*!< A/D conversion sampling time is 4 ADC peripheral clock cycles */
-#define ADC_ADCR_SMPTSEL_5_CLOCK        (4UL<<ADC_ADCR_SMPTSEL_Pos)  /*!< A/D conversion sampling time is 5 ADC peripheral clock cycles */
-#define ADC_ADCR_SMPTSEL_6_CLOCK        (5UL<<ADC_ADCR_SMPTSEL_Pos)  /*!< A/D conversion sampling time is 6 ADC peripheral clock cycles */
-#define ADC_ADCR_SMPTSEL_7_CLOCK        (6UL<<ADC_ADCR_SMPTSEL_Pos)  /*!< A/D conversion sampling time is 7 ADC peripheral clock cycles */
-#define ADC_ADCR_SMPTSEL_8_CLOCK        (7UL<<ADC_ADCR_SMPTSEL_Pos)  /*!< A/D conversion sampling time is 8 ADC peripheral clock cycles */
+#define ADC_ADCR_SMPTSEL_4_CLOCK        (0UL<<ADC_ADCR_SMPTSEL_Pos)  /*!< A/D conversion sampling time is 4 ADC peripheral clock cycles */
+#define ADC_ADCR_SMPTSEL_5_CLOCK        (1UL<<ADC_ADCR_SMPTSEL_Pos)  /*!< A/D conversion sampling time is 5 ADC peripheral clock cycles */
+#define ADC_ADCR_SMPTSEL_6_CLOCK        (2UL<<ADC_ADCR_SMPTSEL_Pos)  /*!< A/D conversion sampling time is 6 ADC peripheral clock cycles */
+#define ADC_ADCR_SMPTSEL_7_CLOCK        (3UL<<ADC_ADCR_SMPTSEL_Pos)  /*!< A/D conversion sampling time is 7 ADC peripheral clock cycles */
+#define ADC_ADCR_SMPTSEL_8_CLOCK        (4UL<<ADC_ADCR_SMPTSEL_Pos)  /*!< A/D conversion sampling time is 8 ADC peripheral clock cycles */
+#define ADC_ADCR_SMPTSEL_9_CLOCK        (5UL<<ADC_ADCR_SMPTSEL_Pos)  /*!< A/D conversion sampling time is 9 ADC peripheral clock cycles */
+#define ADC_ADCR_SMPTSEL_10_CLOCK       (6UL<<ADC_ADCR_SMPTSEL_Pos)  /*!< A/D conversion sampling time is 10 ADC peripheral clock cycles */
+#define ADC_ADCR_SMPTSEL_11_CLOCK       (7UL<<ADC_ADCR_SMPTSEL_Pos)  /*!< A/D conversion sampling time is 11 ADC peripheral clock cycles */
 
 /*---------------------------------------------------------------------------------------------------------*/
 /* ADCMPR Constant Definitions                                                                             */
