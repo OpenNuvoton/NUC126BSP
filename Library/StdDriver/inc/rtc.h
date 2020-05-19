@@ -6,6 +6,8 @@
  * @brief    NUC126 series Real Time Clock(RTC) driver header file
  *
  * @note
+ * SPDX-License-Identifier: Apache-2.0
+ *
  * Copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
  *****************************************************************************/
 #ifndef __RTC_H__

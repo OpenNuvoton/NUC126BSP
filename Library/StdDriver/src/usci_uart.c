@@ -6,6 +6,8 @@
  * @brief    NUC126 series USCI UART (UUART) driver source file
  *
  * @note
+ * SPDX-License-Identifier: Apache-2.0
+ *
  * Copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
 *****************************************************************************/
 

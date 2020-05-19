@@ -6,6 +6,8 @@
  * @brief    NUC126 series I2C Serial Interface Controller(I2C) driver header file
  *
  * @note
+ * SPDX-License-Identifier: Apache-2.0
+ *
  * Copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
  *
  ******************************************************************************/

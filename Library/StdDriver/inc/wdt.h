@@ -6,6 +6,8 @@
  * @brief    NUC126 series Watchdog Timer(WDT) driver header file
  *
  * @note
+ * SPDX-License-Identifier: Apache-2.0
+ *
  * Copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
  *****************************************************************************/
 #ifndef __WDT_H__

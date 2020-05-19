@@ -6,6 +6,8 @@
  * @brief    NUC126 series Clock Controller (CLK) driver source file
  *
  * @note
+ * SPDX-License-Identifier: Apache-2.0
+ *
  * Copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
  *****************************************************************************/
 #include "NUC126.h"
