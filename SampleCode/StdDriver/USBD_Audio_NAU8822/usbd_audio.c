@@ -677,20 +677,20 @@ int32_t I2C_WaitReady(I2C_T *i2c)
     uint32_t u32Timeout;
 
     u32Timeout = 0x100000;
-    
+
     u32Cnt = 0;
     while(!((I2C0)->CTL & I2C_CTL_SI_Msk))
     {
         if(u32Cnt++ > u32Timeout)
-        { 
+        {
             printf("ctl=%x sts=%x flow=%d\n", i2c->CTL, i2c->STATUS, g_u32I2cFlow);
-            
+
             return -1;
         }
     }
-    
+
     return 0;
-    
+
 }
 
 /*---------------------------------------------------------------------------------------------------------*/
@@ -701,7 +701,7 @@ int32_t I2C_WriteWAU8822(uint8_t u8addr, uint16_t u16data)
     int32_t i32Err;
 
     i32Err = 0;
-    
+
     g_u32I2cFlow = 1;
     /* Send START */
     I2C_START(I2C0);
@@ -727,7 +727,7 @@ int32_t I2C_WriteWAU8822(uint8_t u8addr, uint16_t u16data)
         //I2C_WAIT_READY(I2C0);
         i32Err |= I2C_WaitReady(I2C0);
     }
-    
+
     if(i32Err == 0)
     {
         g_u32I2cFlow = 4;
@@ -737,11 +737,11 @@ int32_t I2C_WriteWAU8822(uint8_t u8addr, uint16_t u16data)
         //I2C_WAIT_READY(I2C0);
         i32Err |= I2C_WaitReady(I2C0);
     }
-    
+
     g_u32I2cFlow = 5;
     /* Send STOP */
     I2C_STOP(I2C0);
-    
+
     return i32Err;
 }
 
@@ -752,7 +752,7 @@ void WAU8822_Setup(void)
     CLK_SysTickDelay(10000);
 
     I2C_WriteWAU8822(1,  0x0EF);
-        
+
     I2C_WriteWAU8822(2,  0x1BF);   /* Enable L/R Headphone, ADC Mix/Boost, ADC */
     I2C_WriteWAU8822(3,  0x07F);   /* Enable L/R main mixer, DAC */
     I2C_WriteWAU8822(4,  0x010);   /* 16-bit word length, I2S format, Stereo */
@@ -761,37 +761,37 @@ void WAU8822_Setup(void)
     if(g_u32Master == 1)
     {
         g_u32MasterSlave = SPII2S_MODE_MASTER;
-        #if(PLAY_RATE == 48000)
-            I2C_WriteWAU8822(6, 0x000);    /* Divide by 1, 48K */
-            I2C_WriteWAU8822(7, 0x000);    /* 48K for internal filter cofficients */
-        #elif(PLAY_RATE == 32000)
-            I2C_WriteWAU8822(6, 0x020);    /* Divide by 1.5, 32K */
-            I2C_WriteWAU8822(7, 0x002);    /* 32 for internal filter cofficients */
-        #elif(PLAY_RATE == 16000)
-            I2C_WriteWAU8822(6, 0x060);    /* Divide by 3, 16K */
-            I2C_WriteWAU8822(7, 0x006);    /* 16K for internal filter cofficients */
-        #else
-            I2C_WriteWAU8822(6, 0x0A0);    /* Divide by 6, 8K */
-            I2C_WriteWAU8822(7, 0x00A);    /* 8K for internal filter cofficients */
-        #endif
+#if(PLAY_RATE == 48000)
+        I2C_WriteWAU8822(6, 0x000);    /* Divide by 1, 48K */
+        I2C_WriteWAU8822(7, 0x000);    /* 48K for internal filter cofficients */
+#elif(PLAY_RATE == 32000)
+        I2C_WriteWAU8822(6, 0x020);    /* Divide by 1.5, 32K */
+        I2C_WriteWAU8822(7, 0x002);    /* 32 for internal filter cofficients */
+#elif(PLAY_RATE == 16000)
+        I2C_WriteWAU8822(6, 0x060);    /* Divide by 3, 16K */
+        I2C_WriteWAU8822(7, 0x006);    /* 16K for internal filter cofficients */
+#else
+        I2C_WriteWAU8822(6, 0x0A0);    /* Divide by 6, 8K */
+        I2C_WriteWAU8822(7, 0x00A);    /* 8K for internal filter cofficients */
+#endif
     }
     else
     {
         g_u32MasterSlave = SPII2S_MODE_SLAVE;
-        
-        #if(PLAY_RATE == 48000)
-            I2C_WriteWAU8822(6,  0x14D);   /* Divide by 2, 48K */
-            I2C_WriteWAU8822(7,  0x000);   /* 48K for internal filter coefficients */
-        #elif(PLAY_RATE == 32000)
-            I2C_WriteWAU8822(6,  0x16D);   /* Divide by 3, 32K */
-            I2C_WriteWAU8822(7,  0x002);   /* 32K for internal filter coefficients */
-        #elif(PLAY_RATE == 16000)
-            I2C_WriteWAU8822(6,  0x1AD);   /* Divide by 6, 16K */
-            I2C_WriteWAU8822(7,  0x006);   /* 16K for internal filter coefficients */
-        #else
-            I2C_WriteWAU8822(6,  0x1ED);   /* Divide by 12, 8K */
-            I2C_WriteWAU8822(7,  0x00A);   /* 8K for internal filter coefficients */
-        #endif
+
+#if(PLAY_RATE == 48000)
+        I2C_WriteWAU8822(6,  0x14D);   /* Divide by 2, 48K */
+        I2C_WriteWAU8822(7,  0x000);   /* 48K for internal filter coefficients */
+#elif(PLAY_RATE == 32000)
+        I2C_WriteWAU8822(6,  0x16D);   /* Divide by 3, 32K */
+        I2C_WriteWAU8822(7,  0x002);   /* 32K for internal filter coefficients */
+#elif(PLAY_RATE == 16000)
+        I2C_WriteWAU8822(6,  0x1AD);   /* Divide by 6, 16K */
+        I2C_WriteWAU8822(7,  0x006);   /* 16K for internal filter coefficients */
+#else
+        I2C_WriteWAU8822(6,  0x1ED);   /* Divide by 12, 8K */
+        I2C_WriteWAU8822(7,  0x00A);   /* 8K for internal filter coefficients */
+#endif
     }
 
 
@@ -1002,7 +1002,7 @@ void AdjustCodecPll(RESAMPLE_STATE_T r)
 
     if(fcfg_org == 0)
         fcfg_org = FAUDIOCFG;
-    
+
     if(r == current)
         return;
     else
@@ -1019,7 +1019,7 @@ void AdjustCodecPll(RESAMPLE_STATE_T r)
         default:
             tmp = fcfg_org;
     }
-    
+
     FAUDIOCFG = tmp;
 }
 
@@ -1031,12 +1031,12 @@ void AdjFreq(void)
     static int32_t i32PreFlag = 0;
     static int32_t i32Cnt = 0;
 
-    
+
     /* Only adjust the frequency when play data */
     if(g_u8PlayEn == 0)
         return;
 
-    
+
     /* Get sample size in play buffer */
     u32Size = GetSamplesInBuf();
 

@@ -1,6 +1,6 @@
 /******************************************************************************
  * @file     hid_mouse.h
- * @brief    NUC123 series USB HID mouse header file
+ * @brief    NUC126 series USB HID mouse header file
  *
  * @note
  * Copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
@@ -65,6 +65,8 @@ void HID_ClassRequest(void);
 
 void EP2_Handler(void);
 void HID_UpdateMouseData(void);
+
+extern uint8_t volatile g_u8Suspend;
 
 #endif  /* __USBD_HID_H_ */
 

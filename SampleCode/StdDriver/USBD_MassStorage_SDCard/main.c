@@ -35,7 +35,7 @@ void SYS_Init(void)
     /* Switch HCLK clock source to Internal RC and HCLK source divide 1 */
     CLK_SetHCLK(CLK_CLKSEL0_HCLKSEL_HIRC, CLK_CLKDIV0_HCLK(1));
 
-#ifndef CRYSTAL_LESS
+#if (!CRYSTAL_LESS)
     /* Enable external XTAL 12 MHz clock */
     CLK_EnableXtalRC(CLK_PWRCTL_HXTEN_Msk);
 
@@ -103,7 +103,9 @@ void SYS_Init(void)
 /*---------------------------------------------------------------------------------------------------------*/
 int32_t main(void)
 {
+#if CRYSTAL_LESS
     uint32_t u32TrimInit;
+#endif
 
     /* Unlock protected registers */
     SYS_UnlockReg();
@@ -128,7 +130,7 @@ int32_t main(void)
     USBD_Start();
     NVIC_EnableIRQ(USBD_IRQn);
 
-#ifdef CRYSTAL_LESS
+#if CRYSTAL_LESS
     /* Backup default trim */
     u32TrimInit = M32(TRIM_INIT);
 #endif
@@ -138,7 +140,7 @@ int32_t main(void)
 
     while(1)
     {
-#ifdef CRYSTAL_LESS
+#if CRYSTAL_LESS
         /* Start USB trim if it is not enabled. */
         if((SYS->IRCTCTL1 & SYS_IRCTCTL1_FREQSEL_Msk) != 2)
         {

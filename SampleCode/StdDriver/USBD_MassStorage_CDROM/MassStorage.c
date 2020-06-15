@@ -18,6 +18,7 @@ int32_t g_TotalSectors = 0;
 uint8_t volatile g_u8EP2Ready = 0;
 uint8_t volatile g_u8EP3Ready = 0;
 uint8_t volatile g_u8Remove = 0;
+uint8_t volatile g_u8Suspend = 0;
 
 /* USB flow control variables */
 uint8_t g_u8BulkState;
@@ -33,7 +34,6 @@ uint32_t g_u32LbaAddress;
 uint32_t g_u32BytesInStorageBuf;
 
 uint32_t g_u32BulkBuf0, g_u32BulkBuf1;
-uint32_t volatile g_u32OutToggle = 0, g_u32OutSkip = 0;
 
 /* CBW/CSW variables */
 struct CBW g_sCBW;
@@ -262,10 +262,13 @@ void USBD_IRQHandler(void)
             USBD_ENABLE_USB();
             USBD_SwReset();
             g_u8Remove = 0;
-            g_u32OutToggle = g_u32OutSkip = 0;
+            g_u8Suspend = 0;
         }
         if(u32State & USBD_STATE_SUSPEND)
         {
+            /* Enter power down to wait USB attached */
+            g_u8Suspend = 1;
+
             /* Enable USB but disable PHY */
             USBD_DISABLE_PHY();
         }
@@ -273,6 +276,7 @@ void USBD_IRQHandler(void)
         {
             /* Enable USB and enable PHY */
             USBD_ENABLE_USB();
+            g_u8Suspend = 0;
         }
     }
 
@@ -365,17 +369,7 @@ void EP2_Handler(void)
 void EP3_Handler(void)
 {
     /* Bulk OUT */
-    if(g_u32OutToggle == (USBD->EPSTS & USBD_EPSTS_EPSTS3_Msk))
-    {
-        g_u32OutSkip = 1;
-        USBD_SET_PAYLOAD_LEN(EP3, EP3_MAX_PKT_SIZE);
-    }
-    else
-    {
-        g_u8EP3Ready = 1;
-        g_u32OutToggle = USBD->EPSTS & USBD_EPSTS_EPSTS3_Msk;
-        g_u32OutSkip = 0;
-    }
+    g_u8EP3Ready = 1;
 }
 
 
@@ -443,14 +437,17 @@ void MSC_ClassRequest(void)
                 }
                 else  /* Invalid Get MaxLun command */
                 {
-                    USBD_SetStall(0);
+                    USBD_SetStall(EP0);
+                    USBD_SetStall(EP1);
                 }
+                USBD_SET_DATA0(EP2);
                 break;
             }
             default:
             {
                 /* Setup error, stall the device */
-                USBD_SetStall(0);
+                USBD_SetStall(EP0);
+                USBD_SetStall(EP1);
                 break;
             }
         }
@@ -473,6 +470,7 @@ void MSC_ClassRequest(void)
                     /* Clear ready */
                     USBD->EP[EP2].CFGP |= USBD_CFGP_CLRRDY_Msk;
                     USBD->EP[EP3].CFGP |= USBD_CFGP_CLRRDY_Msk;
+                    USBD_SET_DATA0(EP2);
 
                     /* Prepare to receive the CBW */
                     g_u8EP3Ready = 0;
@@ -484,7 +482,8 @@ void MSC_ClassRequest(void)
                 }
                 else  /* Invalid Reset command */
                 {
-                    USBD_SetStall(0);
+                    USBD_SetStall(EP0);
+                    USBD_SetStall(EP1);
                 }
                 break;
             }
@@ -492,7 +491,8 @@ void MSC_ClassRequest(void)
             {
                 // Stall
                 /* Setup error, stall the device */
-                USBD_SetStall(0);
+                USBD_SetStall(EP0);
+                USBD_SetStall(EP1);
                 break;
             }
         }
@@ -923,67 +923,6 @@ void MSC_ModeSense10(void)
     }
 }
 
-#if(0)
-void MSC_Write(void)
-{
-    uint32_t lba, len;
-
-    if(g_u32OutSkip == 0)
-    {
-        if(g_u32Length > EP3_MAX_PKT_SIZE)
-        {
-            if(USBD_GET_EP_BUF_ADDR(EP3) == g_u32BulkBuf0)
-            {
-                USBD_SET_EP_BUF_ADDR(EP3, g_u32BulkBuf1);
-                USBD_SET_PAYLOAD_LEN(EP3, EP3_MAX_PKT_SIZE);
-                USBD_MemCopy((uint8_t *)g_u32Address, (uint8_t *)((uint32_t)USBD_BUF_BASE + g_u32BulkBuf0), EP3_MAX_PKT_SIZE);
-            }
-            else
-            {
-                USBD_SET_EP_BUF_ADDR(EP3, g_u32BulkBuf0);
-                USBD_SET_PAYLOAD_LEN(EP3, EP3_MAX_PKT_SIZE);
-                USBD_MemCopy((uint8_t *)g_u32Address, (uint8_t *)((uint32_t)USBD_BUF_BASE + g_u32BulkBuf1), EP3_MAX_PKT_SIZE);
-            }
-
-            g_u32Address += EP3_MAX_PKT_SIZE;
-            g_u32Length -= EP3_MAX_PKT_SIZE;
-
-            /* Buffer full. Writer it to storage first. */
-            if(g_u32Address >= (STORAGE_DATA_BUF + STORAGE_BUFFER_SIZE))
-            {
-                DataFlashWrite(g_u32DataFlashStartAddr, STORAGE_BUFFER_SIZE, (uint32_t)STORAGE_DATA_BUF);
-
-                g_u32Address = STORAGE_DATA_BUF;
-                g_u32DataFlashStartAddr += STORAGE_BUFFER_SIZE;
-            }
-        }
-        else
-        {
-            if(USBD_GET_EP_BUF_ADDR(EP3) == g_u32BulkBuf0)
-                USBD_MemCopy((uint8_t *)g_u32Address, (uint8_t *)((uint32_t)USBD_BUF_BASE + g_u32BulkBuf0), g_u32Length);
-            else
-                USBD_MemCopy((uint8_t *)g_u32Address, (uint8_t *)((uint32_t)USBD_BUF_BASE + g_u32BulkBuf1), g_u32Length);
-            g_u32Address += g_u32Length;
-            g_u32Length = 0;
-
-
-            if((g_sCBW.u8OPCode == UFI_WRITE_10) || (g_sCBW.u8OPCode == UFI_WRITE_12))
-            {
-                lba = get_be32(&g_sCBW.au8Data[0]);
-                len = g_sCBW.dCBWDataTransferLength;
-
-                len = lba * CDROM_BLOCK_SIZE + g_sCBW.dCBWDataTransferLength - g_u32DataFlashStartAddr;
-                if(len)
-                    DataFlashWrite(g_u32DataFlashStartAddr, len, (uint32_t)STORAGE_DATA_BUF);
-            }
-
-            g_u8BulkState = BULK_IN;
-            MSC_AckCmd();
-        }
-    }
-}
-#endif
-
 void MSC_ProcessCmd(void)
 {
     uint8_t u8Len;
@@ -1074,6 +1013,9 @@ void MSC_ProcessCmd(void)
                     {
                         g_u8Remove = 1;
                     }
+                    g_u8BulkState = BULK_IN;
+                    MSC_AckCmd();
+                    return;
                 }
                 case UFI_VERIFY_10:
                 {
@@ -1100,6 +1042,7 @@ void MSC_ProcessCmd(void)
                         g_sCSW.dCSWDataResidue = 0;
                         g_u8BulkState = BULK_IN;
                         MSC_AckCmd();
+                        USBD_SET_DATA0(EP2);
                         return;
                     }
                 }
@@ -1151,37 +1094,6 @@ void MSC_ProcessCmd(void)
                     }
                     return;
                 }
-#if(0)
-                // commands not supported
-                case UFI_MODE_SELECT_6:
-                case UFI_MODE_SELECT_10:
-                {
-                    g_u32Length = g_sCBW.dCBWDataTransferLength;
-                    g_u32Address = MassCMD_BUF;
-
-                    if(g_u32Length > 0)
-                    {
-                        USBD_SET_PAYLOAD_LEN(EP3, EP3_MAX_PKT_SIZE);
-                        g_u8BulkState = BULK_OUT;
-                    }
-                    return;
-                }
-                // commands not supported
-                case UFI_MODE_SENSE_6:
-                {
-
-                    *(uint8_t *)((uint32_t)USBD_BUF_BASE + g_u32BulkBuf1 + 0) = 0x3;
-                    *(uint8_t *)((uint32_t)USBD_BUF_BASE + g_u32BulkBuf1 + 1) = 0x0;
-                    *(uint8_t *)((uint32_t)USBD_BUF_BASE + g_u32BulkBuf1 + 2) = 0x0;
-                    *(uint8_t *)((uint32_t)USBD_BUF_BASE + g_u32BulkBuf1 + 3) = 0x0;
-
-                    USBD_SET_PAYLOAD_LEN(EP2, 4);
-                    g_u8BulkState = BULK_IN;
-                    g_sCSW.bCSWStatus = 0;
-                    g_sCSW.dCSWDataResidue = Hcount - 4;;
-                    return;
-                }
-#endif
                 case UFI_MODE_SENSE_10:
                 {
                     if(g_u32Length == 0)
@@ -1210,8 +1122,17 @@ void MSC_ProcessCmd(void)
                 }
                 case UFI_INQUIRY:
                 {
-
-                    if((Hcount > 0) && (Hcount <= 36))
+                    if(Hcount > 36 || Hcount == 0)
+                    {
+                        g_u8Prevent = 1;
+                        g_sCSW.dCSWDataResidue = Hcount;
+                        g_sCSW.bCSWStatus = 0x1;
+                        USBD_SET_EP_STALL(EP2);
+                        g_u8BulkState = BULK_IN;
+                        MSC_AckCmd();
+                        USBD_SET_DATA0(EP2);
+                    }
+                    else
                     {
                         /* Bulk IN buffer */
                         USBD_MemCopy((uint8_t *)((uint32_t)USBD_BUF_BASE + g_u32BulkBuf1), (uint8_t *)g_au8InquiryID, Hcount);
@@ -1219,18 +1140,8 @@ void MSC_ProcessCmd(void)
                         g_u8BulkState = BULK_IN;
                         g_sCSW.bCSWStatus = 0;
                         g_sCSW.dCSWDataResidue = 0;
-                        return;
                     }
-                    else
-                    {
-                        USBD_SET_EP_STALL(EP2);
-                        g_u8Prevent = 1;
-                        g_sCSW.bCSWStatus = 0x01;
-                        g_sCSW.dCSWDataResidue = 0;
-                        g_u8BulkState = BULK_IN;
-                        MSC_AckCmd();
-                        return;
-                    }
+                    return;
                 }
                 case UFI_READ_12:
                 case UFI_READ_10:
@@ -1292,14 +1203,19 @@ void MSC_ProcessCmd(void)
                     if(i > STORAGE_BUFFER_SIZE)
                         i = STORAGE_BUFFER_SIZE;
 
-                    if(g_u32LbaAddress >= (16 * CDROM_BLOCK_SIZE))
+                    if(g_u32LbaAddress >= (16 * CDROM_BLOCK_SIZE))   /* Logical Block Address > 32KB */
                     {
+                        /*
+                            Because first 32KB of the ISO file are all '0', remove first 32KB data from ISO file
+                            to reduce the code size instead of including ISO file directly.
+                            The array - eprom is the data of ISO file with offset 32768
+                         */
                         g_u32Address = (uint32_t)(&eprom[g_u32LbaAddress - 32768]);
                         g_u32LbaAddress += i;
                     }
-                    else
+                    else                                             /* Logical Block Address > 32KB */
                     {
-                        memset((uint32_t*)Storage_Block, 0, i);
+                        memset((uint32_t*)Storage_Block, 0, i);      /* First 32KB of ISO file are all 0 */
                         g_u32Address = STORAGE_DATA_BUF;
                     }
                     g_u32BytesInStorageBuf = i;
@@ -1372,23 +1288,16 @@ void MSC_ProcessCmd(void)
                             USBD_SET_EP_STALL(EP2);
                             g_u8BulkState = BULK_IN;
                             MSC_AckCmd();
+                            USBD_SET_DATA0(EP2);
                             return;
                         }
                     }
-#if(0)
-                    if((g_u32Length > 0))
-                    {
-                        USBD_SET_PAYLOAD_LEN(EP3, EP3_MAX_PKT_SIZE);
-                        g_u8BulkState = BULK_OUT;
-                    }
-#else
                     USBD_SET_EP_STALL(EP3);
                     g_u8Prevent = 1;
                     g_sCSW.bCSWStatus = 0x01;
                     g_sCSW.dCSWDataResidue = 0;
                     g_u8BulkState = BULK_IN;
                     MSC_AckCmd();
-#endif
                     return;
                 }
                 case UFI_READ_16:
@@ -1399,6 +1308,7 @@ void MSC_ProcessCmd(void)
                     g_sCSW.dCSWDataResidue = 0;
                     g_u8BulkState = BULK_IN;
                     MSC_AckCmd();
+                    USBD_SET_DATA0(EP2);
                     return;
                 }
                 case UFI_READ_TOC:
@@ -1450,6 +1360,18 @@ void MSC_ProcessCmd(void)
                     MSC_GetEventStatusNotification();
                     return;
                 }
+                case UFI_MODE_SENSE_6:
+                {
+                    *(uint8_t *)((uint32_t)USBD_BUF_BASE + g_u32BulkBuf1+0) = 0x3;
+                    *(uint8_t *)((uint32_t)USBD_BUF_BASE + g_u32BulkBuf1+1) = 0x0;
+                    *(uint8_t *)((uint32_t)USBD_BUF_BASE + g_u32BulkBuf1+2) = 0x0;
+                    *(uint8_t *)((uint32_t)USBD_BUF_BASE + g_u32BulkBuf1+3) = 0x0;
+                    USBD_SET_PAYLOAD_LEN(EP2, 4);
+                    g_u8BulkState = BULK_IN;
+                    g_sCSW.bCSWStatus = 0;
+                    g_sCSW.dCSWDataResidue = Hcount - 4;
+                    return;
+                }
                 default:
                 {
                     /* Unsupported command */
@@ -1478,22 +1400,6 @@ void MSC_ProcessCmd(void)
                 }
             }
         }
-#if(0)
-        else if(g_u8BulkState == BULK_OUT)
-        {
-            switch(g_sCBW.u8OPCode)
-            {
-                case UFI_WRITE_12:
-                case UFI_WRITE_10:
-                case UFI_MODE_SELECT_6:
-                case UFI_MODE_SELECT_10:
-                {
-                    MSC_Write();
-                    return;
-                }
-            }
-        }
-#endif
     }
 }
 

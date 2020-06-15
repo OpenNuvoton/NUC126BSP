@@ -137,7 +137,7 @@ void USBD_IRQHandler(void)
             /* Bus reset */
             USBD_ENABLE_USB();
             USBD_SwReset();
-            g_u8Remove     = 0;
+            g_u8Remove = 0;
             g_u32OutToggle = g_u32OutSkip = 0;
             DBG_PRINTF("Bus reset\n");
         }
@@ -343,7 +343,7 @@ void MSC_ClassRequest(void)
                 /* Setup error, stall the device */
                 USBD_SetStall(EP0);
                 USBD_SetStall(EP1);
-                DBG_PRINTF("Unknow MSC req(0x%x). stall ctrl pipe\n", buf[1]);
+                DBG_PRINTF("Unknown MSC req(0x%x). stall ctrl pipe\n", buf[1]);
                 break;
             }
         }
@@ -388,8 +388,6 @@ void MSC_ClassRequest(void)
                     USBD_SetStall(EP1);
                 }
 
-
-
                 break;
             }
 
@@ -399,7 +397,7 @@ void MSC_ClassRequest(void)
                 /* Setup error, stall the device */
                 USBD_SetStall(EP0);
                 USBD_SetStall(EP1);
-                DBG_PRINTF("Unknow MSC req (0x%x). stall ctrl pipe\n", buf[1]);
+                DBG_PRINTF("Unknown MSC req (0x%x). stall ctrl pipe\n", buf[1]);
                 break;
             }
         }
@@ -632,6 +630,8 @@ void MSC_ReadCapacity16(void)
     *((uint8_t *)(MassCMD_BUF + 7)) = *((uint8_t *)&tmp + 0);
     *((uint8_t *)(MassCMD_BUF + 10)) = 0x02;
 }
+
+
 void MSC_ModeSense10(void)
 {
     uint8_t i, j;
@@ -915,7 +915,6 @@ void MSC_ProcessCmd(void)
                         g_sCSW.dCSWDataResidue = 0;
                         g_u8BulkState = BULK_IN;
                         MSC_AckCmd();
-
                         USBD_SET_DATA0(EP2);
                         return;
                     }
@@ -990,7 +989,6 @@ void MSC_ProcessCmd(void)
                         USBD_SET_PAYLOAD_LEN(EP3, EP3_MAX_PKT_SIZE);
                         g_u8BulkState = BULK_OUT;
                     }
-
                     else
                     {
                         g_u8BulkState = BULK_IN;

@@ -52,7 +52,7 @@ void SYS_Init(void)
 
     /* Waiting for external XTAL clock ready */
     CLK_WaitClockReady(CLK_STATUS_HXTSTB_Msk);
-    
+
     /* Enable Internal RC 48 MHz clock */
     CLK_EnableXtalRC(CLK_PWRCTL_HIRC48EN_Msk);
 
@@ -65,11 +65,11 @@ void SYS_Init(void)
         CLK->PLLCTL = CLK_PLLCTL_PLLSRC_Msk | 0x0e30; // 122880000Hz
         CLK->CLKDIV0 = (CLK->CLKDIV0 & ~CLK_CLKDIV0_HCLKDIV_Msk) | CLK_CLKDIV0_HCLK(2);
         CLK->CLKSEL0 = CLK_CLKSEL0_HCLKSEL_PLL;
-        
+
         SystemCoreClock = 61440000;
-        CyclesPerUs = SystemCoreClock/1000000;
+        CyclesPerUs = SystemCoreClock / 1000000;
         PllClock = 122880000;
-        
+
     }
     else
     {
@@ -95,7 +95,7 @@ void SYS_Init(void)
         //CLK_SetModuleClock(USBD_MODULE, CLK_CLKSEL3_USBDSEL_PLL, CLK_CLKDIV0_USB(3));
         CLK_SetModuleClock(USBD_MODULE, CLK_CLKSEL3_USBDSEL_HIRC48, CLK_CLKDIV0_USB(1));
     }
-    
+
     CLK_SetModuleClock(TMR0_MODULE, CLK_CLKSEL1_TMR0SEL_HXT, 0);
     CLK_SetModuleClock(I2C0_MODULE, 0, 0);
     CLK_SetModuleClock(SPI0_MODULE, CLK_CLKSEL2_SPI0SEL_PLL, 0);
@@ -167,7 +167,7 @@ int32_t main(void)
 
         NAU8822 is connect with I2S(PB2~5) and controlled by I2C0(PA2, PA3).
         NAU8822 clock source is also come from I2S (MCLK, PC5).
-    
+
             PA2 <-> I2S0_SDA
             PA3 <-> I2S0_SCL
 
@@ -177,27 +177,27 @@ int32_t main(void)
             PB5 <-> I2S0_DAC
 
             PC5 <-> I2S_MCLK
-    
+
         PD5 is used to output clock (HCLK/8) to check HCLK frequency.
-    
+
         Clock config (I2S Master Mode):
             PLL = 122,880,000 Hz
             CPU = 61,440,000 Hz
             I2S Clock Src = PLL
-            
+
             MCLK= 12,288,000 Hz (48000 * 256)
             Sample Rate = 48000 Hz
-            
-        Clock config (I2S Slave Mode):    
+
+        Clock config (I2S Slave Mode):
             PLL = 144,000,000 Hz
             CPU = 72,000,000 Hz
             I2S Clock Src = PLL
-            
+
             MCLK = 12,000,000 Hz
             Sample Rate = (Based on Codec. 48000 Hz)
-            
+
         USB Clock Src = HIRC48 (48MHz)
-            
+
     */
 
 
@@ -213,29 +213,29 @@ int32_t main(void)
     // HIRC trim
     CLK_EnableXtalRC(CLK_PWRCTL_LXTEN_Msk);
     CLK_WaitClockReady(CLK_STATUS_LXTSTB_Msk);
-    
+
     /* Init I2C0 to access WAU8822 */
     I2C0_Init();
 
     /* Initialize WAU8822 codec */
     WAU8822_Setup();
-    
+
     SPII2S_Open(SPI0, g_u32MasterSlave, PLAY_RATE, SPII2S_DATABIT_16, SPII2S_STEREO, SPII2S_FORMAT_I2S);
     /* SPII2S driver will overwrite SPI clock source setting. Just re-set it here */
     CLK_SetModuleClock(SPI0_MODULE, CLK_CLKSEL2_SPI0SEL_PLL, 0);
-    
+
     /* Set MCLK and enable MCLK */
     if(g_u32Master)
         SPII2S_EnableMCLK(SPI0, 12288000);
     else
         SPII2S_EnableMCLK(SPI0, 12000000);
-    
-    /* I2S clock divider is set again to fix BCLK/MCLK phase delay. 
+
+    /* I2S clock divider is set again to fix BCLK/MCLK phase delay.
        Wrong phase delay may cause noise in codec.
     */
     {
         uint32_t u32Reg;
-        
+
         u32Reg = SPI0->I2SCLK;
         SPI0->I2SCLK = 0;
         __NOP();
@@ -243,7 +243,7 @@ int32_t main(void)
         __NOP();
         SPI0->I2SCLK = u32Reg;
     }
-        
+
 
     /* Fill dummy data to I2S Tx for start I2S iteration */
     for(i = 0; i < 4; i++)
@@ -262,7 +262,7 @@ int32_t main(void)
 
     /* Backup default trim */
     u32TrimInit = M32(TRIM_INIT);
-    
+
     /* Clear SOF */
     USBD->INTSTS = USBD_INTSTS_SOFIF_Msk;
 
@@ -303,8 +303,8 @@ int32_t main(void)
             /* Clear SOF */
             USBD->INTSTS = USBD_INTSTS_SOFIF_Msk;
         }
-        
-        
+
+
         /* Adjust codec sampling rate to synch with USB. The adjustment range is +-0.005% */
         AdjFreq();
 
@@ -324,25 +324,25 @@ int32_t main(void)
             }
             else
             {
-            
-            
-            printf("\nEnter codec setting:\n");
-            // Get Register number
-            ch = getchar();
-            u32Reg = ch - '0';
-            ch = getchar();
-            u32Reg = u32Reg * 10 + (ch - '0');
-            printf("%d\n", u32Reg);
 
-            // Get data
-            ch = getchar();
-            u32Data = (ch >= '0' && ch <= '9') ? ch - '0' : ch - 'a' + 10;
-            ch = getchar();
-            u32Data = u32Data * 16 + ((ch >= '0' && ch <= '9') ? ch - '0' : ch - 'a' + 10);
-            ch = getchar();
-            u32Data = u32Data * 16 + ((ch >= '0' && ch <= '9') ? ch - '0' : ch - 'a' + 10);
-            printf("%03x\n", u32Data);
-            I2C_WriteWAU8822(u32Reg,  u32Data);
+
+                printf("\nEnter codec setting:\n");
+                // Get Register number
+                ch = getchar();
+                u32Reg = ch - '0';
+                ch = getchar();
+                u32Reg = u32Reg * 10 + (ch - '0');
+                printf("%d\n", u32Reg);
+
+                // Get data
+                ch = getchar();
+                u32Data = (ch >= '0' && ch <= '9') ? ch - '0' : ch - 'a' + 10;
+                ch = getchar();
+                u32Data = u32Data * 16 + ((ch >= '0' && ch <= '9') ? ch - '0' : ch - 'a' + 10);
+                ch = getchar();
+                u32Data = u32Data * 16 + ((ch >= '0' && ch <= '9') ? ch - '0' : ch - 'a' + 10);
+                printf("%03x\n", u32Data);
+                I2C_WriteWAU8822(u32Reg,  u32Data);
             }
         }
 

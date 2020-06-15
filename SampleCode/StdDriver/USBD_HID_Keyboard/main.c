@@ -19,7 +19,7 @@
 
 /*--------------------------------------------------------------------------*/
 uint8_t volatile g_u8EP2Ready = 0;
-
+int IsDebugFifoEmpty(void);
 
 
 void SYS_Init(void)
@@ -38,7 +38,7 @@ void SYS_Init(void)
     /* Switch HCLK clock source to Internal RC and HCLK source divide 1 */
     CLK_SetHCLK(CLK_CLKSEL0_HCLKSEL_HIRC, CLK_CLKDIV0_HCLK(1));
 
-#ifndef CRYSTAL_LESS
+#if (!CRYSTAL_LESS)
     /* Enable external XTAL 12 MHz clock */
     CLK_EnableXtalRC(CLK_PWRCTL_HXTEN_Msk);
 
@@ -80,7 +80,7 @@ void SYS_Init(void)
     /* Init I/O Multi-function                                                                                 */
     /*---------------------------------------------------------------------------------------------------------*/
 
-    /* Set P3 multi-function pins for UART0 RXD and TXD */
+    /* Set PD multi-function pins for UART0 RXD and TXD */
     SYS->GPD_MFPL &= ~(SYS_GPD_MFPL_PD0MFP_Msk | SYS_GPD_MFPL_PD1MFP_Msk);
     SYS->GPD_MFPL |= SYS_GPD_MFPL_PD0MFP_UART0_RXD | SYS_GPD_MFPL_PD1MFP_UART0_TXD;
 }
@@ -137,13 +137,38 @@ void HID_UpdateKbData(void)
     }
 }
 
+void PowerDown()
+{
+    /* Unlock protected registers */
+    SYS_UnlockReg();
+
+    printf("Enter power down ...\n");
+    while(!IsDebugFifoEmpty());
+
+    /* Wakeup Enable */
+    USBD_ENABLE_INT(USBD_INTEN_WKEN_Msk);
+
+    CLK_PowerDown();
+
+    /* Clear PWR_DOWN_EN if it is not clear by itself */
+    if(CLK->PWRCTL & CLK_PWRCTL_PDEN_Msk)
+        CLK->PWRCTL ^= CLK_PWRCTL_PDEN_Msk;
+
+    printf("device wakeup!\n");
+
+    /* Lock protected registers */
+    SYS_LockReg();
+}
+
 /*---------------------------------------------------------------------------------------------------------*/
 /*  Main Function                                                                                          */
 /*---------------------------------------------------------------------------------------------------------*/
 int32_t main(void)
 {
+#if CRYSTAL_LESS
     uint32_t u32TrimInit;
-        
+#endif
+
     /* Unlock protected registers */
     SYS_UnlockReg();
 
@@ -165,7 +190,7 @@ int32_t main(void)
     /* Enable USB device interrupt */
     NVIC_EnableIRQ(USBD_IRQn);
 
-#ifdef CRYSTAL_LESS
+#if CRYSTAL_LESS
     /* Backup default trim */
     u32TrimInit = M32(TRIM_INIT);
 #endif
@@ -178,7 +203,7 @@ int32_t main(void)
 
     while(1)
     {
-#ifdef CRYSTAL_LESS
+#if CRYSTAL_LESS
         /* Start USB trim if it is not enabled. */
         if((SYS->IRCTCTL1 & SYS_IRCTCTL1_FREQSEL_Msk) != 2)
         {
@@ -209,6 +234,10 @@ int32_t main(void)
             USBD->INTSTS = USBD_INTSTS_SOFIF_Msk;
         }
 #endif
+
+        /* Enter power down when USB suspend */
+        if(g_u8Suspend)
+            PowerDown();
 
         HID_UpdateKbData();
     }

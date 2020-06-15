@@ -12,20 +12,24 @@
 /*!<USB HID Report Descriptor */
 const uint8_t HID_DeviceReportDescriptor[] =
 {
-    0x05, 0x01, // USAGE_PAGE (Generic Desktop)
-    0x09, 0x00, // USAGE (0)
-    0xA1, 0x01, // COLLECTION (Application)
-    0x15, 0x00, //     LOGICAL_MINIMUM (0)
-    0x25, 0xFF, //     LOGICAL_MAXIMUM (255)
-    0x19, 0x01, //     USAGE_MINIMUM (1)
-    0x29, 0x08, //     USAGE_MAXIMUM (8)
-    0x95, 0x40, //     REPORT_COUNT (8)
-    0x75, 0x08, //     REPORT_SIZE (8)
-    0x81, 0x02, //     INPUT (Data,Var,Abs)
-    0x19, 0x01, //     USAGE_MINIMUM (1)
-    0x29, 0x08, //     USAGE_MAXIMUM (8)
-    0x91, 0x02, //   OUTPUT (Data,Var,Abs)
-    0xC0        // END_COLLECTION
+    0x06, 0x00, 0xFF,   // Usage Page = 0xFF00 (Vendor Defined Page 1)
+    0x09, 0x01,         // Usage (Vendor Usage 1)
+    0xA1, 0x01,         // Collection (Application)
+    0x19, 0x01,         // Usage Minimum
+    0x29, 0x40,         // Usage Maximum //64 input usages total (0x01 to 0x40)
+    0x15, 0x00,         // Logical Minimum (data bytes in the report may have minimum value = 0x00)
+    0x26, 0xFF, 0x00,   // Logical Maximum (data bytes in the report may have maximum value = 0x00FF = unsigned 255)
+    0x75, 0x08,         // Report Size: 8-bit field size
+    0x95, 0x40,         // Report Count: Make sixty-four 8-bit fields (the next time the parser hits
+    // an "Input", "Output", or "Feature" item)
+    0x81, 0x00,         // Input (Data, Array, Abs): Instantiates input packet fields based on the
+    // above report size, count, logical min/max, and usage.
+    0x19, 0x01,         // Usage Minimum
+    0x29, 0x40,         // Usage Maximum //64 output usages total (0x01 to 0x40)
+    0x91, 0x00,         // Output (Data, Array, Abs): Instantiates output packet fields. Uses same
+    // report size and count as "Input" fields, since nothing new/different was
+    // specified to the parser since the "Input" item.
+    0xC0                // End Collection
 };
 
 
@@ -35,7 +39,11 @@ const uint8_t gu8DeviceDescriptor[] =
 {
     LEN_DEVICE,     /* bLength */
     DESC_DEVICE,    /* bDescriptorType */
+#ifdef SUPPORT_LPM
+    0x01, 0x02,     /* bcdUSB >= 0x0201 to support LPM */
+#else
     0x10, 0x01,     /* bcdUSB */
+#endif
     0x00,           /* bDeviceClass */
     0x00,           /* bDeviceSubClass */
     0x00,           /* bDeviceProtocol */
@@ -169,6 +177,32 @@ const uint32_t gu32ConfigHidDescIdx[2] =
     0
 };
 
+#ifdef SUPPORT_LPM
+const uint8_t gu8BosDescriptor[] =
+{
+    LEN_BOS,        /* bLength */
+    DESC_BOS,       /* bDescriptorType */
+    /* wTotalLength */
+    0x0C & 0x00FF,
+    (0x0C & 0xFF00) >> 8,
+    0x01,           /* bNumDeviceCaps */
+
+    /* Device Capability */
+    LEN_DEVCAP,     /* bLength */
+    DESC_DEVCAP,/* bDescriptorType */
+    0x02,  /* bDevCapabilityType, 0x02 is USB 2.0 Extension */
+    0x06, 0x04, 0x00, 0x00  /* bmAttributes, 32 bits */
+                            /* bit 0 : Reserved. Must 0. */
+                            /* bit 1 : 1 to support LPM. */
+                            /* bit 2 : 1 to support BSL & Alternat HIRD. */
+                            /* bit 3 : 1 to recommend Baseline BESL. */
+                            /* bit 4 : 1 to recommand Deep BESL. */
+                            /* bit 11:8 : Recommend Baseline BESL value. Ignore by bit3 is zero. */
+                            /* bit 15:12 : Recommend Deep BESL value. Ignore by bit4 is zero. */
+                            /* bit 31:16 : Reserved. Must 0. */
+};
+#endif
+
 const S_USBD_INFO_T gsInfo =
 {
     gu8DeviceDescriptor,
@@ -176,7 +210,12 @@ const S_USBD_INFO_T gsInfo =
     gpu8UsbString,
     gpu8UsbHidReport,
     gu32UsbHidReportLen,
-    gu32ConfigHidDescIdx
+    gu32ConfigHidDescIdx,
+#ifdef SUPPORT_LPM
+    gu8BosDescriptor
+#else
+    NULL
+#endif
 };
 
 /*** (C) COPYRIGHT 2016 Nuvoton Technology Corp. ***/

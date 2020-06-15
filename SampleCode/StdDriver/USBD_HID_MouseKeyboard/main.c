@@ -20,6 +20,7 @@
 #define HIRC48_AUTO_TRIM    0x412   /* Use USB signal to fine tune HIRC 48MHz */
 #define TRIM_INIT           (SYS_BASE+0x118)
 
+int IsDebugFifoEmpty(void);
 
 void SYS_Init(void)
 {
@@ -37,7 +38,7 @@ void SYS_Init(void)
     /* Switch HCLK clock source to Internal RC and HCLK source divide 1 */
     CLK_SetHCLK(CLK_CLKSEL0_HCLKSEL_HIRC, CLK_CLKDIV0_HCLK(1));
 
-#ifndef CRYSTAL_LESS
+#if (!CRYSTAL_LESS)
     /* Enable external XTAL 12 MHz clock */
     CLK_EnableXtalRC(CLK_PWRCTL_HXTEN_Msk);
 
@@ -99,12 +100,37 @@ void UART0_Init(void)
     UART0->LINE = UART_WORD_LEN_8 | UART_PARITY_NONE | UART_STOP_BIT_1;
 }
 
+void PowerDown()
+{
+    /* Unlock protected registers */
+    SYS_UnlockReg();
+
+    printf("Enter power down ...\n");
+    while(!IsDebugFifoEmpty());
+
+    /* Wakeup Enable */
+    USBD_ENABLE_INT(USBD_INTEN_WKEN_Msk);
+
+    CLK_PowerDown();
+
+    /* Clear PWR_DOWN_EN if it is not clear by itself */
+    if(CLK->PWRCTL & CLK_PWRCTL_PDEN_Msk)
+        CLK->PWRCTL ^= CLK_PWRCTL_PDEN_Msk;
+
+    printf("device wakeup!\n");
+
+    /* Lock protected registers */
+    SYS_LockReg();
+}
+
 /*---------------------------------------------------------------------------------------------------------*/
 /*  Main Function                                                                                          */
 /*---------------------------------------------------------------------------------------------------------*/
 int32_t main(void)
 {
+#if CRYSTAL_LESS
     uint32_t u32TrimInit;
+#endif
 
     /* Unlock protected registers */
     SYS_UnlockReg();
@@ -132,7 +158,7 @@ int32_t main(void)
     /* Enable USB device interrupt */
     NVIC_EnableIRQ(USBD_IRQn);
 
-#ifdef CRYSTAL_LESS
+#if CRYSTAL_LESS
     /* Backup default trim */
     u32TrimInit = M32(TRIM_INIT);
 #endif
@@ -142,7 +168,7 @@ int32_t main(void)
 
     while(1)
     {
-#ifdef CRYSTAL_LESS
+#if CRYSTAL_LESS
         /* Start USB trim if it is not enabled. */
         if((SYS->IRCTCTL1 & SYS_IRCTCTL1_FREQSEL_Msk) != 2)
         {
@@ -173,6 +199,10 @@ int32_t main(void)
             USBD->INTSTS = USBD_INTSTS_SOFIF_Msk;
         }
 #endif
+
+        /* Enter power down when USB suspend */
+        if(g_u8Suspend)
+            PowerDown();
 
         HID_UpdateMouseData();
         HID_UpdateKbData();
