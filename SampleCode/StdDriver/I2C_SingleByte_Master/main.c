@@ -4,8 +4,8 @@
  * $Revision: 1 $
  * $Date: 16/11/11 2:05p $
  * @brief
- *           Show how to use I2C Signle byte API Read and Write data to Slave 
- *           Needs to work with I2C_Slave sample code.  
+ *           Show how to use I2C Signle byte API Read and Write data to Slave
+ *           Needs to work with I2C_Slave sample code.
  * @note
  * Copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
  *
@@ -67,6 +67,9 @@ void SYS_Init(void)
     /* Set PA multi-function pins for I2C0 SDA and SCL */
     SYS->GPA_MFPL &= ~(SYS_GPA_MFPL_PA2MFP_Msk | SYS_GPA_MFPL_PA3MFP_Msk);
     SYS->GPA_MFPL |= (SYS_GPA_MFPL_PA2MFP_I2C0_SDA | SYS_GPA_MFPL_PA3MFP_I2C0_SCL);
+
+    /* I2C pins enable schmitt trigger */
+    PA->SMTEN |= (GPIO_SMTEN_SMTEN2_Msk | GPIO_SMTEN_SMTEN3_Msk);
 }
 
 void UART0_Init()
@@ -119,7 +122,7 @@ void I2C0_Close(void)
 int32_t main(void)
 {
     uint32_t i;
-    uint8_t u8data, u8tmp, err; 
+    uint8_t u8data, u8tmp, err;
 
     /* Unlock protected registers */
     SYS_UnlockReg();
@@ -154,15 +157,15 @@ int32_t main(void)
     I2C0_Init();
 
     /* Slave Address */
-    g_u8DeviceAddr = 0x15; 
+    g_u8DeviceAddr = 0x15;
 
     err = 0;
-       
+
     for(i = 0; i<256; i++)
     {
-        u8tmp = (uint8_t)i+3; 
-        
-        /* Single Byte Write (Two Registers) */         
+        u8tmp = (uint8_t)i+3;
+
+        /* Single Byte Write (Two Registers) */
         while(I2C_WriteByteTwoRegs(I2C0, g_u8DeviceAddr, i, u8tmp));
 
         /* Single Byte Read (Two Registers) */
@@ -172,7 +175,7 @@ int32_t main(void)
             err = 1;
             printf("%03d: Single byte write data fail,  W(0x%X)/R(0x%X) \n", i, u8tmp, u8data);
         }
-    } 
+    }
 
     printf("\n");
 

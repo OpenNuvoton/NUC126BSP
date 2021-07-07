@@ -285,6 +285,9 @@ void SYS_Init(void)
     /* Set PC multi-function pins for UI2C0_SDA(PC.5) and UI2C0_SDA(PC.4) */
     SYS->GPC_MFPL &= ~(SYS_GPC_MFPL_PC5MFP_Msk | SYS_GPC_MFPL_PC4MFP_Msk);
     SYS->GPC_MFPL |= (SYS_GPC_MFPL_PC5MFP_USCI0_DAT0 | SYS_GPC_MFPL_PC4MFP_USCI0_CLK);
+
+    /* I2C pins enable schmitt trigger */
+    PC->SMTEN |= (GPIO_SMTEN_SMTEN4_Msk | GPIO_SMTEN_SMTEN5_Msk);
 }
 
 void UI2C0_Init(uint32_t u32ClkSpeed)
@@ -417,7 +420,7 @@ int main()
     UI2C0->WKCTL |= UI2C_WKCTL_WKEN_Msk;
 
     /* System power down enable */
-    printf("Enter PD 0x%x 0x%x\n", UI2C0->PROTCTL , UI2C_GET_PROT_STATUS(UI2C0));
+    printf("Enter PD 0x%x 0x%x\n", UI2C0->PROTCTL, UI2C_GET_PROT_STATUS(UI2C0));
     printf("\nCHIP enter power down status.\n");
 
     /* Waiting for UART printf finish*/

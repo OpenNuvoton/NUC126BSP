@@ -372,6 +372,10 @@ void SYS_Init(void)
     /* Set PD multi-function pins for UI2C1_SDA(PD.14) and UI2C1_SDA(PD.15) */
     SYS->GPD_MFPH &= ~(SYS_GPD_MFPH_PD14MFP_Msk | SYS_GPD_MFPH_PD15MFP_Msk);
     SYS->GPD_MFPH |= (SYS_GPD_MFPH_PD14MFP_USCI1_DAT0 | SYS_GPD_MFPH_PD15MFP_USCI1_CLK);
+
+    /* I2C pins enable schmitt trigger */
+    PC->SMTEN |= (GPIO_SMTEN_SMTEN4_Msk | GPIO_SMTEN_SMTEN5_Msk);
+    PD->SMTEN |= (GPIO_SMTEN_SMTEN14_Msk | GPIO_SMTEN_SMTEN15_Msk);
 }
 
 void UI2C0_Init(uint32_t u32ClkSpeed)
