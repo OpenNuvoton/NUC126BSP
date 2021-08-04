@@ -35,6 +35,11 @@
 #define CRYSTAL_LESS        1
 #define HIRC48_AUTO_TRIM    0x412   /* Use USB signal to fine tune HIRC 48MHz */
 #define TRIM_INIT           (SYS_BASE+0x118)
+#define TRIM_THRESHOLD      16      /* Each value is 0.125%, max 2% */
+
+#if CRYSTAL_LESS
+static volatile uint32_t s_u32DefaultTrim, s_u32LastTrim;
+#endif
 
 #define CONFIG_BASE      0x00300000
 #define DATA_FLASH_BASE  MASS_STORAGE_OFFSET
@@ -148,10 +153,6 @@ void PowerDown()
 /*---------------------------------------------------------------------------------------------------------*/
 int32_t main(void)
 {
-#if CRYSTAL_LESS
-    uint32_t u32TrimInit;
-#endif
-    
     /* Unlock protected registers */
     SYS_UnlockReg();
 
@@ -179,7 +180,8 @@ int32_t main(void)
 
 #if CRYSTAL_LESS
     /* Backup default trim */
-    u32TrimInit = M32(TRIM_INIT);
+    s_u32DefaultTrim = M32(TRIM_INIT);
+    s_u32LastTrim = s_u32DefaultTrim;
 #endif
 
     /* Clear SOF */
@@ -205,8 +207,8 @@ int32_t main(void)
         /* Disable USB Trim when error */
         if(SYS->IRCTISTS & (SYS_IRCTISTS_CLKERRIF1_Msk | SYS_IRCTISTS_TFAILIF1_Msk))
         {
-            /* Init TRIM */
-            M32(TRIM_INIT) = u32TrimInit;
+            /* Last TRIM */
+            M32(TRIM_INIT) = s_u32LastTrim;
 
             /* Disable crystal-less */
             SYS->IRCTCTL1 = 0;
@@ -216,6 +218,18 @@ int32_t main(void)
 
             /* Clear SOF */
             USBD->INTSTS = USBD_INTSTS_SOFIF_Msk;
+        }
+
+        /* Check trim value whether it is over the threshold */
+        if((M32(TRIM_INIT) > (s_u32DefaultTrim + TRIM_THRESHOLD)) || (M32(TRIM_INIT) < (s_u32DefaultTrim - TRIM_THRESHOLD)))
+        {
+            /* Write updated value */
+            M32(TRIM_INIT) = s_u32LastTrim;
+        }
+        else
+        {
+            /* Backup trim value */
+            s_u32LastTrim =  M32(TRIM_INIT);
         }
 #endif
 
