@@ -393,6 +393,10 @@ void SYS_Init(void)
     /* Set PC multi-function pins for I2C1 SDA and SCL */
     SYS->GPC_MFPL &= ~(SYS_GPC_MFPL_PC5MFP_Msk | SYS_GPC_MFPL_PC4MFP_Msk);
     SYS->GPC_MFPL |= (SYS_GPC_MFPL_PC5MFP_I2C1_SDA | SYS_GPC_MFPL_PC4MFP_I2C1_SCL);
+
+    /* I2C pins enable schmitt trigger */
+    PA->SMTEN |= (GPIO_SMTEN_SMTEN2_Msk | GPIO_SMTEN_SMTEN3_Msk);
+    PC->SMTEN |= (GPIO_SMTEN_SMTEN4_Msk | GPIO_SMTEN_SMTEN5_Msk);
 }
 
 void UART0_Init()

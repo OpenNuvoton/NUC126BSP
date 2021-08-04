@@ -71,6 +71,8 @@ void SYS_Init(void)
     SYS->GPC_MFPL &= ~(SYS_GPC_MFPL_PC5MFP_Msk | SYS_GPC_MFPL_PC4MFP_Msk);
     SYS->GPC_MFPL |= (SYS_GPC_MFPL_PC5MFP_USCI0_DAT0 | SYS_GPC_MFPL_PC4MFP_USCI0_CLK);
 
+    /* I2C pins enable schmitt trigger */
+    PC->SMTEN |= (GPIO_SMTEN_SMTEN4_Msk | GPIO_SMTEN_SMTEN5_Msk);
 }
 
 void UI2C0_Init(uint32_t u32ClkSpeed)
@@ -93,7 +95,7 @@ void UI2C0_Init(uint32_t u32ClkSpeed)
 int main()
 {
     uint32_t i;
-    uint8_t u8data, u8tmp, err; 
+    uint8_t u8data, u8tmp, err;
 
     /* Unlock protected registers */
     SYS_UnlockReg();
@@ -128,14 +130,14 @@ int main()
 
     /* Slave address */
     g_u8DeviceAddr = 0x15;
-    
+
     err = 0;
-    
+
     for(i = 0; i<256; i++)
     {
-        u8tmp = (uint8_t)i+3; 
-        
-        /* Single Byte Write (Two Registers) */         
+        u8tmp = (uint8_t)i+3;
+
+        /* Single Byte Write (Two Registers) */
         while(UI2C_WriteByteTwoRegs(UI2C0, g_u8DeviceAddr, i, u8tmp));
 
         /* Single Byte Read (Two Registers) */
@@ -145,15 +147,15 @@ int main()
             err = 1;
             printf("%03d: Single byte write data fail,  W(0x%X)/R(0x%X) \n", i, u8tmp, u8data);
         }
-    } 
-   
+    }
+
     printf("\n");
-    
+
     if(err)
         printf("Single byte Read/Write access Fail.....\n");
     else
         printf("Single byte Read/Write access Pass.....\n");
-    
+
     while(1);
 }
 

@@ -70,6 +70,9 @@ void SYS_Init(void)
     /* Set PC multi-function pins for UI2C0_SDA(PC.5) and UI2C0_SDA(PC.4) */
     SYS->GPC_MFPL &= ~(SYS_GPC_MFPL_PC5MFP_Msk | SYS_GPC_MFPL_PC4MFP_Msk);
     SYS->GPC_MFPL |= (SYS_GPC_MFPL_PC5MFP_USCI0_DAT0 | SYS_GPC_MFPL_PC4MFP_USCI0_CLK);
+
+    /* I2C pins enable schmitt trigger */
+    PC->SMTEN |= (GPIO_SMTEN_SMTEN4_Msk | GPIO_SMTEN_SMTEN5_Msk);
 }
 
 void UI2C0_Init(uint32_t u32ClkSpeed)
@@ -92,7 +95,7 @@ void UI2C0_Init(uint32_t u32ClkSpeed)
 int main()
 {
     uint32_t i;
-    uint8_t txbuf[256] = {0}, rDataBuf[256] = {0}; 
+    uint8_t txbuf[256] = {0}, rDataBuf[256] = {0};
 
     /* Unlock protected registers */
     SYS_UnlockReg();
@@ -127,33 +130,33 @@ int main()
 
     /* Slave address */
     g_u8DeviceAddr = 0x15;
-    
+
     for(i = 0; i<256; i++)
     {
         txbuf[i] = (uint8_t) i+3;
-    }  
-    
+    }
+
     for(i=0; i<256; i+=32)
     {
         /* Write 32 bytes data to Slave */
-        while(UI2C_WriteMultiBytesTwoRegs(UI2C0, g_u8DeviceAddr, i, &txbuf[i], 32) < 32);                  
-    }  
+        while(UI2C_WriteMultiBytesTwoRegs(UI2C0, g_u8DeviceAddr, i, &txbuf[i], 32) < 32);
+    }
 
     printf("Multi bytes Write access Pass.....\n");
-    
+
     printf("\n");
-        
-    /* Use Multi Bytes Read from Slave (Two Registers) */   
+
+    /* Use Multi Bytes Read from Slave (Two Registers) */
     while(UI2C_ReadMultiBytesTwoRegs(UI2C0, g_u8DeviceAddr, 0x0000, rDataBuf, 256) < 256);
 
     /* Compare TX data and RX data */
     for(i = 0; i<256; i++)
     {
         if(txbuf[i] != rDataBuf[i])
-            printf("Data compare fail... R[%d] Data: 0x%X\n", i, rDataBuf[i]); 
+            printf("Data compare fail... R[%d] Data: 0x%X\n", i, rDataBuf[i]);
     }
     printf("Multi bytes Read access Pass.....\n");
-     
+
     while(1);
 }
 

@@ -187,6 +187,9 @@ void SYS_Init(void)
     /* Set PA multi-function pins for I2C0 SDA and SCL */
     SYS->GPA_MFPL &= ~(SYS_GPA_MFPL_PA2MFP_Msk | SYS_GPA_MFPL_PA3MFP_Msk);
     SYS->GPA_MFPL |= (SYS_GPA_MFPL_PA2MFP_I2C0_SDA | SYS_GPA_MFPL_PA3MFP_I2C0_SCL);
+
+    /* I2C pins enable schmitt trigger */
+    PA->SMTEN |= (GPIO_SMTEN_SMTEN2_Msk | GPIO_SMTEN_SMTEN3_Msk);
 }
 
 void UART0_Init()
@@ -297,7 +300,7 @@ int32_t main(void)
     g_u8SlvI2CWK = 0;
 
     printf("\n");
-    printf("Enter PD 0x%x 0x%x\n", I2C0->CTL , I2C0->STATUS);
+    printf("Enter PD 0x%x 0x%x\n", I2C0->CTL, I2C0->STATUS);
     printf("\n");
     printf("CHIP enter power down status.\n");
 
