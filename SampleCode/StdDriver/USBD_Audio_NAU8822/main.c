@@ -12,7 +12,7 @@
 #include "usbd_audio.h"
 
 
-#define HIRC48_AUTO_TRIM    0x412   /* Use USB signal to fine tune HIRC 48MHz */
+#define HIRC48_AUTO_TRIM    0x512   /* Use USB signal to fine tune HIRC 48MHz */
 #define TRIM_INIT           (SYS_BASE+0x118)
 #define TRIM_THRESHOLD      16      /* Each value is 0.125%, max 2% */
 
