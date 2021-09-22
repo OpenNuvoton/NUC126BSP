@@ -48,7 +48,7 @@ int main(void)
 
     printf("\n\n");
     printf("+----------------------------------------------------------------------+\n");
-    printf("|                     SPI Master Mode Sample Code                      |\n");
+    printf("|                      SPI Master Mode Sample Code                     |\n");
     printf("+----------------------------------------------------------------------+\n");
     printf("\n");
     printf("Configure SPI0 as a master.\n");
@@ -75,7 +75,7 @@ int main(void)
 
     /* Set TX FIFO threshold, enable TX FIFO threshold interrupt and RX FIFO time-out interrupt */
     SPI_SetFIFO(SPI0, 4, 4);
-    SPI_EnableInt(SPI0, SPI_FIFOCTL_TXTHIEN_Msk | SPI_FIFOCTL_RXTOIEN_Msk);
+    SPI_EnableInt(SPI0, SPI_FIFO_TXTH_INT_MASK | SPI_FIFO_RXTO_INT_MASK);
 
     g_u32TxDataCount = 0;
     g_u32RxDataCount = 0;
@@ -91,7 +91,7 @@ int main(void)
         printf("%d:\t0x%X\n", u32DataCount, g_au32DestinationData[u32DataCount]);
     }
     /* Disable TX FIFO threshold interrupt and RX FIFO time-out interrupt */
-    SPI_DisableInt(SPI0, SPI_FIFOCTL_TXTHIEN_Msk | SPI_FIFOCTL_RXTOIEN_Msk);
+    SPI_DisableInt(SPI0, SPI_FIFO_TXTH_INT_MASK | SPI_FIFO_RXTO_INT_MASK);
     NVIC_DisableIRQ(SPI0_IRQn);
     printf("The data transfer was done.\n");
 
@@ -172,10 +172,10 @@ void SPI0_IRQHandler(void)
         SPI_WRITE_TX(SPI0, g_au32SourceData[g_u32TxDataCount++]);
     }
     if(g_u32TxDataCount >= TEST_COUNT)
-        SPI_DisableInt(SPI0, SPI_FIFOCTL_TXTHIEN_Msk); /* Disable TX FIFO threshold interrupt */
+        SPI_DisableInt(SPI0, SPI_FIFO_TXTH_INT_MASK); /* Disable TX FIFO threshold interrupt */
 
     /* Check the RX FIFO time-out interrupt flag */
-    if(SPI_GetIntFlag(SPI0, SPI_FIFOCTL_RXTOIEN_Msk))
+    if(SPI_GetIntFlag(SPI0, SPI_FIFO_RXTO_INT_MASK))
     {
         /* If RX FIFO is not empty, read RX FIFO. */
         while((SPI0->STATUS & SPI_STATUS_RXEMPTY_Msk) == 0)
