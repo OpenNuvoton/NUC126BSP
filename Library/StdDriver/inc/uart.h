@@ -330,7 +330,7 @@ extern "C"
  *
  *    @return       None
  *
- *    @details      This macro enable specified UART interrupt.
+ *    @details      This macro disable specified UART interrupt.
  */
 #define UART_DISABLE_INT(uart, u32eIntSel)    ((uart)->INTEN &= ~ (u32eIntSel))
 
