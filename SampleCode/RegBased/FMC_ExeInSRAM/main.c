@@ -15,6 +15,7 @@
 #define PLLCTL_SETTING      CLK_PLLCTL_72MHz_HXT
 #define PLL_CLOCK           72000000
 
+int32_t g_FMC_i32ErrCode;
 
 void SYS_Init(void)
 {
@@ -30,7 +31,7 @@ void SYS_Init(void)
 
     /* Select HCLK clock source as HIRC and and HCLK clock divider as 1 */
     CLK->CLKSEL0 &= ~CLK_CLKSEL0_HCLKSEL_Msk;
-    CLK->CLKSEL0 |= CLK_CLKSEL0_HCLKSEL_HXT;
+    CLK->CLKSEL0 |= CLK_CLKSEL0_HCLKSEL_HIRC;
     CLK->CLKDIV0 &= ~CLK_CLKDIV0_HCLKDIV_Msk;
     CLK->CLKDIV0 |= CLK_CLKDIV0_HCLK(1);
 
@@ -64,14 +65,6 @@ void SYS_Init(void)
     /* Set PD multi-function pins for UART0 RXD and TXD */
     SYS->GPD_MFPL &= ~(SYS_GPD_MFPL_PD0MFP_Msk | SYS_GPD_MFPL_PD1MFP_Msk);
     SYS->GPD_MFPL |= (SYS_GPD_MFPL_PD0MFP_UART0_RXD | SYS_GPD_MFPL_PD1MFP_UART0_TXD);
-
-    /* Set PD multi-function pins for I2C0 SDA and SCL */
-    SYS->GPD_MFPL &= ~(SYS_GPD_MFPL_PD4MFP_Msk | SYS_GPD_MFPL_PD5MFP_Msk);
-    SYS->GPD_MFPL |= (SYS_GPD_MFPL_PD4MFP_I2C0_SDA | SYS_GPD_MFPL_PD5MFP_I2C0_SCL);
-
-    /* Set PE multi-function pins for I2C1 SDA and SCL */
-    SYS->GPE_MFPL &= ~(SYS_GPE_MFPL_PE5MFP_Msk | SYS_GPE_MFPL_PE4MFP_Msk);
-    SYS->GPE_MFPL |= (SYS_GPE_MFPL_PE5MFP_I2C1_SDA | SYS_GPE_MFPL_PE4MFP_I2C1_SCL);
 }
 
 
@@ -138,7 +131,7 @@ int main()
         if(u32Data != u32RData)
         {
             printf("[Read/Write FAIL]\n");
-            while(1);
+            return -1;
         }
     }
     /* Disable FMC ISP function */

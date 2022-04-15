@@ -11,7 +11,7 @@
 #include "NUC126.h"
 
 
-#define PLLCON_SETTING  CLK_PLLCTL_72MHz_HXT
+#define PLLCTL_SETTING  CLK_PLLCTL_72MHz_HXT
 #define PLL_CLOCK       72000000
 
 
@@ -122,7 +122,7 @@ void SYS_Init(void)
     CLK->PWRCTL |= CLK_PWRCTL_HXTEN_Msk;
 
     /* Enable PLL and Set PLL frequency */
-    CLK->PLLCTL = PLLCON_SETTING;
+    CLK->PLLCTL = PLLCTL_SETTING;
 
     /* Waiting for clock ready */
     while(!(CLK->STATUS & CLK_STATUS_PLLSTB_Msk));
@@ -147,7 +147,7 @@ void SYS_Init(void)
     /*---------------------------------------------------------------------------------------------------------*/
     /* Init I/O Multi-function                                                                                 */
     /*---------------------------------------------------------------------------------------------------------*/
-    /* Set PD multi-function pins for UART0 RXD, TXD */
+    /* Set PD multi-function pins for UART0 RXD and TXD */
     SYS->GPD_MFPL &= ~(SYS_GPD_MFPL_PD0MFP_Msk | SYS_GPD_MFPL_PD1MFP_Msk);
     SYS->GPD_MFPL |= (SYS_GPD_MFPL_PD0MFP_UART0_RXD | SYS_GPD_MFPL_PD1MFP_UART0_TXD);
 }
@@ -263,7 +263,7 @@ int main(void)
                     (g_au32TMRINTCount[3] > (g_au32TMRINTCount[0] * 8 + 1)) || (g_au32TMRINTCount[3] < (g_au32TMRINTCount[0] * 8 - 1)))
             {
                 printf("*** FAIL ***\n");
-                while(1);
+                return -1;
             }
         }
     }

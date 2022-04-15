@@ -263,7 +263,7 @@ void I2C0_Close(void)
 /*---------------------------------------------------------------------------------------------------------*/
 int32_t main(void)
 {
-    uint32_t i;
+    uint32_t i, u32TimeOutCnt;
 
     /* Unlock protected registers */
     SYS_UnlockReg();
@@ -274,7 +274,7 @@ int32_t main(void)
     /* Lock protected registers */
     SYS_LockReg();
 
-    /* Init UART3 for printf */
+    /* Init UART0 for printf */
     UART0_Init();
 
     /*
@@ -308,10 +308,18 @@ int32_t main(void)
         s_I2C0HandlerFn = (I2C_FUNC)I2C_MasterTx;
 
         /* I2C as master sends START signal */
-        I2C_SET_CONTROL_REG(I2C0,   I2C_CTL_STA);
+        I2C_SET_CONTROL_REG(I2C0, I2C_CTL_STA);
 
         /* Wait I2C Tx Finish */
-        while(g_u8EndFlag == 0);
+        u32TimeOutCnt = I2C_TIMEOUT;
+        while(g_u8EndFlag == 0)
+        {
+            if(--u32TimeOutCnt == 0)
+            {
+                printf("Wait for I2C Tx finish time-out!\n");
+                return -1;
+            }
+        }
         g_u8EndFlag = 0;
 
         /* I2C function to read data from slave */
@@ -321,10 +329,18 @@ int32_t main(void)
         g_u8DataLen = 0;
         g_u8DeviceAddr = 0x50;
 
-        I2C_SET_CONTROL_REG(I2C0,   I2C_CTL_STA);
+        I2C_SET_CONTROL_REG(I2C0, I2C_CTL_STA);
 
         /* Wait I2C Rx Finish */
-        while(g_u8EndFlag == 0);
+        u32TimeOutCnt = I2C_TIMEOUT;
+        while(g_u8EndFlag == 0)
+        {
+            if(--u32TimeOutCnt == 0)
+            {
+                printf("Wait for I2C Rx finish time-out!\n");
+                return -1;
+            }
+        }
 
         /* Compare data */
         if(g_u8RxData != g_au8TxData[2])

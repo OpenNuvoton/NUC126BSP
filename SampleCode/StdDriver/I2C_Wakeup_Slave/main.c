@@ -80,8 +80,12 @@ void PWRWU_IRQHandler(void)
 /*---------------------------------------------------------------------------------------------------------*/
 void PowerDownFunction(void)
 {
+    uint32_t u32TimeOutCnt;
+
     /* Check if all the debug messages are finished */
-    UART_WAIT_TX_EMPTY(UART0);
+    u32TimeOutCnt = SystemCoreClock; /* 1 second time-out */
+    UART_WAIT_TX_EMPTY(UART0)
+        if(--u32TimeOutCnt == 0) break;
 
     /* Enter to Power-down mode */
     CLK_PowerDown();
@@ -245,7 +249,7 @@ void I2C0_Close(void)
 /*---------------------------------------------------------------------------------------------------------*/
 int32_t main(void)
 {
-    uint32_t i;
+    uint32_t i, u32TimeOutCnt;
 
     /* Unlock protected registers */
     SYS_UnlockReg();
@@ -257,7 +261,7 @@ int32_t main(void)
     UART0_Init();
 
     /* Lock protected registers */
-    SYS_LockReg();;
+    SYS_LockReg();
 
     /*
         This sample code is I2C SLAVE mode and it simulates EEPROM function
@@ -311,17 +315,33 @@ int32_t main(void)
     /* Enter to Power-down mode */
     PowerDownFunction();
 
-    /* Waiting for syteem wake-up and I2C wake-up finish*/
-    while((g_u8SlvPWRDNWK & g_u8SlvI2CWK) == 0);
+    /* Waiting for system wake-up and I2C wake-up finish */
+    u32TimeOutCnt = I2C_TIMEOUT;
+    while((g_u8SlvPWRDNWK & g_u8SlvI2CWK) == 0)
+    {
+        if(--u32TimeOutCnt == 0)
+        {
+            printf("Wait for system or I2C interrupt time-out!\n");
+            break;
+        }
+    }
 
-    /* Waitinn for I2C response ACK finish */
-    while(!I2C_GET_WAKEUP_DONE(I2C0));
+    /* Waiting for I2C response ACK finish */
+    u32TimeOutCnt = I2C_TIMEOUT;
+    while(!I2C_GET_WAKEUP_DONE(I2C0))
+    {
+        if(--u32TimeOutCnt == 0)
+        {
+            printf("Wait for I2C response ACK finish time-out!\n");
+            break;
+        }
+    }
 
     /* Clear Wakeup done flag, I2C will release bus */
     I2C_CLEAR_WAKEUP_DONE(I2C0);
 
     /* Wake-up Interrupt Message */
-    printf("Power-down Wake-up INT 0x%x\n", ((CLK->PWRCTL) & CLK_PWRCTL_PDWKIF_Msk));
+    printf("Power-down Wake-up INT 0x%lx\n", ((CLK->PWRCTL) & CLK_PWRCTL_PDWKIF_Msk));
     printf("I2C0 WAKE INT 0x%x\n", I2C0->WKSTS);
 
     /* Disable power wake-up interrupt */

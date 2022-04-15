@@ -135,7 +135,7 @@ void UI2C_MasterRx(uint32_t u32Status)
 }
 
 /*---------------------------------------------------------------------------------------------------------*/
-/*  USCI_I2C0 Tx Callback Function                                                                          */
+/*  USCI_I2C0 Tx Callback Function                                                                         */
 /*---------------------------------------------------------------------------------------------------------*/
 void UI2C_MasterTx(uint32_t u32Status)
 {
@@ -308,7 +308,7 @@ void UART_Init(void)
 
 int32_t Read_Write_SLAVE(uint16_t slvaddr)
 {
-    uint32_t i;
+    uint32_t i, u32TimeOutCnt;
 
     /* Init Send 10-bit Addr */
     g_u8DeviceHAddr = (slvaddr >> 8) | SLV_10BIT_ADDR;
@@ -332,7 +332,15 @@ int32_t Read_Write_SLAVE(uint16_t slvaddr)
         UI2C_SET_CONTROL_REG(UI2C0, UI2C_CTL_STA);
 
         /* Wait USCI_I2C Tx Finish */
-        while(g_u8EndFlagM == 0);
+        u32TimeOutCnt = UI2C_TIMEOUT;
+        while(g_u8EndFlagM == 0)
+        {
+            if(--u32TimeOutCnt == 0)
+            {
+                printf("Wait for USCI_I2C Tx finish time-out!\n");
+                return -1;
+            }
+        }
         g_u8EndFlagM = 0;
 
         /* USCI_I2C function to read data from slave */
@@ -346,7 +354,15 @@ int32_t Read_Write_SLAVE(uint16_t slvaddr)
         UI2C_SET_CONTROL_REG(UI2C0, UI2C_CTL_STA);
 
         /* Wait USCI_I2C Rx Finish */
-        while(g_u8EndFlagM == 0);
+        u32TimeOutCnt = UI2C_TIMEOUT;
+        while(g_u8EndFlagM == 0)
+        {
+            if(--u32TimeOutCnt == 0)
+            {
+                printf("Wait for USCI_I2C Rx time-out!\n");
+                return -1;
+            }
+        }
         g_u8EndFlagM = 0;
 
         /* Compare data */

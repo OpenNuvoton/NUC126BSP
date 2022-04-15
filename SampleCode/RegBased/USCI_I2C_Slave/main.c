@@ -42,7 +42,7 @@ void USCI_IRQHandler(void)
 }
 
 /*---------------------------------------------------------------------------------------------------------*/
-/*  USCI_I2C1 TRx Callback Function                                                                        */
+/*  USCI_I2C0 TRx Callback Function                                                                        */
 /*---------------------------------------------------------------------------------------------------------*/
 void UI2C_LB_SlaveTRx(uint32_t u32Status)
 {
@@ -79,7 +79,6 @@ void UI2C_LB_SlaveTRx(uint32_t u32Status)
             else
             {
                 printf("No Address Match!!!\n");
-                while(1);
             }
 
             if((UI2C0->PROTSTS & UI2C_PROTSTS_SLAREAD_Msk) == UI2C_PROTSTS_SLAREAD_Msk)

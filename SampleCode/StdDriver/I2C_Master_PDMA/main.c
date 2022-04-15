@@ -279,7 +279,7 @@ void I2C_PDMA_MasterRx(uint32_t u32Status)
 }
 
 /*---------------------------------------------------------------------------------------------------------*/
-/* I2C Master PDMA Tx Channel Configuration                                                                       */
+/* I2C Master PDMA Tx Channel Configuration                                                                */
 /*---------------------------------------------------------------------------------------------------------*/
 void I2C_Master_PDMA_Tx_Init(void)
 {
@@ -308,7 +308,7 @@ void I2C_Master_PDMA_Tx_Init(void)
 }
 
 /*---------------------------------------------------------------------------------------------------------*/
-/* I2C Master PDMA Rx Channel Configuration                                                                       */
+/* I2C Master PDMA Rx Channel Configuration                                                                */
 /*---------------------------------------------------------------------------------------------------------*/
 void I2C_Master_PDMA_Rx_Init(void)
 {
@@ -487,7 +487,7 @@ void I2C1_Close(void)
 /*---------------------------------------------------------------------------------------------------------*/
 int32_t main(void)
 {
-    uint32_t i;
+    uint32_t i, u32TimeOutCnt;
 
     uint8_t err = 0;
 
@@ -570,11 +570,27 @@ int32_t main(void)
     I2C_START(I2C0);
 
     /* Waiting for PDMA transfer done */
-    while(g_u32IsTestOver == 0);
+    u32TimeOutCnt = SystemCoreClock; /* 1 second time-out */
+    while(g_u32IsTestOver == 0)
+    {
+        if(--u32TimeOutCnt == 0)
+        {
+            printf("Wait for PDMA transfer done time-out!\n");
+            return -1;
+        }
+    }
     g_u32IsTestOver = 0;
 
     /* Waiting for I2C bus become free */
-    while((I2C0->STATUS1 & I2C_STATUS1_ONBUSY_Msk) == I2C_STATUS1_ONBUSY_Msk);
+    u32TimeOutCnt = I2C_TIMEOUT;
+    while((I2C0->STATUS1 & I2C_STATUS1_ONBUSY_Msk) == I2C_STATUS1_ONBUSY_Msk)
+    {
+        if(--u32TimeOutCnt == 0)
+        {
+            printf("Wait for I2C bus become free time-out!\n");
+            return -1;
+        }
+    }
 
     /* Disable I2C0 PDMA TX mode */
     I2C0->CTL1 &= ~I2C_CTL1_TXPDMAEN_Msk;
@@ -600,13 +616,29 @@ int32_t main(void)
 
     /* Send START condition, start the PDMA data receive */
     I2C_START(I2C0);
-    while(g_u8MstTxSLA == 0);
+    u32TimeOutCnt = I2C_TIMEOUT;
+    while(g_u8MstTxSLA == 0)
+    {
+        if(--u32TimeOutCnt == 0)
+        {
+            printf("Wait for I2C time-out!\n");
+            return -1;
+        }
+    }
 
     /* Enable I2C0 PDMA RX after Slave address read ACK */
     I2C0->CTL1 |= I2C_CTL1_RXPDMAEN_Msk;      //Enalbe PDMA RX, Start receive data from Slave
 
     /* Waiting for PDMA receive done */
-    while(g_u32IsTestOver == 0);
+    u32TimeOutCnt = SystemCoreClock; /* 1 second time-out */
+    while(g_u32IsTestOver == 0)
+    {
+        if(--u32TimeOutCnt == 0)
+        {
+            printf("Wait for PDMA receive done time-out!\n");
+            return -1;
+        }
+    }
 
     /* Disable I2C0 PDMA RX */
     I2C0->CTL1 &= ~I2C_CTL1_RXPDMAEN_Msk;
@@ -615,7 +647,15 @@ int32_t main(void)
     g_u32IsTestOver = 0;
 
     /* Check Receive data ending */
-    while(g_u8MstEndFlag == 0);
+    u32TimeOutCnt = I2C_TIMEOUT;
+    while(g_u8MstEndFlag == 0)
+    {
+        if(--u32TimeOutCnt == 0)
+        {
+            printf("Wait for I2C Rx time-out!\n");
+            return -1;
+        }
+    }
 
     /* Compare I2C0 transmit data and I2C0 receive data */
     for(i = 0; i < 97; i++)

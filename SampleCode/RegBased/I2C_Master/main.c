@@ -135,7 +135,7 @@ void I2C_MasterRx(uint32_t u32Status)
         g_u8MstRxAbortFlag = 1;
         getchar();
         I2C_SET_CONTROL_REG(I2C0, I2C_CTL_SI);
-        while(I2C0->CTL & I2C_CTL_SI_Msk);
+        while(I2C0->CTL & I2C_CTL_SI_Msk)
     }
 }
 
@@ -250,7 +250,7 @@ void SYS_Init(void)
     //SystemCoreClockUpdate();
     PllClock        = PLL_CLOCK;            // PLL
     SystemCoreClock = PLL_CLOCK / 1;        // HCLK
-    CyclesPerUs     = PLL_CLOCK / 1000000;  // For SYS_SysTickDelay()
+    CyclesPerUs     = PLL_CLOCK / 1000000;  // For CLK_SysTickDelay()
 
     /* Enable UART module clock and I2C controller */
     CLK->APBCLK0 |= (CLK_APBCLK0_UART0CKEN_Msk | CLK_APBCLK0_I2C0CKEN_Msk);
@@ -443,7 +443,7 @@ int32_t main(void)
     UART0_Init();
 
     /*
-        This sample code sets I2C bus clock to 150kHz. Then, Master accesses Slave with Byte Write
+        This sample code sets I2C bus clock to 100kHz. Then, Master accesses Slave with Byte Write
         and Byte Read operations, and check if the read data is equal to the programmed data.
     */
     printf("\n");

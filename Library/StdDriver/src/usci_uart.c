@@ -46,7 +46,7 @@
  *    @details      The function is used to clear USCI_UART related interrupt flags specified by u32Mask parameter.
  */
 
-void UUART_ClearIntFlag(UUART_T* uuart , uint32_t u32Mask)
+void UUART_ClearIntFlag(UUART_T* uuart, uint32_t u32Mask)
 {
 
     if(u32Mask & UUART_ABR_INT_MASK)  /* Clear Auto-baud Rate Interrupt */
@@ -93,7 +93,7 @@ void UUART_ClearIntFlag(UUART_T* uuart , uint32_t u32Mask)
  *    @details      The function is used to get USCI_UART related interrupt flags specified by u32Mask parameter.
  */
 
-uint32_t UUART_GetIntFlag(UUART_T* uuart , uint32_t u32Mask)
+uint32_t UUART_GetIntFlag(UUART_T* uuart, uint32_t u32Mask)
 {
     uint32_t u32IntFlag = 0;
 
@@ -214,7 +214,7 @@ void UUART_DisableInt(UUART_T* uuart, uint32_t u32Mask)
  *
  *    @return       None
  *
- *    @details      The function is used to enable USCI_UART related interrupts specified by u32Mask parameter..
+ *    @details      The function is used to enable USCI_UART related interrupts specified by u32Mask parameter.
  */
 void UUART_EnableInt(UUART_T*  uuart, uint32_t u32Mask)
 {
@@ -277,14 +277,14 @@ uint32_t UUART_Open(UUART_T* uuart, uint32_t u32baudrate)
     u32Tmp2 = u32baudrate - (u32PCLKFreq / (u32Div+1ul));
 
     if(u32Tmp >= u32Tmp2) u32Div = u32Div + 1ul;
-    
+
     if(u32Div >= 65536ul) {
-        
+
         /* Set the smallest baud rate that USCI_UART can generate */
         u32PDSCnt = 0x4ul;
         u32MinDSCnt = 0x10ul;
-        u32MinClkDiv = 0x400ul;        
-        
+        u32MinClkDiv = 0x400ul;
+
     } else {
 
         u32Tmp = 0x400ul * 0x10ul;
@@ -330,7 +330,7 @@ uint32_t UUART_Open(UUART_T* uuart, uint32_t u32baudrate)
                 }
             }
         }
-        
+
     }
 
     /* Enable USCI_UART protocol */
@@ -350,7 +350,6 @@ uint32_t UUART_Open(UUART_T* uuart, uint32_t u32baudrate)
 
     return (u32PCLKFreq/u32PDSCnt/u32MinDSCnt/u32MinClkDiv);
 }
-
 
 /**
  *    @brief        Read USCI_UART data
@@ -431,14 +430,14 @@ uint32_t UUART_SetLine_Config(UUART_T* uuart, uint32_t u32baudrate, uint32_t u32
         if(u32Tmp >= u32Tmp2) u32Div = u32Div + 1ul;
 
         if(u32Div >= 65536ul) {
-            
+
             /* Set the smallest baud rate that USCI_UART can generate */
             u32PDSCnt = 0x4ul;
             u32MinDSCnt = 0x10ul;
-            u32MinClkDiv = 0x400ul;      
-            
-        } else {        
-        
+            u32MinClkDiv = 0x400ul;
+
+        } else {
+
             u32Tmp = 0x400ul * 0x10ul;
             for(u32PDSCnt = 1ul; u32PDSCnt <= 0x04ul; u32PDSCnt++) {
                 if(u32Div <= (u32Tmp * u32PDSCnt)) break;
@@ -480,14 +479,13 @@ uint32_t UUART_SetLine_Config(UUART_T* uuart, uint32_t u32baudrate, uint32_t u32
                     }
                 }
             }
-
         }
-        
+
         /* Set USCI_UART baud rate */
         uuart->BRGEN = ((u32MinClkDiv-1ul) << UUART_BRGEN_CLKDIV_Pos) |
                        ((u32MinDSCnt-1ul) << UUART_BRGEN_DSCNT_Pos) |
-                       ((u32PDSCnt-1ul) << UUART_BRGEN_PDSCNT_Pos);        
-            
+                       ((u32PDSCnt-1ul) << UUART_BRGEN_PDSCNT_Pos);
+
     } else {
         u32PDSCnt = ((uuart->BRGEN & UUART_BRGEN_PDSCNT_Msk) >> UUART_BRGEN_PDSCNT_Pos) + 1ul;
         u32MinDSCnt = ((uuart->BRGEN & UUART_BRGEN_DSCNT_Msk) >> UUART_BRGEN_DSCNT_Pos) + 1ul;

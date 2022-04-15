@@ -46,7 +46,7 @@ void CLKDIRC_IRQHandler(void)
         /* LXT clock fail interrupt is happened */
         printf("LXT Clock is stopped!\n");
 
-        /* Disable HXT clock fail interrupt */
+        /* Disable LXT clock fail interrupt */
         CLK->CLKDCTL &= ~(CLK_CLKDCTL_LXTFIEN_Msk | CLK_CLKDCTL_LXTFDEN_Msk);
 
         /* Write 1 to clear LXT Clock fail interrupt flag */

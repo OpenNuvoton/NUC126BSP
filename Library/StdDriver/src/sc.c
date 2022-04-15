@@ -81,11 +81,20 @@ void SC_ClearFIFO(SC_T *sc)
   */
 void SC_Close(SC_T *sc)
 {
+    uint32_t u32TimeOutCnt;
+
     sc->INTEN = 0;
-    while(sc->PINCTL & SC_PINCTL_SYNC_Msk);
+
+    u32TimeOutCnt = SC_TIMEOUT;
+    while(sc->PINCTL & SC_PINCTL_SYNC_Msk)
+        if(--u32TimeOutCnt == 0) break;
     sc->PINCTL = 0;
+
     sc->ALTCTL = 0;
-    while(sc->CTL & SC_CTL_SYNC_Msk);
+
+    u32TimeOutCnt = SC_TIMEOUT;
+    while(sc->CTL & SC_CTL_SYNC_Msk)
+        if(--u32TimeOutCnt == 0) break;
     sc->CTL = 0;
 }
 
@@ -107,7 +116,7 @@ void SC_Close(SC_T *sc)
   */
 void SC_Open(SC_T *sc, uint32_t u32CD, uint32_t u32PWR)
 {
-    uint32_t u32Reg = 0, u32Intf;
+    uint32_t u32Reg = 0, u32Intf, u32TimeOutCnt;
 
     if(sc == SC0)
         u32Intf = 0;
@@ -125,10 +134,15 @@ void SC_Open(SC_T *sc, uint32_t u32CD, uint32_t u32PWR)
     {
         u32CardStateIgnore[u32Intf] = 1;
     }
-    while(sc->PINCTL & SC_PINCTL_SYNC_Msk);
+
+    u32TimeOutCnt = SC_TIMEOUT;
+    while(sc->PINCTL & SC_PINCTL_SYNC_Msk)
+        if(--u32TimeOutCnt == 0) break;
     sc->PINCTL = u32PWR ? 0 : SC_PINCTL_PWRINV_Msk;
 
-    while(sc->CTL & SC_CTL_SYNC_Msk);
+    u32TimeOutCnt = SC_TIMEOUT;
+    while(sc->CTL & SC_CTL_SYNC_Msk)
+        if(--u32TimeOutCnt == 0) break;
     sc->CTL = SC_CTL_SCEN_Msk | u32Reg;
 }
 
@@ -143,7 +157,7 @@ void SC_Open(SC_T *sc, uint32_t u32CD, uint32_t u32PWR)
   */
 void SC_ResetReader(SC_T *sc)
 {
-    uint32_t u32Intf;
+    uint32_t u32Intf, u32TimeOutCnt;
 
     if(sc == SC0)
         u32Intf = 0;
@@ -155,7 +169,9 @@ void SC_ResetReader(SC_T *sc)
     /* Reset FIFO, enable auto de-activation while card removal */
     sc->ALTCTL |= (SC_ALTCTL_TXRST_Msk | SC_ALTCTL_RXRST_Msk | SC_ALTCTL_ADACEN_Msk);
     /* Set Rx trigger level to 1 character, longest card detect debounce period, disable error retry (EMV ATR does not use error retry) */
-    while(sc->CTL & SC_CTL_SYNC_Msk);
+    u32TimeOutCnt = SC_TIMEOUT;
+    while(sc->CTL & SC_CTL_SYNC_Msk)
+        if(--u32TimeOutCnt == 0) break;
     sc->CTL &= ~(SC_CTL_RXTRGLV_Msk | SC_CTL_CDDBSEL_Msk | SC_CTL_TXRTY_Msk | SC_CTL_RXRTY_Msk);
     /* Enable auto convention, and all three smartcard internal timers */
     sc->CTL |= SC_CTL_AUTOCEN_Msk | SC_CTL_TMRSEL_Msk;

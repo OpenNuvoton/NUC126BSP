@@ -5,7 +5,7 @@
  * $Date: 16/10/25 4:34p $
  * @brief
  *           Show how to use auto baud rate detection function.
- *           This sample code needs to work with UART_AutoBaudRate_Master.
+ *           This sample code needs to work with USCI_UART_AutoBaudRate_Master.
  * @note
  * Copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
  *
@@ -14,10 +14,8 @@
 #include "NUC126.h"
 
 
-#define PLLCTL_SETTING  CLK_PLLCTL_72MHz_HXT
 #define PLL_CLOCK       72000000
 
-#define RXBUFSIZE 1024
 
 /*---------------------------------------------------------------------------------------------------------*/
 /* Define functions prototype                                                                              */
@@ -134,7 +132,7 @@ int32_t main(void)
 }
 
 /*---------------------------------------------------------------------------------------------------------*/
-/*  Get UUART Baud Rate Function                                                                            */
+/*  Get UUART Baud Rate Function                                                                           */
 /*---------------------------------------------------------------------------------------------------------*/
 uint32_t GetUuartBaudrate(UUART_T *uuart)
 {
@@ -159,7 +157,7 @@ uint32_t GetUuartBaudrate(UUART_T *uuart)
 }
 
 /*---------------------------------------------------------------------------------------------------------*/
-/*  Auto Baud Rate Function Rx Test                                                                                 */
+/*  Auto Baud Rate Function Rx Test                                                                        */
 /*---------------------------------------------------------------------------------------------------------*/
 void USCI_AutoBaudRate_RxTest()
 {

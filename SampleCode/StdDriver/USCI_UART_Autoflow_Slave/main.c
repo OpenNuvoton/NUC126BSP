@@ -14,10 +14,8 @@
 #include "NUC126.h"
 
 
-#define PLLCTL_SETTING  CLK_PLLCTL_72MHz_HXT
 #define PLL_CLOCK       72000000
 
-#define RXBUFSIZE 1024
 
 
 /*---------------------------------------------------------------------------------------------------------*/
@@ -166,7 +164,7 @@ void USCI_IRQHandler(void)
 /*---------------------------------------------------------------------------------------------------------*/
 void USCI_AutoFlow_FunctionRxTest()
 {
-    uint32_t u32i;
+    uint32_t u32i, u32Err = 0;
 
     printf("\n");
     printf("+-----------------------------------------------------------+\n");
@@ -211,11 +209,15 @@ void USCI_AutoFlow_FunctionRxTest()
     {
         if(g_u8RecData[u32i] != (u32i & 0xFF))
         {
-            printf("Compare Data Failed\n");
-            while(1);
+            u32Err = 1;
+            break;
         }
     }
-    printf("\n Receive OK & Check OK\n");
+
+    if( u32Err )
+        printf("Compare Data Failed\n");
+    else
+        printf("\n Receive OK & Check OK\n");
 
     /* Disable USCI interrupt */
     UUART_DisableInt(UUART0, UUART_RXEND_INT_MASK | UUART_BUF_RXOV_INT_MASK);

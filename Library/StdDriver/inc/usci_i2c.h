@@ -93,8 +93,17 @@ enum UI2C_SLAVE_EVENT
 #define UI2C_ERR_INT_MASK          (0x020)    /*!< Error interrupt mask */
 #define UI2C_ACK_INT_MASK          (0x040)    /*!< Acknowledge interrupt mask */
 
+/*---------------------------------------------------------------------------------------------------------*/
+/* USCI_I2C Define Error Code                                                                              */
+/*---------------------------------------------------------------------------------------------------------*/
+#define UI2C_TIMEOUT               SystemCoreClock  /*!< UI2C time-out counter (1 second time-out) */
+#define UI2C_OK                    ( 0L)            /*!< UI2C operation OK */
+#define UI2C_ERR_FAIL              (-1L)            /*!< UI2C operation failed */
+#define UI2C_ERR_TIMEOUT           (-2L)            /*!< UI2C operation abort due to timeout error */
+
 /*@}*/ /* end of group USCI_I2C_EXPORTED_CONSTANTS */
 
+extern int32_t g_UI2C_i32ErrCode;
 
 /** @addtogroup USCI_I2C_EXPORTED_FUNCTIONS USCI_I2C Exported Functions
   @{
@@ -110,7 +119,7 @@ enum UI2C_SLAVE_EVENT
  *
  *    @details      Set UI2C_PROTCTL register to control USCI_I2C bus conditions of START, STOP, SI, ACK.
  */
-#define UI2C_SET_CONTROL_REG(ui2c, u8Ctrl) ((ui2c)->PROTCTL = ((ui2c)->PROTCTL & ~0x2E) | u8Ctrl)
+#define UI2C_SET_CONTROL_REG(ui2c, u8Ctrl) ((ui2c)->PROTCTL = ((ui2c)->PROTCTL & ~0x2E) | (u8Ctrl))
 
 /**
  *    @brief        This macro only set START bit to protocol control register of USCI_I2C module.
@@ -155,7 +164,7 @@ enum UI2C_SLAVE_EVENT
  *
  *    @details      Write a byte data value of UI2C_TXDAT register, then sends address or data to USCI I2C bus
  */
-#define UI2C_SET_DATA(ui2c, u8Data) ((ui2c)->TXDAT = u8Data)
+#define UI2C_SET_DATA(ui2c, u8Data) ((ui2c)->TXDAT = (u8Data))
 
 /**
  *    @brief        This macro returns time-out flag
@@ -240,7 +249,7 @@ enum UI2C_SLAVE_EVENT
  *
  *    @details      To clear interrupt flag when USCI_I2C occurs interrupt and set interrupt flag.
  */
-#define UI2C_CLR_PROT_INT_FLAG(ui2c,u32IntTypeFlag)    ((ui2c)->PROTSTS = u32IntTypeFlag)
+#define UI2C_CLR_PROT_INT_FLAG(ui2c,u32IntTypeFlag)    ((ui2c)->PROTSTS = (u32IntTypeFlag))
 
 /**
  *    @brief        This macro enables specified protocol interrupt
@@ -286,7 +295,7 @@ void UI2C_EnableInt(UI2C_T *ui2c, uint32_t u32Mask);
 uint32_t UI2C_GetBusClockFreq(UI2C_T *ui2c);
 uint32_t UI2C_SetBusClockFreq(UI2C_T *ui2c, uint32_t u32BusClock);
 uint32_t UI2C_GetIntFlag(UI2C_T *ui2c, uint32_t u32Mask);
-void UI2C_ClearIntFlag(UI2C_T* ui2c , uint32_t u32Mask);
+void UI2C_ClearIntFlag(UI2C_T* ui2c, uint32_t u32Mask);
 uint32_t UI2C_GetData(UI2C_T *ui2c);
 void UI2C_SetData(UI2C_T *ui2c, uint8_t u8Data);
 void UI2C_SetSlaveAddr(UI2C_T *ui2c, uint8_t u8SlaveNo, uint16_t u16SlaveAddr, uint8_t u8GCMode);

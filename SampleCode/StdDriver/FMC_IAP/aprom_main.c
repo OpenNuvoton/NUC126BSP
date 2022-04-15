@@ -138,6 +138,7 @@ int main()
     uint32_t    u32Data;
     char *acBootMode[] = {"LDROM+IAP", "LDROM", "APROM+IAP", "APROM"};
     uint32_t u32CBS;
+    uint32_t u32TimeOutCnt;
 
     /* Unlock protected registers */
     SYS_UnlockReg();
@@ -207,7 +208,9 @@ int main()
 
             case '1':
                 printf("\n\nChange VECMAP and branch to LDROM...\n");
-                UART_WAIT_TX_EMPTY(UART0); /* To make sure all message has been print out */
+                u32TimeOutCnt = SystemCoreClock; /* 1 second time-out */
+                UART_WAIT_TX_EMPTY(UART0)  /* To make sure all message has been print out */
+                    if(--u32TimeOutCnt == 0) break;
 
                 /* Mask all interrupt before changing VECMAP to avoid wrong interrupt handler fetched */
                 __set_PRIMASK(1);

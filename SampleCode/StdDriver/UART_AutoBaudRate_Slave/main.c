@@ -21,7 +21,7 @@
 /* Define functions prototype                                                                              */
 /*---------------------------------------------------------------------------------------------------------*/
 extern char GetChar(void);
-//int32_t main(void);
+int32_t main(void);
 uint32_t GetUartBaudrate(UART_T* uart);
 void AutoBaudRate_RxTest(void);
 
@@ -39,7 +39,7 @@ void SYS_Init(void)
     /* Wait for HIRC clock ready */
     CLK_WaitClockReady(CLK_STATUS_HIRCSTB_Msk);
 
-    /* Select HCLK clock source as HIRC and HCLK source divider as 1 */
+    /* Select HCLK clock source as HIRC and HCLK clock divider as 1 */
     CLK_SetHCLK(CLK_CLKSEL0_HCLKSEL_HIRC, CLK_CLKDIV0_HCLK(1));
 
     /* Enable HXT clock (external XTAL 12MHz) */
@@ -100,7 +100,7 @@ void UART1_Init()
 /*---------------------------------------------------------------------------------------------------------*/
 /* MAIN function                                                                                           */
 /*---------------------------------------------------------------------------------------------------------*/
-int main(void)
+int32_t main(void)
 {
 
     /* Unlock protected registers */
@@ -173,7 +173,7 @@ uint32_t GetUartBaudrate(UART_T* uart)
 }
 
 /*---------------------------------------------------------------------------------------------------------*/
-/*  Auto Baud Rate Function Rx Test                                                                                 */
+/*  Auto Baud Rate Function Rx Test                                                                        */
 /*---------------------------------------------------------------------------------------------------------*/
 void AutoBaudRate_RxTest()
 {

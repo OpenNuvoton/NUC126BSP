@@ -14,7 +14,6 @@
 #include "NUC126.h"
 
 
-#define PLLCTL_SETTING  CLK_PLLCTL_72MHz_HXT
 #define PLL_CLOCK       72000000
 
 
@@ -35,7 +34,6 @@ volatile uint8_t u8ReceiveDone = 0;
 /*---------------------------------------------------------------------------------------------------------*/
 /* Define functions prototype                                                                              */
 /*---------------------------------------------------------------------------------------------------------*/
-extern char GetChar(void);
 void RS485_HANDLE(void);
 void RS485_9bitModeSlave(void);
 void RS485_FunctionTest(void);
@@ -145,8 +143,8 @@ void RS485_FunctionTest()
     printf("|  ______                                            _____  |\n");
     printf("| |      |                                          |     | |\n");
     printf("| |Master|                                          |Slave| |\n");
-    printf("| |    TX|--USCI0_DAT1(PC.1) <==> USCI0_DAT0(PC.0)--|RX   | |\n");
-    printf("| |   RTS|--USCI0_CTL0(PC.2) <==> USCI0_CTL1(PC.2)--|RTS  | |\n");
+    printf("| |    TX|--USCI0_DAT1(PC.1)      USCI0_DAT0(PC.0)--|RX   | |\n");
+    printf("| |   RTS|--USCI0_CTL0(PC.2)      USCI0_CTL1(PC.2)--|RTS  | |\n");
     printf("| |______|                                          |_____| |\n");
     printf("|                                                           |\n");
     printf("+-----------------------------------------------------------+\n");
@@ -167,6 +165,17 @@ void RS485_FunctionTest()
             1.Set RTS auto direction enabled and HW will control RTS pin. CTLOINV is set to '1'.
             2.The received byte, parity bit is '1' , is considered "ADDRESS".
             3.The received byte, parity bit is '0' , is considered "DATA".
+
+        Note: User can measure transmitted data waveform on TX and RX pin.
+              RTS pin is used for RS485 transceiver to control transmission direction.
+              RTS pin is low in idle state. When master is sending data, RTS pin will be pull high.
+              The connection to RS485 transceiver is as following figure for reference.
+               __________     ___________      ___________      __________
+              |          |   |           |    |           |    |          |
+              |Master    |   |RS485      |    |RS485      |    |Slave     |
+              | UART_TX  |---|Transceiver|<==>|Transceiver|----| UART_RX  |
+              | UART_RTS |---|           |    |           |----| UART_RTS |
+              |__________|   |___________|    |___________|    |__________|
     */
 
     RS485_9bitModeSlave();

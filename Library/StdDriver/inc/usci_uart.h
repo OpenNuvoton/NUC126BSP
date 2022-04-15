@@ -51,7 +51,7 @@ extern "C"
 #define UUART_STOP_BIT_2     (0x1) /*!< UUART_PROTCTL setting for two stop bit */
 
 /*---------------------------------------------------------------------------------------------------------*/
-/* USCI UART interrupt mask definitions                                                                            */
+/* USCI UART interrupt mask definitions                                                                    */
 /*---------------------------------------------------------------------------------------------------------*/
 #define UUART_ABR_INT_MASK      (0x002) /*!< Auto-baud rate interrupt mask */
 #define UUART_RLS_INT_MASK      (0x004) /*!< Receive line status interrupt mask */

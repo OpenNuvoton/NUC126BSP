@@ -11,7 +11,7 @@
 #include "NUC126.h"
 
 
-#define PLLCON_SETTING  CLK_PLLCTL_72MHz_HXT
+#define PLLCTL_SETTING  CLK_PLLCTL_72MHz_HXT
 #define PLL_CLOCK       72000000
 
 
@@ -57,7 +57,7 @@ void SYS_Init(void)
     CLK->PWRCTL |= CLK_PWRCTL_HXTEN_Msk | CLK_PWRCTL_LXTEN_Msk;
 
     /* Enable PLL and Set PLL frequency */
-    CLK->PLLCTL = PLLCON_SETTING;
+    CLK->PLLCTL = PLLCTL_SETTING;
 
     while(!(CLK->STATUS & CLK_STATUS_PLLSTB_Msk));
 
@@ -86,7 +86,7 @@ void SYS_Init(void)
     /*---------------------------------------------------------------------------------------------------------*/
     /* Init I/O Multi-function                                                                                 */
     /*---------------------------------------------------------------------------------------------------------*/
-    /* Set PD multi-function pins for UART0 RXD, TXD */
+    /* Set PD multi-function pins for UART0 RXD and TXD */
     SYS->GPD_MFPL &= ~(SYS_GPD_MFPL_PD0MFP_Msk | SYS_GPD_MFPL_PD1MFP_Msk);
     SYS->GPD_MFPL |= (SYS_GPD_MFPL_PD0MFP_UART0_RXD | SYS_GPD_MFPL_PD1MFP_UART0_TXD);
 
@@ -140,15 +140,22 @@ uint32_t SCUART_Open(SC_T* sc, uint32_t u32baudrate)
 /*---------------------------------------------------------------------------------------------------------*/
 /* Write data to SC UART interface                                                                         */
 /*---------------------------------------------------------------------------------------------------------*/
-void SCUART_Write(SC_T* sc, uint8_t *pu8TxBuf, uint32_t u32WriteBytes)
+uint32_t SCUART_Write(SC_T* sc, uint8_t *pu8TxBuf, uint32_t u32WriteBytes)
 {
-    uint32_t u32Count;
+    uint32_t u32Count, u32TimeOutCnt;
 
     for(u32Count = 0; u32Count != u32WriteBytes; u32Count++)
     {
-        while(SCUART_GET_TX_FULL(sc));  // Wait 'til FIFO not full
-        sc->DAT = pu8TxBuf[u32Count];   // Write 1 byte to FIFO
+        /* Wait 'til FIFO not full */
+        u32TimeOutCnt = SystemCoreClock; /* 1 second time-out */
+        while(SCUART_GET_TX_FULL(sc) == SC_STATUS_TXFULL_Msk)
+            if(--u32TimeOutCnt == 0) return u32Count;
+
+        /* Write 1 byte to FIFO */
+        sc->DAT = pu8TxBuf[u32Count];
     }
+
+    return u32Count;
 }
 
 /*---------------------------------------------------------------------------------------------------------*/

@@ -112,7 +112,7 @@ void UART0_Init(void)
 /*---------------------------------------------------------------------------------------------------------*/
 int main(void)
 {
-    uint32_t u32Src, u32Dst0, u32Dst1;
+    uint32_t u32Src, u32Dst0, u32Dst1, u32TimeOutCnt;
 
     /* Unlock protected registers */
     SYS_UnlockReg();
@@ -129,7 +129,7 @@ int main(void)
 
     printf("\n\nCPU @ %dHz\n", SystemCoreClock);
     printf("+-----------------------------------------------------------------------+ \n");
-    printf("|    NUC126 PDMA Memory to Memory Driver Sample Code (Scatter-gather)     | \n");
+    printf("|    NUC126 PDMA Memory to Memory Driver Sample Code (Scatter-gather)   | \n");
     printf("+-----------------------------------------------------------------------+ \n");
 
     u32Src = (uint32_t)au8SrcArray;
@@ -255,7 +255,15 @@ int main(void)
     PDMA_Trigger(4);
 
     /* Waiting for transfer done */
-    while(PDMA_IS_CH_BUSY(4));
+    u32TimeOutCnt = SystemCoreClock; /* 1 second time-out */
+    while(PDMA_IS_CH_BUSY(4))
+    {
+        if(--u32TimeOutCnt == 0)
+        {
+            printf("Wait for PDMA transfer done time-out!\n");
+            break;
+        }
+    }
 
     printf("test done...\n");
 

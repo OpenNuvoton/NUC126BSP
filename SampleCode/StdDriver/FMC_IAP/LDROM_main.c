@@ -62,6 +62,8 @@ void UART_Init()
 
 int main()
 {
+    uint32_t u32TimeOutCnt;
+
     /* Unlock protected register */
     SYS_UnlockReg();
 
@@ -78,7 +80,9 @@ int main()
     getchar();
 
     printf("\n\nChange VECMAP and branch to LDROM...\n");
-    UART_WAIT_TX_EMPTY(UART0);
+    u32TimeOutCnt = SystemCoreClock; /* 1 second time-out */
+    UART_WAIT_TX_EMPTY(UART0)
+        if(--u32TimeOutCnt == 0) break;
 
     /* Mask all interrupt before changing VECMAP to avoid wrong interrupt handler fetched */
     __set_PRIMASK(1);

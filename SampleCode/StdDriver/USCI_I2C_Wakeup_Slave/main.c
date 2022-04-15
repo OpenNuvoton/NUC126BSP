@@ -318,7 +318,7 @@ void UI2C0_Init(uint32_t u32ClkSpeed)
 
 int main()
 {
-    uint32_t i;
+    uint32_t i, u32TimeOutCnt;
     uint8_t  ch;
 
     /* Unlock protected registers */
@@ -335,7 +335,7 @@ int main()
     printf("| USCI_I2C Driver Sample Code (Slave) for wake-up & access Slave test |\n");
     printf("| Needs to work with USCI_I2C_Master sample code.                     |\n");
     printf("|      UI2C Master (I2C0) <---> UI2C Slave (I2C0)                     |\n");
-    printf("| !! This sample code requires two borads for testing !!              |\n");
+    printf("| !! This sample code requires two boards for testing !!              |\n");
     printf("+---------------------------------------------------------------------+\n");
 
     printf("\n");
@@ -391,8 +391,10 @@ int main()
     printf("\nEnter PD 0x%x 0x%x\n", UI2C0->PROTCTL, UI2C_GET_PROT_STATUS(UI2C0));
     printf("\nCHIP enter power down status.\n");
 
-    /* Waiting for UART printf finish*/
-    while((UART0->FIFOSTS & UART_FIFOSTS_TXEMPTYF_Msk) == 0);
+    /* Waiting for UART printf finish */
+    u32TimeOutCnt = SystemCoreClock; /* 1 second time-out */
+    while((UART0->FIFOSTS & UART_FIFOSTS_TXEMPTYF_Msk) == 0)
+        if(--u32TimeOutCnt == 0) break;
 
     /* Clear flage before enter power-down mode */
     if(UI2C0->PROTSTS != 0)
@@ -400,8 +402,15 @@ int main()
 
     CLK_PowerDown();
 
-    while(g_u8SlvPWRDNWK == 0);
-    while(g_u8SlvI2CWK == 0);
+    u32TimeOutCnt = SystemCoreClock; /* 1 second time-out */
+    while( (g_u8SlvPWRDNWK==0) || (g_u8SlvI2CWK==0) )
+    {
+        if(--u32TimeOutCnt == 0)
+        {
+            printf("Wait for system or USCI_I2C interrupt time-out!\n");
+            return -1;
+        }
+    }
 
     if(g_u32WKfromAddr)
         printf("UI2C0 [A]ddress match Wake-up from Deep Sleep\n");

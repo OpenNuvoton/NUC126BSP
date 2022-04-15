@@ -3,7 +3,7 @@
  * @version  V2.0
  * $Revision: 2 $
  * $Date: 16/10/25 4:30p $
- * @brief    Show Smartcrd UART by connecting PA.0 and PA.1 pins.
+ * @brief    Show Smartcard UART by connecting PA.0 and PA.1 pins.
  * @note
  * Copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
  ******************************************************************************/
@@ -72,7 +72,7 @@ void SYS_Init(void)
     /*---------------------------------------------------------------------------------------------------------*/
     /* Init I/O Multi-function                                                                                 */
     /*---------------------------------------------------------------------------------------------------------*/
-    /* Set PD multi-function pins for UART0 RXD, TXD */
+    /* Set PD multi-function pins for UART0 RXD and TXD */
     SYS->GPD_MFPL &= ~(SYS_GPD_MFPL_PD0MFP_Msk | SYS_GPD_MFPL_PD1MFP_Msk);
     SYS->GPD_MFPL |= (SYS_GPD_MFPL_PD0MFP_UART0_RXD | SYS_GPD_MFPL_PD1MFP_UART0_TXD);
 

@@ -149,18 +149,27 @@ uint32_t SCUART_Read(SC_T* sc, uint8_t *pu8RxBuf, uint32_t u32ReadBytes)
   * @return     None
   *
   * @details    This function is used to write data into Tx FIFO to send data out.
-  *
-  * @note       This function blocks until all data write into FIFO.
   */
-void SCUART_Write(SC_T* sc, uint8_t *pu8TxBuf, uint32_t u32WriteBytes)
+uint32_t SCUART_Write(SC_T* sc, uint8_t *pu8TxBuf, uint32_t u32WriteBytes)
 {
     uint32_t u32Count;
 
+    /* Baudrate * (start bit + 8-bit data + 1-bit parity + 2-bit stop) */
+    uint32_t u32Delay = (SystemCoreClock / SCUART_GetClock(sc)) * sc->ETUCTL * 12, i;
+
     for(u32Count = 0; u32Count != u32WriteBytes; u32Count++)
     {
-        while(SCUART_GET_TX_FULL(sc)); // Wait 'til FIFO not full
-        sc->DAT = pu8TxBuf[u32Count];  // Write 1 byte to FIFO
+        i = 0;
+        /* Wait 'til FIFO not full */
+        while(SCUART_GET_TX_FULL(sc) == SC_STATUS_TXFULL_Msk)
+        {
+            /* Block longer than expected. Maybe some interrupt disable SCUART clock. */
+            if(i++ > u32Delay) return u32Count;
+        }
+        /* Write 1 byte to FIFO */
+        sc->DAT = pu8TxBuf[u32Count];
     }
+    return u32Count;
 }
 
 /**

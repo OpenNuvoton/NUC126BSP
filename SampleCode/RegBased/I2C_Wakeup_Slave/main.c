@@ -264,7 +264,7 @@ void I2C0_Close(void)
 /*---------------------------------------------------------------------------------------------------------*/
 int32_t main(void)
 {
-    uint32_t i;
+    uint32_t i, u32TimeOutCnt;
 
     /* Unlock protected registers */
     SYS_UnlockReg();
@@ -330,8 +330,10 @@ int32_t main(void)
     printf("\n");
     printf("CHIP enter power down status.\n");
 
-    /* Waiting for UART printf finish*/
-    while(((UART0->FIFOSTS) & UART_FIFOSTS_TXEMPTYF_Msk) == 0);
+    /* Waiting for UART printf finish */
+    u32TimeOutCnt = SystemCoreClock; /* 1 second time-out */
+    while(((UART0->FIFOSTS) & UART_FIFOSTS_TXEMPTYF_Msk) == 0)
+        if(--u32TimeOutCnt == 0) break;
 
     if(((I2C0->CTL)&I2C_CTL_SI_Msk) != 0)
     {
@@ -345,16 +347,32 @@ int32_t main(void)
     __NOP();
     __NOP();
 
-    while((g_u8SlvPWRDNWK & g_u8SlvI2CWK) == 0);
+    u32TimeOutCnt = I2C_TIMEOUT;
+    while((g_u8SlvPWRDNWK & g_u8SlvI2CWK) == 0)
+    {
+        if(--u32TimeOutCnt == 0)
+        {
+            printf("Wait for system or I2C interrupt time-out!\n");
+            break;
+        }
+    }
 
-    /* Waitinn for I2C response ACK finish */
-    while(!I2C_GET_WAKEUP_DONE(I2C0));
+    /* Waiting for I2C response ACK finish */
+    u32TimeOutCnt = I2C_TIMEOUT;
+    while(!I2C_GET_WAKEUP_DONE(I2C0))
+    {
+        if(--u32TimeOutCnt == 0)
+        {
+            printf("Wait for I2C response ACK finish time-out!\n");
+            break;
+        }
+    }
 
     /* Clear Wakeup done flag, I2C will release bus */
     I2C_CLEAR_WAKEUP_DONE(I2C0);
 
     /* Wake-up Interrupt Message */
-    printf("Power-down Wake-up INT 0x%x\n", ((CLK->PWRCTL) & CLK_PWRCTL_PDWKIF_Msk));
+    printf("Power-down Wake-up INT 0x%lx\n", ((CLK->PWRCTL) & CLK_PWRCTL_PDWKIF_Msk));
     printf("I2C0 WAKE INT 0x%x\n", I2C0->WKSTS);
 
     /* Disable power wake-up interrupt */

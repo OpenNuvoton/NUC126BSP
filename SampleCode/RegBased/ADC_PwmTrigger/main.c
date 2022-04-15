@@ -123,6 +123,8 @@ void UART0_Init()
 /*---------------------------------------------------------------------------------------------------------*/
 void ADC_PWMTrigTest_SingleOpMode()
 {
+    uint32_t u32TimeOutCnt;
+
     printf("\n<<< PWM trigger test (Single mode) >>>\n");
 
     /* PWM trigger; ADC single operation mode; single-end input; enable the ADC converter. */
@@ -151,14 +153,41 @@ void ADC_PWMTrigTest_SingleOpMode()
     PWM0->CNTEN |= PWM_CNTEN_CNTEN0_Msk;
 
     /* wait for one cycle */
-    while((PWM0->INTSTS0 & PWM_INTSTS0_PIF0_Msk) == 0);
-    while((PWM0->INTSTS0 & PWM_INTSTS0_ZIF0_Msk) == 0);
+    u32TimeOutCnt = SystemCoreClock; /* 1 second time-out */
+    while((PWM0->INTSTS0 & PWM_INTSTS0_PIF0_Msk) == 0)
+    {
+        if(--u32TimeOutCnt == 0)
+        {
+            printf("Wait for PWM period interrupt time-out!\n");
+            return;
+        }
+    }
+
+    u32TimeOutCnt = SystemCoreClock; /* 1 second time-out */
+    while((PWM0->INTSTS0 & PWM_INTSTS0_ZIF0_Msk) == 0)
+    {
+        if(--u32TimeOutCnt == 0)
+        {
+            printf("Wait for PWM zero interrupt time-out!\n");
+            return;
+        }
+    }
     PWM0->INTSTS0 = PWM_INTSTS0_PIF0_Msk | PWM_INTSTS0_ZIF0_Msk;
+
     /* Disable the PWM0 counter */
     PWM0->CNTEN = 0;
 
     /* Wait conversion done */
-    while(!((ADC->ADSR0 & ADC_ADSR0_ADF_Msk) >> ADC_ADSR0_ADF_Pos));
+    u32TimeOutCnt = SystemCoreClock; /* 1 second time-out */
+    while(!((ADC->ADSR0 & ADC_ADSR0_ADF_Msk) >> ADC_ADSR0_ADF_Pos))
+    {
+        if(--u32TimeOutCnt == 0)
+        {
+            printf("Wait for ADC conversion done time-out!\n");
+            return;
+        }
+    }
+
     /* Clear the ADC interrupt flag */
     ADC->ADSR0 = ADC_ADSR0_ADF_Msk;
 

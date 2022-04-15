@@ -20,6 +20,7 @@
   @{
 */
 
+int32_t g_UI2C_i32ErrCode = 0;       /*!< UI2C global error code */
 
 /** @addtogroup USCI_I2C_EXPORTED_FUNCTIONS USCI_I2C Exported Functions
   @{
@@ -349,7 +350,7 @@ uint32_t UI2C_GetIntFlag(UI2C_T *ui2c, uint32_t u32Mask)
  *
  *    @details      Use this function to clear USCI_I2C interrupt flag when module occurs interrupt event and set flag.
  */
-void UI2C_ClearIntFlag(UI2C_T *ui2c , uint32_t u32Mask)
+void UI2C_ClearIntFlag(UI2C_T *ui2c, uint32_t u32Mask)
 {
     /* Clear Time-out Interrupt Flag */
     if(u32Mask & UI2C_TO_INT_MASK)
@@ -413,7 +414,7 @@ void UI2C_SetData(UI2C_T *ui2c, uint8_t u8Data)
  *    @brief        Configure slave address and enable GC mode
  *
  *    @param[in]    ui2c            The pointer of the specified USCI_I2C module.
- *    @param[in]    u8SlaveNo       Slave channle number [0/1]
+ *    @param[in]    u8SlaveNo       Slave channel number [0/1]
  *    @param[in]    u16SlaveAddr    The slave address.
  *    @param[in]    u8GCMode        GC mode enable or not. Valid values are:
  *                                  - \ref UI2C_GCMODE_ENABLE
@@ -437,7 +438,7 @@ void UI2C_SetSlaveAddr(UI2C_T *ui2c, uint8_t u8SlaveNo, uint16_t u16SlaveAddr, u
  *    @brief        Configure the mask bit of slave address.
  *
  *    @param[in]    ui2c             The pointer of the specified USCI_I2C module.
- *    @param[in]    u8SlaveNo        Slave channle number [0/1]
+ *    @param[in]    u8SlaveNo        Slave channel number [0/1]
  *    @param[in]    u16SlaveAddrMask The slave address mask.
  *
  *    @return None
@@ -521,23 +522,35 @@ void UI2C_DisableWakeup(UI2C_T *ui2c)
   * @param[in]  *ui2c           Point to USCI I2C peripheral
   * @param[in]  u8SlaveAddr     Access Slave address(7-bit)
   * @param[in]  data            Write a byte data to Slave
-  * 
+  *
   * @retval     0               Write data success
   * @retval     1               Write data fail, or bus occurs error events
   *
-  * @details    The function is used for USCI I2C Master write a byte data to Slave. 
+  * @details    The function is used for USCI I2C Master write a byte data to Slave.
+  *
+  * @note       This function sets g_UI2C_i32ErrCode to UI2C_ERR_TIMEOUT if waiting USCI_I2C time-out.
   *
   */
 uint8_t UI2C_WriteByte(UI2C_T *ui2c, uint8_t u8SlaveAddr, const uint8_t data)
 {
-    enum UI2C_MASTER_EVENT m_Event;    
+    enum UI2C_MASTER_EVENT m_Event;
     uint8_t u8Xfering = 1, u8Err = 0, u8Ctrl = 0;
-    
+    uint32_t u32TimeOutCount = 0U;
+
+    g_UI2C_i32ErrCode = 0;
     m_Event = MASTER_SEND_START;
     UI2C_SET_CONTROL_REG(ui2c, UI2C_CTL_STA);
     while(u8Xfering && (u8Err == 0))
     {
-        while((ui2c->PROTSTS & 0x3F00) == 0){};
+        u32TimeOutCount = UI2C_TIMEOUT;
+        while((ui2c->PROTSTS & 0x3F00) == 0)
+        {
+            if(--u32TimeOutCount == 0)
+            {
+                g_UI2C_i32ErrCode = UI2C_ERR_TIMEOUT;
+                break;
+            }
+        }
 
         if((ui2c->PROTSTS & UI2C_PROTSTS_STARIF_Msk) == UI2C_PROTSTS_STARIF_Msk)
         {
@@ -555,36 +568,36 @@ uint8_t UI2C_WriteByte(UI2C_T *ui2c, uint8_t u8SlaveAddr, const uint8_t data)
             {
                 UI2C_SET_DATA(ui2c, data);   /* SLA+W has been transmitted and write ADDRESS to Register TXDAT */
                 m_Event = MASTER_SEND_DATA;
-                u8Ctrl = UI2C_CTL_PTRG;                
+                u8Ctrl = UI2C_CTL_PTRG;
             }
             else if(m_Event == MASTER_SEND_DATA)
             {
                 m_Event = MASTER_STOP;
                 u8Xfering = 0;
-                u8Ctrl = UI2C_CTL_PTRG | UI2C_CTL_STO;         /* Send STOP signal */                 
+                u8Ctrl = UI2C_CTL_PTRG | UI2C_CTL_STO;         /* Send STOP signal */
             }
         }
         else if((ui2c->PROTSTS & UI2C_PROTSTS_NACKIF_Msk) == UI2C_PROTSTS_NACKIF_Msk)
         {
             UI2C_CLR_PROT_INT_FLAG(ui2c, UI2C_PROTSTS_NACKIF_Msk);                  /* Clear NACK INT Flag */
-            u8Ctrl = UI2C_CTL_PTRG | UI2C_CTL_STO;            
+            u8Ctrl = UI2C_CTL_PTRG | UI2C_CTL_STO;
             u8Err = 1;
         }
         else if((ui2c->PROTSTS & UI2C_PROTSTS_STORIF_Msk) == UI2C_PROTSTS_STORIF_Msk)
         {
-            UI2C_CLR_PROT_INT_FLAG(ui2c, UI2C_PROTSTS_STORIF_Msk);                  /* Clear STOP INT Flag */ 
+            UI2C_CLR_PROT_INT_FLAG(ui2c, UI2C_PROTSTS_STORIF_Msk);                  /* Clear STOP INT Flag */
             u8Xfering = 0;
-        }   
+        }
         else if((ui2c->PROTSTS & UI2C_PROTSTS_ARBLOIF_Msk) == UI2C_PROTSTS_ARBLOIF_Msk)
-        {  
+        {
             UI2C_CLR_PROT_INT_FLAG(ui2c, UI2C_PROTSTS_ARBLOIF_Msk);                 /* Clear Arbitration Lost INT Flag */
-            u8Ctrl = UI2C_CTL_PTRG | UI2C_CTL_STO;            
+            u8Ctrl = UI2C_CTL_PTRG | UI2C_CTL_STO;
             u8Err = 1;
-        }           
+        }
         UI2C_SET_CONTROL_REG(ui2c, u8Ctrl);        /* Write controlbit to UI2C_CTL register */
-    }        
+    }
 
-    return (u8Err | u8Xfering);                                  /* return (Success)/(Fail) status */        
+    return (u8Err | u8Xfering);                                  /* return (Success)/(Fail) status */
 }
 
 /**
@@ -594,23 +607,34 @@ uint8_t UI2C_WriteByte(UI2C_T *ui2c, uint8_t u8SlaveAddr, const uint8_t data)
   * @param[in]  u8SlaveAddr     Access Slave address(7-bit)
   * @param[in]  *data           Pointer to array to write data to Slave
   * @param[in]  u32wLen         How many bytes need to write to Slave
-  * 
+  *
   * @return     A length of how many bytes have been transmitted.
   *
-  * @details    The function is used for USCI I2C Master write multi bytes data to Slave. 
+  * @details    The function is used for USCI I2C Master write multi bytes data to Slave.
+  *
+  * @note       This function sets g_UI2C_i32ErrCode to UI2C_ERR_TIMEOUT if waiting USCI_I2C time-out.
   *
   */
 uint32_t UI2C_WriteMultiBytes(UI2C_T *ui2c, uint8_t u8SlaveAddr, const uint8_t *data, uint32_t u32wLen)
 {
-    enum UI2C_MASTER_EVENT m_Event;    
+    enum UI2C_MASTER_EVENT m_Event;
     uint8_t u8Xfering = 1, u8Err = 0, u8Ctrl = 0;
-    uint32_t u32txLen = 0;    
-    
+    uint32_t u32txLen = 0, u32TimeOutCount = 0U;
+
+    g_UI2C_i32ErrCode = 0;
     m_Event = MASTER_SEND_START;
     UI2C_SET_CONTROL_REG(ui2c, UI2C_CTL_STA);
     while(u8Xfering && (u8Err == 0))
     {
-        while((ui2c->PROTSTS & 0x3F00) == 0){};
+        u32TimeOutCount = UI2C_TIMEOUT;
+        while((ui2c->PROTSTS & 0x3F00) == 0)
+        {
+            if(--u32TimeOutCount == 0)
+            {
+                g_UI2C_i32ErrCode = UI2C_ERR_TIMEOUT;
+                break;
+            }
+        }
 
         if((ui2c->PROTSTS & UI2C_PROTSTS_STARIF_Msk) == UI2C_PROTSTS_STARIF_Msk)
         {
@@ -628,7 +652,7 @@ uint32_t UI2C_WriteMultiBytes(UI2C_T *ui2c, uint8_t u8SlaveAddr, const uint8_t *
             {
                 UI2C_SET_DATA(ui2c, data[u32txLen++]);        /* SLA+W has been transmitted and write ADDRESS to Register TXDAT */
                 m_Event = MASTER_SEND_DATA;
-                u8Ctrl = UI2C_CTL_PTRG;                
+                u8Ctrl = UI2C_CTL_PTRG;
             }
             else if(m_Event == MASTER_SEND_DATA)
             {
@@ -641,31 +665,31 @@ uint32_t UI2C_WriteMultiBytes(UI2C_T *ui2c, uint8_t u8SlaveAddr, const uint8_t *
                 {
                     m_Event = MASTER_STOP;
                     u8Xfering = 0;
-                    u8Ctrl = UI2C_CTL_PTRG | UI2C_CTL_STO;                          /* Send STOP signal */                 
+                    u8Ctrl = UI2C_CTL_PTRG | UI2C_CTL_STO;                          /* Send STOP signal */
                 }
             }
         }
         else if((ui2c->PROTSTS & UI2C_PROTSTS_NACKIF_Msk) == UI2C_PROTSTS_NACKIF_Msk)
         {
             UI2C_CLR_PROT_INT_FLAG(ui2c, UI2C_PROTSTS_NACKIF_Msk);                  /* Clear NACK INT Flag */
-            u8Ctrl = UI2C_CTL_PTRG | UI2C_CTL_STO;            
+            u8Ctrl = UI2C_CTL_PTRG | UI2C_CTL_STO;
             u8Err = 1;
         }
-        else if((ui2c->PROTSTS & UI2C_PROTSTS_NACKIF_Msk) == UI2C_PROTSTS_STORIF_Msk)
+        else if((ui2c->PROTSTS & UI2C_PROTSTS_STORIF_Msk) == UI2C_PROTSTS_STORIF_Msk)
         {
-            UI2C_CLR_PROT_INT_FLAG(ui2c, UI2C_PROTSTS_STORIF_Msk);                  /* Clear STOP INT Flag */ 
+            UI2C_CLR_PROT_INT_FLAG(ui2c, UI2C_PROTSTS_STORIF_Msk);                  /* Clear STOP INT Flag */
             u8Xfering = 0;
-        }   
+        }
         else if((ui2c->PROTSTS & UI2C_PROTSTS_ARBLOIF_Msk) == UI2C_PROTSTS_ARBLOIF_Msk)
-        {  
+        {
             UI2C_CLR_PROT_INT_FLAG(ui2c, UI2C_PROTSTS_ARBLOIF_Msk);                 /* Clear Arbitration Lost INT Flag */
-            u8Ctrl = UI2C_CTL_PTRG | UI2C_CTL_STO;            
+            u8Ctrl = UI2C_CTL_PTRG | UI2C_CTL_STO;
             u8Err = 1;
-        }           
+        }
         UI2C_SET_CONTROL_REG(ui2c, u8Ctrl);                                         /* Write controlbit to UI2C_CTL register */
-    }        
+    }
 
-    return u32txLen;                                                                /* return (Success)/(Fail) status */      
+    return u32txLen;                                                                /* return (Success)/(Fail) status */
 }
 
 /**
@@ -675,25 +699,37 @@ uint32_t UI2C_WriteMultiBytes(UI2C_T *ui2c, uint8_t u8SlaveAddr, const uint8_t *
   * @param[in]  u8SlaveAddr     Access Slave address(7-bit)
   * @param[in]  u8DataAddr      Specify a address (1 byte) of data write to
   * @param[in]  data            A byte data to write it to Slave
-  * 
+  *
   * @retval     0               Write data success
   * @retval     1               Write data fail, or bus occurs error events
   *
   * @details    The function is used for USCI I2C Master specify a address that data write to in Slave.
   *
+  * @note       This function sets g_UI2C_i32ErrCode to UI2C_ERR_TIMEOUT if waiting USCI_I2C time-out.
+  *
   */
 uint8_t UI2C_WriteByteOneReg(UI2C_T *ui2c, uint8_t u8SlaveAddr, uint8_t u8DataAddr, const uint8_t data)
 {
-    enum UI2C_MASTER_EVENT m_Event;      
+    enum UI2C_MASTER_EVENT m_Event;
     uint8_t u8Xfering = 1, u8Err = 0, u8Ctrl = 0;
-    uint32_t u32txLen = 0;
-  
+    uint32_t u32txLen = 0, u32TimeOutCount = 0U;
+
+    g_UI2C_i32ErrCode = 0;
     m_Event = MASTER_SEND_START;
     UI2C_SET_CONTROL_REG(ui2c, UI2C_CTL_STA);
     /* Send START */
     while(u8Xfering && (u8Err == 0))
     {
-        while((ui2c->PROTSTS & 0x3F00) == 0){};
+        u32TimeOutCount = UI2C_TIMEOUT;
+        while((ui2c->PROTSTS & 0x3F00) == 0)
+        {
+            if(--u32TimeOutCount == 0)
+            {
+                g_UI2C_i32ErrCode = UI2C_ERR_TIMEOUT;
+                break;
+            }
+        }
+
         if((ui2c->PROTSTS & UI2C_PROTSTS_STARIF_Msk) == UI2C_PROTSTS_STARIF_Msk)
         {
             UI2C_CLR_PROT_INT_FLAG(ui2c, UI2C_PROTSTS_STARIF_Msk);               /* Clear START INT Flag */
@@ -710,10 +746,10 @@ uint8_t UI2C_WriteByteOneReg(UI2C_T *ui2c, uint8_t u8SlaveAddr, uint8_t u8DataAd
             {
                 UI2C_SET_DATA(ui2c, u8DataAddr);   /* SLA+W has been transmitted and write ADDRESS to Register TXDAT */
                 m_Event = MASTER_SEND_DATA;
-                u8Ctrl = UI2C_CTL_PTRG;                
+                u8Ctrl = UI2C_CTL_PTRG;
             }
             else if(m_Event == MASTER_SEND_DATA)
-            {               
+            {
                 if(u32txLen < 1)
                 {
                     UI2C_SET_DATA(ui2c, data);   /* SLA+W has been transmitted and write ADDRESS to Register TXDAT */
@@ -724,31 +760,31 @@ uint8_t UI2C_WriteByteOneReg(UI2C_T *ui2c, uint8_t u8SlaveAddr, uint8_t u8DataAd
                 {
                     m_Event = MASTER_STOP;
                     u8Xfering = 0;
-                    u8Ctrl = UI2C_CTL_PTRG | UI2C_CTL_STO;                        /* Send STOP signal */                 
+                    u8Ctrl = UI2C_CTL_PTRG | UI2C_CTL_STO;                        /* Send STOP signal */
                 }
             }
         }
         else if((ui2c->PROTSTS & UI2C_PROTSTS_NACKIF_Msk) == UI2C_PROTSTS_NACKIF_Msk)
         {
             UI2C_CLR_PROT_INT_FLAG(ui2c, UI2C_PROTSTS_NACKIF_Msk);                /* Clear NACK INT Flag */
-            u8Ctrl = UI2C_CTL_PTRG | UI2C_CTL_STO;            
+            u8Ctrl = UI2C_CTL_PTRG | UI2C_CTL_STO;
             u8Err = 1;
         }
-        else if((ui2c->PROTSTS & UI2C_PROTSTS_NACKIF_Msk) == UI2C_PROTSTS_STORIF_Msk)
+        else if((ui2c->PROTSTS & UI2C_PROTSTS_STORIF_Msk) == UI2C_PROTSTS_STORIF_Msk)
         {
-            UI2C_CLR_PROT_INT_FLAG(ui2c, UI2C_PROTSTS_STORIF_Msk);                /* Clear STOP INT Flag */ 
+            UI2C_CLR_PROT_INT_FLAG(ui2c, UI2C_PROTSTS_STORIF_Msk);                /* Clear STOP INT Flag */
             u8Xfering = 0;
-        }   
+        }
         else if((ui2c->PROTSTS & UI2C_PROTSTS_ARBLOIF_Msk) == UI2C_PROTSTS_ARBLOIF_Msk)
-        {  
+        {
             UI2C_CLR_PROT_INT_FLAG(ui2c, UI2C_PROTSTS_ARBLOIF_Msk);               /* Clear Arbitration Lost INT Flag */
-            u8Ctrl = UI2C_CTL_PTRG | UI2C_CTL_STO;            
+            u8Ctrl = UI2C_CTL_PTRG | UI2C_CTL_STO;
             u8Err = 1;
-        } 
-        
-        UI2C_SET_CONTROL_REG(ui2c, u8Ctrl);                                       /* Write controlbit to UI2C_CTL register */     
+        }
+
+        UI2C_SET_CONTROL_REG(ui2c, u8Ctrl);                                       /* Write controlbit to UI2C_CTL register */
     }
-    return (u8Err | u8Xfering);                                                   /* return (Success)/(Fail) status */    
+    return (u8Err | u8Xfering);                                                   /* return (Success)/(Fail) status */
 }
 
 /**
@@ -759,24 +795,35 @@ uint8_t UI2C_WriteByteOneReg(UI2C_T *ui2c, uint8_t u8SlaveAddr, uint8_t u8DataAd
   * @param[in]  u8DataAddr      Specify a address (1 byte) of data write to
   * @param[in]  *data           Pointer to array to write data to Slave
   * @param[in]  u32wLen         How many bytes need to write to Slave
-  * 
+  *
   * @return     A length of how many bytes have been transmitted.
   *
   * @details    The function is used for USCI I2C Master specify a byte address that multi data bytes write to in Slave.
   *
+  * @note       This function sets g_UI2C_i32ErrCode to UI2C_ERR_TIMEOUT if waiting USCI_I2C time-out.
+  *
   */
 uint32_t UI2C_WriteMultiBytesOneReg(UI2C_T *ui2c, uint8_t u8SlaveAddr, uint8_t u8DataAddr, const uint8_t *data, uint32_t u32wLen)
 {
-    enum UI2C_MASTER_EVENT m_Event;      
+    enum UI2C_MASTER_EVENT m_Event;
     uint8_t u8Xfering = 1, u8Err = 0, u8Ctrl = 0;
-    uint32_t u32txLen = 0;
-  
+    uint32_t u32txLen = 0, u32TimeOutCount = 0U;
+
+    g_UI2C_i32ErrCode = 0;
     m_Event = MASTER_SEND_START;
     UI2C_SET_CONTROL_REG(ui2c, UI2C_CTL_STA);                                   /* Send START */
     while(u8Xfering && (u8Err == 0))
     {
-        while((ui2c->PROTSTS & 0x3F00) == 0){};
-            
+        u32TimeOutCount = UI2C_TIMEOUT;
+        while((ui2c->PROTSTS & 0x3F00) == 0)
+        {
+            if(--u32TimeOutCount == 0)
+            {
+                g_UI2C_i32ErrCode = UI2C_ERR_TIMEOUT;
+                break;
+            }
+        }
+
         if((ui2c->PROTSTS & UI2C_PROTSTS_STARIF_Msk) == UI2C_PROTSTS_STARIF_Msk)
         {
             UI2C_CLR_PROT_INT_FLAG(ui2c, UI2C_PROTSTS_STARIF_Msk);              /* Clear START INT Flag */
@@ -793,7 +840,7 @@ uint32_t UI2C_WriteMultiBytesOneReg(UI2C_T *ui2c, uint8_t u8SlaveAddr, uint8_t u
             {
                 UI2C_SET_DATA(ui2c, u8DataAddr);                                /* SLA+W has been transmitted and write ADDRESS to Register TXDAT */
                 m_Event = MASTER_SEND_DATA;
-                u8Ctrl = UI2C_CTL_PTRG;                
+                u8Ctrl = UI2C_CTL_PTRG;
             }
             else if(m_Event == MASTER_SEND_DATA)
             {
@@ -806,32 +853,32 @@ uint32_t UI2C_WriteMultiBytesOneReg(UI2C_T *ui2c, uint8_t u8SlaveAddr, uint8_t u
                 {
                     m_Event = MASTER_STOP;
                     u8Xfering = 0;
-                    u8Ctrl = UI2C_CTL_PTRG | UI2C_CTL_STO;         /* Send STOP signal */                 
+                    u8Ctrl = UI2C_CTL_PTRG | UI2C_CTL_STO;         /* Send STOP signal */
                 }
             }
         }
         else if((ui2c->PROTSTS & UI2C_PROTSTS_NACKIF_Msk) == UI2C_PROTSTS_NACKIF_Msk)
         {
             UI2C_CLR_PROT_INT_FLAG(ui2c, UI2C_PROTSTS_NACKIF_Msk);              /* Clear NACK INT Flag */
-            u8Ctrl = UI2C_CTL_PTRG | UI2C_CTL_STO;            
+            u8Ctrl = UI2C_CTL_PTRG | UI2C_CTL_STO;
             u8Err = 1;
         }
-        else if((ui2c->PROTSTS & UI2C_PROTSTS_NACKIF_Msk) == UI2C_PROTSTS_STORIF_Msk)
+        else if((ui2c->PROTSTS & UI2C_PROTSTS_STORIF_Msk) == UI2C_PROTSTS_STORIF_Msk)
         {
             UI2C_CLR_PROT_INT_FLAG(ui2c, UI2C_PROTSTS_STORIF_Msk);              /* Clear STOP INT Flag */ 
             u8Xfering = 0;
-        }   
+        }
         else if((ui2c->PROTSTS & UI2C_PROTSTS_ARBLOIF_Msk) == UI2C_PROTSTS_ARBLOIF_Msk)
-        {  
+        {
             UI2C_CLR_PROT_INT_FLAG(ui2c, UI2C_PROTSTS_ARBLOIF_Msk);             /* Clear Arbitration Lost INT Flag */
-            u8Ctrl = UI2C_CTL_PTRG | UI2C_CTL_STO;            
+            u8Ctrl = UI2C_CTL_PTRG | UI2C_CTL_STO;
             u8Err = 1;
-        }              
-            
-        UI2C_SET_CONTROL_REG(ui2c, u8Ctrl);                                     /* Write controlbit to UI2C_CTL register */    
-    } 
-    
-    return u32txLen;                                                            /* Return bytes length that have been transmitted */    
+        }
+
+        UI2C_SET_CONTROL_REG(ui2c, u8Ctrl);                                     /* Write controlbit to UI2C_CTL register */
+    }
+
+    return u32txLen;                                                            /* Return bytes length that have been transmitted */
 }
 
 /**
@@ -841,25 +888,36 @@ uint32_t UI2C_WriteMultiBytesOneReg(UI2C_T *ui2c, uint8_t u8SlaveAddr, uint8_t u
   * @param[in]  u8SlaveAddr     Access Slave address(7-bit)
   * @param[in]  u16DataAddr     Specify a address (2 byte) of data write to
   * @param[in]  data            Write a byte data to Slave
-  * 
+  *
   * @retval     0               Write data success
   * @retval     1               Write data fail, or bus occurs error events
   *
   * @details    The function is used for USCI I2C Master specify two bytes address that data write to in Slave.
   *
+  * @note       This function sets g_UI2C_i32ErrCode to UI2C_ERR_TIMEOUT if waiting USCI_I2C time-out.
+  *
   */
 uint8_t UI2C_WriteByteTwoRegs(UI2C_T *ui2c, uint8_t u8SlaveAddr, uint16_t u16DataAddr, const uint8_t data)
 {
-    enum UI2C_MASTER_EVENT m_Event;     
+    enum UI2C_MASTER_EVENT m_Event;
     uint8_t u8Xfering = 1, u8Err = 0, u8Addr = 1, u8Ctrl = 0;
-    uint32_t u32txLen = 0;
-  
+    uint32_t u32txLen = 0, u32TimeOutCount = 0U;
+
+    g_UI2C_i32ErrCode = 0;
     m_Event = MASTER_SEND_START;
     UI2C_SET_CONTROL_REG(ui2c, UI2C_CTL_STA);                                      /* Send START */
     while(u8Xfering && (u8Err == 0))
     {
-        while((ui2c->PROTSTS & 0x3F00) == 0){};
-            
+        u32TimeOutCount = UI2C_TIMEOUT;
+        while((ui2c->PROTSTS & 0x3F00) == 0)
+        {
+            if(--u32TimeOutCount == 0)
+            {
+                g_UI2C_i32ErrCode = UI2C_ERR_TIMEOUT;
+                break;
+            }
+        }
+
         if((ui2c->PROTSTS & UI2C_PROTSTS_STARIF_Msk) == UI2C_PROTSTS_STARIF_Msk)
         {
             UI2C_CLR_PROT_INT_FLAG(ui2c, UI2C_PROTSTS_STARIF_Msk);                 /* Clear START INT Flag */
@@ -876,15 +934,15 @@ uint8_t UI2C_WriteByteTwoRegs(UI2C_T *ui2c, uint8_t u8SlaveAddr, uint16_t u16Dat
             {
                 UI2C_SET_DATA(ui2c, (uint8_t)(u16DataAddr & 0xFF00) >> 8);         /* SLA+W has been transmitted and write ADDRESS to Register TXDAT */
                 m_Event = MASTER_SEND_DATA;
-                u8Ctrl = UI2C_CTL_PTRG;                
+                u8Ctrl = UI2C_CTL_PTRG;
             }
             else if(m_Event == MASTER_SEND_DATA)
-            {      
+            {
                 if(u8Addr)
                 {
                     UI2C_SET_DATA(ui2c, (uint8_t)(u16DataAddr & 0xFF));            /* Write Lo byte address of register */
-                    u8Addr = 0;                    
-                }                    
+                    u8Addr = 0;
+                }
                 else if((u32txLen < 1) && (u8Addr == 0))
                 {
                     UI2C_SET_DATA(ui2c, data);   /* SLA+W has been transmitted and write ADDRESS to Register TXDAT */
@@ -895,32 +953,32 @@ uint8_t UI2C_WriteByteTwoRegs(UI2C_T *ui2c, uint8_t u8SlaveAddr, uint16_t u16Dat
                 {
                     m_Event = MASTER_STOP;
                     u8Xfering = 0;
-                    u8Ctrl = UI2C_CTL_PTRG | UI2C_CTL_STO;                          /* Send STOP signal */                 
+                    u8Ctrl = UI2C_CTL_PTRG | UI2C_CTL_STO;                          /* Send STOP signal */
                 }
             }
         }
         else if((ui2c->PROTSTS & UI2C_PROTSTS_NACKIF_Msk) == UI2C_PROTSTS_NACKIF_Msk)
         {
             UI2C_CLR_PROT_INT_FLAG(ui2c, UI2C_PROTSTS_NACKIF_Msk);                  /* Clear NACK INT Flag */
-            u8Ctrl = UI2C_CTL_PTRG | UI2C_CTL_STO;            
+            u8Ctrl = UI2C_CTL_PTRG | UI2C_CTL_STO;
             u8Err = 1;
         }
-        else if((ui2c->PROTSTS & UI2C_PROTSTS_NACKIF_Msk) == UI2C_PROTSTS_STORIF_Msk)
+        else if((ui2c->PROTSTS & UI2C_PROTSTS_STORIF_Msk) == UI2C_PROTSTS_STORIF_Msk)
         {
-            UI2C_CLR_PROT_INT_FLAG(ui2c, UI2C_PROTSTS_STORIF_Msk);                  /* Clear STOP INT Flag */ 
+            UI2C_CLR_PROT_INT_FLAG(ui2c, UI2C_PROTSTS_STORIF_Msk);                  /* Clear STOP INT Flag */
             u8Xfering = 0;
-        }   
+        }
         else if((ui2c->PROTSTS & UI2C_PROTSTS_ARBLOIF_Msk) == UI2C_PROTSTS_ARBLOIF_Msk)
-        {  
+        {
             UI2C_CLR_PROT_INT_FLAG(ui2c, UI2C_PROTSTS_ARBLOIF_Msk);                 /* Clear Arbitration Lost INT Flag */
-            u8Ctrl = UI2C_CTL_PTRG | UI2C_CTL_STO;            
+            u8Ctrl = UI2C_CTL_PTRG | UI2C_CTL_STO;
             u8Err = 1;
-        } 
-        
-        UI2C_SET_CONTROL_REG(ui2c, u8Ctrl);                                         /* Write controlbit to UI2C_CTL register */     
+        }
+
+        UI2C_SET_CONTROL_REG(ui2c, u8Ctrl);                                         /* Write controlbit to UI2C_CTL register */
     }
-    
-    return (u8Err | u8Xfering);                                                     /* return (Success)/(Fail) status */    
+
+    return (u8Err | u8Xfering);                                                     /* return (Success)/(Fail) status */
 }
 
 /**
@@ -931,23 +989,34 @@ uint8_t UI2C_WriteByteTwoRegs(UI2C_T *ui2c, uint8_t u8SlaveAddr, uint16_t u16Dat
   * @param[in]  u16DataAddr     Specify a address (2 bytes) of data write to
   * @param[in]  *data           Pointer to array to write data to Slave
   * @param[in]  u32wLen         How many bytes need to write to Slave
-  * 
+  *
   * @return     A length of how many bytes have been transmitted.
   *
   * @details    The function is used for USCI I2C Master specify a byte address that multi data write to in Slave.
   *
+  * @note       This function sets g_UI2C_i32ErrCode to UI2C_ERR_TIMEOUT if waiting USCI_I2C time-out.
+  *
   */
 uint32_t UI2C_WriteMultiBytesTwoRegs(UI2C_T *ui2c, uint8_t u8SlaveAddr, uint16_t u16DataAddr, const uint8_t *data, uint32_t u32wLen)
 {
-    enum UI2C_MASTER_EVENT m_Event;      
+    enum UI2C_MASTER_EVENT m_Event;
     uint8_t u8Xfering = 1, u8Err = 0, u8Addr = 1, u8Ctrl = 0;
-    uint32_t u32txLen = 0;
-   
+    uint32_t u32txLen = 0, u32TimeOutCount = 0U;
+
+    g_UI2C_i32ErrCode = 0;
     m_Event = MASTER_SEND_START;
     UI2C_SET_CONTROL_REG(ui2c, UI2C_CTL_STA);                                       /* Send START */
     while(u8Xfering && (u8Err == 0))
     {
-        while((ui2c->PROTSTS & 0x3F00) == 0){};
+        u32TimeOutCount = UI2C_TIMEOUT;
+        while((ui2c->PROTSTS & 0x3F00) == 0)
+        {
+            if(--u32TimeOutCount == 0)
+            {
+                g_UI2C_i32ErrCode = UI2C_ERR_TIMEOUT;
+                break;
+            }
+        }
 
         if((ui2c->PROTSTS & UI2C_PROTSTS_STARIF_Msk) == UI2C_PROTSTS_STARIF_Msk)
         {
@@ -965,15 +1034,15 @@ uint32_t UI2C_WriteMultiBytesTwoRegs(UI2C_T *ui2c, uint8_t u8SlaveAddr, uint16_t
             {
                 UI2C_SET_DATA(ui2c, (uint8_t)(u16DataAddr & 0xFF00) >> 8);          /* SLA+W has been transmitted and write ADDRESS to Register TXDAT */
                 m_Event = MASTER_SEND_DATA;
-                u8Ctrl = UI2C_CTL_PTRG;                
+                u8Ctrl = UI2C_CTL_PTRG;
             }
             else if(m_Event == MASTER_SEND_DATA)
-            {      
+            {
                 if(u8Addr)
                 {
                     UI2C_SET_DATA(ui2c, (uint8_t)(u16DataAddr & 0xFF));             /* Write Lo byte address of register */
-                    u8Addr = 0;                    
-                }                    
+                    u8Addr = 0;
+                }
                 else if((u32txLen < u32wLen) && (u8Addr == 0))
                 {
                     UI2C_SET_DATA(ui2c, data[u32txLen++]);   /* SLA+W has been transmitted and write ADDRESS to Register TXDAT */
@@ -983,32 +1052,32 @@ uint32_t UI2C_WriteMultiBytesTwoRegs(UI2C_T *ui2c, uint8_t u8SlaveAddr, uint16_t
                 {
                     m_Event = MASTER_STOP;
                     u8Xfering = 0;
-                    u8Ctrl = UI2C_CTL_PTRG | UI2C_CTL_STO;                          /* Send STOP signal */                 
+                    u8Ctrl = UI2C_CTL_PTRG | UI2C_CTL_STO;                          /* Send STOP signal */
                 }
             }
         }
         else if((ui2c->PROTSTS & UI2C_PROTSTS_NACKIF_Msk) == UI2C_PROTSTS_NACKIF_Msk)
         {
             UI2C_CLR_PROT_INT_FLAG(ui2c, UI2C_PROTSTS_NACKIF_Msk);                  /* Clear NACK INT Flag */
-            u8Ctrl = UI2C_CTL_PTRG | UI2C_CTL_STO;            
+            u8Ctrl = UI2C_CTL_PTRG | UI2C_CTL_STO;
             u8Err = 1;
         }
-        else if((ui2c->PROTSTS & UI2C_PROTSTS_NACKIF_Msk) == UI2C_PROTSTS_STORIF_Msk)
+        else if((ui2c->PROTSTS & UI2C_PROTSTS_STORIF_Msk) == UI2C_PROTSTS_STORIF_Msk)
         {
-            UI2C_CLR_PROT_INT_FLAG(ui2c, UI2C_PROTSTS_STORIF_Msk);                  /* Clear STOP INT Flag */ 
+            UI2C_CLR_PROT_INT_FLAG(ui2c, UI2C_PROTSTS_STORIF_Msk);                  /* Clear STOP INT Flag */
             u8Xfering = 0;
-        }   
+        }
         else if((ui2c->PROTSTS & UI2C_PROTSTS_ARBLOIF_Msk) == UI2C_PROTSTS_ARBLOIF_Msk)
-        {  
+        {
             UI2C_CLR_PROT_INT_FLAG(ui2c, UI2C_PROTSTS_ARBLOIF_Msk);                 /* Clear Arbitration Lost INT Flag */
-            u8Ctrl = UI2C_CTL_PTRG | UI2C_CTL_STO;            
+            u8Ctrl = UI2C_CTL_PTRG | UI2C_CTL_STO;
             u8Err = 1;
-        }             
+        }
 
-        UI2C_SET_CONTROL_REG(ui2c, u8Ctrl);                                         /* Write controlbit to UI2C_CTL register */   
+        UI2C_SET_CONTROL_REG(ui2c, u8Ctrl);                                         /* Write controlbit to UI2C_CTL register */
     }
-    
-    return u32txLen;                                                                /* Return bytes length that have been transmitted */    
+
+    return u32txLen;                                                                /* Return bytes length that have been transmitted */
 }
 
 /**
@@ -1016,24 +1085,36 @@ uint32_t UI2C_WriteMultiBytesTwoRegs(UI2C_T *ui2c, uint8_t u8SlaveAddr, uint16_t
   *
   * @param[in]  *ui2c            Point to USCI I2C peripheral
   * @param[in]  u8SlaveAddr     Access Slave address(7-bit)
-  * 
+  *
   * @return     Read a byte data from Slave
   *
-  * @details    The function is used for USCI I2C Master to read a byte data from Slave. 
+  * @details    The function is used for USCI I2C Master to read a byte data from Slave.
+  *
+  * @note       This function sets g_UI2C_i32ErrCode to UI2C_ERR_TIMEOUT if waiting USCI_I2C time-out.
   *
   */
 uint8_t UI2C_ReadByte(UI2C_T *ui2c, uint8_t u8SlaveAddr)
 {
-    enum UI2C_MASTER_EVENT m_Event;     
+    enum UI2C_MASTER_EVENT m_Event;
     uint8_t u8Xfering = 1, u8Err = 0, rdata = 0, u8Ctrl = 0;
-  
+    uint32_t u32TimeOutCount = 0U;
+
+    g_UI2C_i32ErrCode = 0;
     m_Event = MASTER_SEND_START;
     UI2C_SET_CONTROL_REG(ui2c, UI2C_CTL_STA);                                       /* Send START */
 
     while(u8Xfering && (u8Err == 0))
-    { 
-        while((ui2c->PROTSTS & 0x3F00) == 0){};
-            
+    {
+        u32TimeOutCount = UI2C_TIMEOUT;
+        while((ui2c->PROTSTS & 0x3F00) == 0)
+        {
+            if(--u32TimeOutCount == 0)
+            {
+                g_UI2C_i32ErrCode = UI2C_ERR_TIMEOUT;
+                break;
+            }
+        }
+
         if((ui2c->PROTSTS & UI2C_PROTSTS_STARIF_Msk) == UI2C_PROTSTS_STARIF_Msk)
         {
             UI2C_CLR_PROT_INT_FLAG(ui2c, UI2C_PROTSTS_STARIF_Msk);                  /* Clear START INT Flag */
@@ -1049,7 +1130,7 @@ uint8_t UI2C_ReadByte(UI2C_T *ui2c, uint8_t u8SlaveAddr)
             if(m_Event == MASTER_SEND_ADDRESS)
             {
                 m_Event = MASTER_READ_DATA;
-                u8Ctrl = UI2C_CTL_PTRG;                
+                u8Ctrl = UI2C_CTL_PTRG;
             }
         }
         else if((ui2c->PROTSTS & UI2C_PROTSTS_NACKIF_Msk) == UI2C_PROTSTS_NACKIF_Msk)
@@ -1065,26 +1146,26 @@ uint8_t UI2C_ReadByte(UI2C_T *ui2c, uint8_t u8SlaveAddr)
             {
                 u8Err = 1;
             }
-            u8Ctrl = UI2C_CTL_PTRG | UI2C_CTL_STO;                                  /* Send STOP signal */               
+            u8Ctrl = UI2C_CTL_PTRG | UI2C_CTL_STO;                                  /* Send STOP signal */
         }
-        else if((ui2c->PROTSTS & UI2C_PROTSTS_NACKIF_Msk) == UI2C_PROTSTS_STORIF_Msk)
+        else if((ui2c->PROTSTS & UI2C_PROTSTS_STORIF_Msk) == UI2C_PROTSTS_STORIF_Msk)
         {
-            UI2C_CLR_PROT_INT_FLAG(ui2c, UI2C_PROTSTS_STORIF_Msk);                  /* Clear STOP INT Flag */ 
+            UI2C_CLR_PROT_INT_FLAG(ui2c, UI2C_PROTSTS_STORIF_Msk);                  /* Clear STOP INT Flag */
             u8Xfering = 0;
-        }   
+        }
         else if((ui2c->PROTSTS & UI2C_PROTSTS_ARBLOIF_Msk) == UI2C_PROTSTS_ARBLOIF_Msk)
-        {  
+        {
             UI2C_CLR_PROT_INT_FLAG(ui2c, UI2C_PROTSTS_ARBLOIF_Msk);                 /* Clear Arbitration Lost INT Flag */
-            u8Ctrl = UI2C_CTL_PTRG | UI2C_CTL_STO;            
+            u8Ctrl = UI2C_CTL_PTRG | UI2C_CTL_STO;
             u8Err = 1;
-        }   
-           
+        }
+
         UI2C_SET_CONTROL_REG(ui2c, u8Ctrl);                                         /* Write controlbit to UI2C_CTL register */
     }
     if(u8Err)
         rdata = 0;                                                                  /* If occurs error, return 0 */
-    
-    return rdata;                                                                   /* Return read data */     
+
+    return rdata;                                                                   /* Return read data */
 }
 
 /**
@@ -1092,28 +1173,38 @@ uint8_t UI2C_ReadByte(UI2C_T *ui2c, uint8_t u8SlaveAddr)
   *
   * @param[in]  *ui2c            Point to USCI I2C peripheral
   * @param[in]  u8SlaveAddr     Access Slave address(7-bit)
-  * @param[out] *rdata          Point to array to store data from Slave 
+  * @param[out] *rdata          Point to array to store data from Slave
   * @param[in]  u32rLen         How many bytes need to read from Slave
-  * 
+  *
   * @return     A length of how many bytes have been received
   *
-  * @details    The function is used for USCI I2C Master to read multi data bytes from Slave. 
+  * @details    The function is used for USCI I2C Master to read multi data bytes from Slave.
   *
+  * @note       This function sets g_UI2C_i32ErrCode to UI2C_ERR_TIMEOUT if waiting USCI_I2C time-out.
   *
   */
 uint32_t UI2C_ReadMultiBytes(UI2C_T *ui2c, uint8_t u8SlaveAddr, uint8_t *rdata, uint32_t u32rLen)
 {
-    enum UI2C_MASTER_EVENT m_Event;     
-    uint8_t u8Xfering = 1, u8Err = 0, u8Ctrl = 0; 
-    uint32_t u32rxLen = 0;
-  
+    enum UI2C_MASTER_EVENT m_Event;
+    uint8_t u8Xfering = 1, u8Err = 0, u8Ctrl = 0;
+    uint32_t u32rxLen = 0, u32TimeOutCount = 0U;
+
+    g_UI2C_i32ErrCode = 0;
     m_Event = MASTER_SEND_START;
     UI2C_SET_CONTROL_REG(ui2c, UI2C_CTL_STA);                      /* Send START */
 
     while(u8Xfering && (u8Err == 0))
-    { 
-        while((ui2c->PROTSTS & 0x3F00) == 0){};
-            
+    {
+        u32TimeOutCount = UI2C_TIMEOUT;
+        while((ui2c->PROTSTS & 0x3F00) == 0)
+        {
+            if(--u32TimeOutCount == 0)
+            {
+                g_UI2C_i32ErrCode = UI2C_ERR_TIMEOUT;
+                break;
+            }
+        }
+
         if((ui2c->PROTSTS & UI2C_PROTSTS_STARIF_Msk) == UI2C_PROTSTS_STARIF_Msk)
         {
             UI2C_CLR_PROT_INT_FLAG(ui2c, UI2C_PROTSTS_STARIF_Msk);               /* Clear START INT Flag */
@@ -1129,25 +1220,25 @@ uint32_t UI2C_ReadMultiBytes(UI2C_T *ui2c, uint8_t u8SlaveAddr, uint8_t *rdata, 
             if(m_Event == MASTER_SEND_ADDRESS)
             {
                 m_Event = MASTER_READ_DATA;
-                u8Ctrl = (UI2C_CTL_PTRG | UI2C_CTL_AA);                
+                u8Ctrl = (UI2C_CTL_PTRG | UI2C_CTL_AA);
             }
             else if(m_Event == MASTER_READ_DATA)
             {
                 rdata[u32rxLen++] = (unsigned char) UI2C_GET_DATA(ui2c);    /* Receive Data */
                 if(u32rxLen<(u32rLen-1))
                 {
-                    u8Ctrl = (UI2C_CTL_PTRG | UI2C_CTL_AA);                             /* Clear SI and set ACK */                          
+                    u8Ctrl = (UI2C_CTL_PTRG | UI2C_CTL_AA);                             /* Clear SI and set ACK */
                 }
                 else
                 {
-                    u8Ctrl = UI2C_CTL_PTRG;                                /* Clear SI */  
-                }                
+                    u8Ctrl = UI2C_CTL_PTRG;                                /* Clear SI */
+                }
             }
         }
         else if((ui2c->PROTSTS & UI2C_PROTSTS_NACKIF_Msk) == UI2C_PROTSTS_NACKIF_Msk)
         {
             UI2C_CLR_PROT_INT_FLAG(ui2c, UI2C_PROTSTS_NACKIF_Msk);                  /* Clear NACK INT Flag */
-            
+
             if(m_Event == MASTER_READ_DATA)
             {
                 m_Event = MASTER_STOP;
@@ -1158,24 +1249,24 @@ uint32_t UI2C_ReadMultiBytes(UI2C_T *ui2c, uint8_t u8SlaveAddr, uint8_t *rdata, 
             {
                 u8Err = 1;
             }
-            u8Ctrl = UI2C_CTL_PTRG | UI2C_CTL_STO;                                  /* Send STOP signal */               
+            u8Ctrl = UI2C_CTL_PTRG | UI2C_CTL_STO;                                  /* Send STOP signal */
         }
-        else if((ui2c->PROTSTS & UI2C_PROTSTS_NACKIF_Msk) == UI2C_PROTSTS_STORIF_Msk)
+        else if((ui2c->PROTSTS & UI2C_PROTSTS_STORIF_Msk) == UI2C_PROTSTS_STORIF_Msk)
         {
-            UI2C_CLR_PROT_INT_FLAG(ui2c, UI2C_PROTSTS_STORIF_Msk);                  /* Clear STOP INT Flag */ 
+            UI2C_CLR_PROT_INT_FLAG(ui2c, UI2C_PROTSTS_STORIF_Msk);                  /* Clear STOP INT Flag */
             u8Xfering = 0;
-        }   
+        }
         else if((ui2c->PROTSTS & UI2C_PROTSTS_ARBLOIF_Msk) == UI2C_PROTSTS_ARBLOIF_Msk)
-        {  
+        {
             UI2C_CLR_PROT_INT_FLAG(ui2c, UI2C_PROTSTS_ARBLOIF_Msk);                 /* Clear Arbitration Lost INT Flag */
-            u8Ctrl = UI2C_CTL_PTRG | UI2C_CTL_STO;            
+            u8Ctrl = UI2C_CTL_PTRG | UI2C_CTL_STO;
             u8Err = 1;
-        }   
-           
+        }
+
         UI2C_SET_CONTROL_REG(ui2c, u8Ctrl);                          /* Write controlbit to UI2C_CTL register */
     }
-    
-    return u32rxLen;                                                  /* Return read data */      
+
+    return u32rxLen;                                                  /* Return read data */
 }
 
 /**
@@ -1184,39 +1275,50 @@ uint32_t UI2C_ReadMultiBytes(UI2C_T *ui2c, uint8_t u8SlaveAddr, uint8_t *rdata, 
   * @param[in]  *ui2c           Point to USCI I2C peripheral
   * @param[in]  u8SlaveAddr     Access Slave address(7-bit)
   * @param[in]  u8DataAddr      Specify a address(1 byte) of data read from
-  * 
+  *
   * @return     Read a byte data from Slave
   *
   * @details    The function is used for USCI I2C Master specify a byte address that a data byte read from Slave.
   *
+  * @note       This function sets g_UI2C_i32ErrCode to UI2C_ERR_TIMEOUT if waiting USCI_I2C time-out.
   *
   */
 uint8_t UI2C_ReadByteOneReg(UI2C_T *ui2c, uint8_t u8SlaveAddr, uint8_t u8DataAddr)
 {
-    enum UI2C_MASTER_EVENT m_Event;       
+    enum UI2C_MASTER_EVENT m_Event;
     uint8_t u8Xfering = 1, u8Err = 0, rdata = 0, u8Ctrl = 0;
-  
+    uint32_t u32TimeOutCount = 0U;
+
+    g_UI2C_i32ErrCode = 0;
     m_Event = MASTER_SEND_START;
     UI2C_SET_CONTROL_REG(ui2c, UI2C_CTL_STA);                                    /* Send START */
 
     while(u8Xfering && (u8Err == 0))
-    { 
-        while((ui2c->PROTSTS & 0x3F00) == 0){};
-            
+    {
+        u32TimeOutCount = UI2C_TIMEOUT;
+        while((ui2c->PROTSTS & 0x3F00) == 0)
+        {
+            if(--u32TimeOutCount == 0)
+            {
+                g_UI2C_i32ErrCode = UI2C_ERR_TIMEOUT;
+                break;
+            }
+        }
+
         if((ui2c->PROTSTS & UI2C_PROTSTS_STARIF_Msk) == UI2C_PROTSTS_STARIF_Msk)
         {
             UI2C_CLR_PROT_INT_FLAG(ui2c, UI2C_PROTSTS_STARIF_Msk);                   /* Clear START INT Flag */
             if(m_Event == MASTER_SEND_START)
             {
                 UI2C_SET_DATA(UI2C0, (u8SlaveAddr << 1) | 0x00);                     /* Write SLA+W to Register TXDAT */
-                m_Event = MASTER_SEND_ADDRESS;                
+                m_Event = MASTER_SEND_ADDRESS;
             }
             else if(m_Event == MASTER_SEND_REPEAT_START)
             {
                 UI2C_SET_DATA(UI2C0, (u8SlaveAddr << 1) | 0x01);                     /* Write SLA+R to Register TXDAT */
                 m_Event = MASTER_SEND_H_RD_ADDRESS;
             }
-            u8Ctrl = UI2C_CTL_PTRG;              
+            u8Ctrl = UI2C_CTL_PTRG;
         }
         else if((ui2c->PROTSTS & UI2C_PROTSTS_ACKIF_Msk) == UI2C_PROTSTS_ACKIF_Msk)
         {
@@ -1225,18 +1327,18 @@ uint8_t UI2C_ReadByteOneReg(UI2C_T *ui2c, uint8_t u8SlaveAddr, uint8_t u8DataAdd
             if(m_Event == MASTER_SEND_ADDRESS)
             {
                 UI2C_SET_DATA(UI2C0, u8DataAddr);
-                m_Event = MASTER_SEND_DATA;                
-                u8Ctrl = UI2C_CTL_PTRG;                
+                m_Event = MASTER_SEND_DATA;
+                u8Ctrl = UI2C_CTL_PTRG;
             }
             else if(m_Event == MASTER_SEND_DATA)
             {
-                m_Event = MASTER_SEND_REPEAT_START;                
-                u8Ctrl = UI2C_CTL_PTRG | UI2C_CTL_STA;                  
-            }            
+                m_Event = MASTER_SEND_REPEAT_START;
+                u8Ctrl = UI2C_CTL_PTRG | UI2C_CTL_STA;
+            }
             else if(m_Event == MASTER_SEND_H_RD_ADDRESS)
             {
-                m_Event = MASTER_READ_DATA; 
-                u8Ctrl = UI2C_CTL_PTRG;                 
+                m_Event = MASTER_READ_DATA;
+                u8Ctrl = UI2C_CTL_PTRG;
             }
         }
         else if((ui2c->PROTSTS & UI2C_PROTSTS_NACKIF_Msk) == UI2C_PROTSTS_NACKIF_Msk)
@@ -1252,26 +1354,26 @@ uint8_t UI2C_ReadByteOneReg(UI2C_T *ui2c, uint8_t u8SlaveAddr, uint8_t u8DataAdd
             {
                 u8Err = 1;
             }
-            u8Ctrl = UI2C_CTL_PTRG | UI2C_CTL_STO;                                  /* Send STOP signal */               
+            u8Ctrl = UI2C_CTL_PTRG | UI2C_CTL_STO;                                  /* Send STOP signal */
         }
-        else if((ui2c->PROTSTS & UI2C_PROTSTS_NACKIF_Msk) == UI2C_PROTSTS_STORIF_Msk)
+        else if((ui2c->PROTSTS & UI2C_PROTSTS_STORIF_Msk) == UI2C_PROTSTS_STORIF_Msk)
         {
-            UI2C_CLR_PROT_INT_FLAG(ui2c, UI2C_PROTSTS_STORIF_Msk);                  /* Clear STOP INT Flag */ 
+            UI2C_CLR_PROT_INT_FLAG(ui2c, UI2C_PROTSTS_STORIF_Msk);                  /* Clear STOP INT Flag */
             u8Xfering = 0;
-        }   
+        }
         else if((ui2c->PROTSTS & UI2C_PROTSTS_ARBLOIF_Msk) == UI2C_PROTSTS_ARBLOIF_Msk)
-        {  
+        {
             UI2C_CLR_PROT_INT_FLAG(ui2c, UI2C_PROTSTS_ARBLOIF_Msk);                 /* Clear Arbitration Lost INT Flag */
-            u8Ctrl = UI2C_CTL_PTRG | UI2C_CTL_STO;            
+            u8Ctrl = UI2C_CTL_PTRG | UI2C_CTL_STO;
             u8Err = 1;
-        } 
-        
+        }
+
         UI2C_SET_CONTROL_REG(ui2c, u8Ctrl);                                         /* Write controlbit to UI2C_CTL register */
     }
     if(u8Err)
-        rdata = 0;                                                                  /* If occurs error, return 0 */  
-     
-    return rdata;                                                                   /* Return read data */                                              
+        rdata = 0;                                                                  /* If occurs error, return 0 */
+
+    return rdata;                                                                   /* Return read data */
 }
 
 /**
@@ -1280,74 +1382,84 @@ uint8_t UI2C_ReadByteOneReg(UI2C_T *ui2c, uint8_t u8SlaveAddr, uint8_t u8DataAdd
   * @param[in]  *ui2c           Point to USCI I2C peripheral
   * @param[in]  u8SlaveAddr     Access Slave address(7-bit)
   * @param[in]  u8DataAddr      Specify a address (1 bytes) of data read from
-  * @param[out] *rdata          Point to array to store data from Slave 
+  * @param[out] *rdata          Point to array to store data from Slave
   * @param[in]  u32rLen         How many bytes need to read from Slave
-  * 
+  *
   * @return     A length of how many bytes have been received
   *
   * @details    The function is used for USCI I2C Master specify a byte address that multi data bytes read from Slave.
   *
+  * @note       This function sets g_UI2C_i32ErrCode to UI2C_ERR_TIMEOUT if waiting USCI_I2C time-out.
   *
   */
 uint32_t UI2C_ReadMultiBytesOneReg(UI2C_T *ui2c, uint8_t u8SlaveAddr, uint8_t u8DataAddr, uint8_t *rdata, uint32_t u32rLen)
 {
-    enum UI2C_MASTER_EVENT m_Event;      
-    uint8_t u8Xfering = 1, u8Err = 0, u8Ctrl = 0; 
-    uint32_t u32rxLen = 0;
-  
+    enum UI2C_MASTER_EVENT m_Event;
+    uint8_t u8Xfering = 1, u8Err = 0, u8Ctrl = 0;
+    uint32_t u32rxLen = 0, u32TimeOutCount = 0U;
+
+    g_UI2C_i32ErrCode = 0;
     m_Event = MASTER_SEND_START;
     UI2C_SET_CONTROL_REG(ui2c, UI2C_CTL_STA);                                      /* Send START */
 
     while(u8Xfering && (u8Err == 0))
-    { 
-        while((ui2c->PROTSTS & 0x3F00) == 0){};
-            
+    {
+        u32TimeOutCount = UI2C_TIMEOUT;
+        while((ui2c->PROTSTS & 0x3F00) == 0)
+        {
+            if(--u32TimeOutCount == 0)
+            {
+                g_UI2C_i32ErrCode = UI2C_ERR_TIMEOUT;
+                break;
+            }
+        }
+
         if((ui2c->PROTSTS & UI2C_PROTSTS_STARIF_Msk) == UI2C_PROTSTS_STARIF_Msk)
         {
             UI2C_CLR_PROT_INT_FLAG(ui2c, UI2C_PROTSTS_STARIF_Msk);                 /* Clear START INT Flag */
             if(m_Event == MASTER_SEND_START)
             {
                 UI2C_SET_DATA(UI2C0, (u8SlaveAddr << 1) | 0x00);                   /* Write SLA+W to Register TXDAT */
-                m_Event = MASTER_SEND_ADDRESS;                
+                m_Event = MASTER_SEND_ADDRESS;
             }
             else if(m_Event == MASTER_SEND_REPEAT_START)
             {
                 UI2C_SET_DATA(UI2C0, (u8SlaveAddr << 1) | 0x01);                   /* Write SLA+R to Register TXDAT */
                 m_Event = MASTER_SEND_H_RD_ADDRESS;
             }
-            u8Ctrl = UI2C_CTL_PTRG;              
+            u8Ctrl = UI2C_CTL_PTRG;
         }
         else if((ui2c->PROTSTS & UI2C_PROTSTS_ACKIF_Msk) == UI2C_PROTSTS_ACKIF_Msk)
-        {  
+        {
             UI2C_CLR_PROT_INT_FLAG(ui2c, UI2C_PROTSTS_ACKIF_Msk);                  /* Clear ACK INT Flag */
 
             if(m_Event == MASTER_SEND_ADDRESS)
             {
                 UI2C_SET_DATA(UI2C0, u8DataAddr);
-                m_Event = MASTER_SEND_DATA;                
-                u8Ctrl = UI2C_CTL_PTRG;                
+                m_Event = MASTER_SEND_DATA;
+                u8Ctrl = UI2C_CTL_PTRG;
             }
             else if(m_Event == MASTER_SEND_DATA)
             {
-                m_Event = MASTER_SEND_REPEAT_START;                
-                u8Ctrl = UI2C_CTL_PTRG | UI2C_CTL_STA;                  
+                m_Event = MASTER_SEND_REPEAT_START;
+                u8Ctrl = UI2C_CTL_PTRG | UI2C_CTL_STA;
             }
             else if(m_Event == MASTER_SEND_H_RD_ADDRESS)
             {
-                m_Event = MASTER_READ_DATA; 
-                u8Ctrl = UI2C_CTL_PTRG | UI2C_CTL_AA;                 
+                m_Event = MASTER_READ_DATA;
+                u8Ctrl = UI2C_CTL_PTRG | UI2C_CTL_AA;
             }
             else if(m_Event == MASTER_READ_DATA)
             {
-                rdata[u32rxLen++] = (unsigned char) UI2C_GET_DATA(ui2c);          /* Receive Data */  
+                rdata[u32rxLen++] = (unsigned char) UI2C_GET_DATA(ui2c);          /* Receive Data */
                 if(u32rxLen<(u32rLen-1))
                     u8Ctrl = UI2C_CTL_PTRG | UI2C_CTL_AA;                         /* Clear SI and set ACK */
                 else
-                    u8Ctrl = UI2C_CTL_PTRG;                                       /* Clear SI */                               
+                    u8Ctrl = UI2C_CTL_PTRG;                                       /* Clear SI */
             }
         }
         else if((ui2c->PROTSTS & UI2C_PROTSTS_NACKIF_Msk) == UI2C_PROTSTS_NACKIF_Msk)
-        {   
+        {
             UI2C_CLR_PROT_INT_FLAG(ui2c, UI2C_PROTSTS_NACKIF_Msk);                /* Clear NACK INT Flag */
             if(m_Event == MASTER_READ_DATA)
             {
@@ -1359,23 +1471,23 @@ uint32_t UI2C_ReadMultiBytesOneReg(UI2C_T *ui2c, uint8_t u8SlaveAddr, uint8_t u8
             {
                 u8Err = 1;
             }
-            u8Ctrl = UI2C_CTL_PTRG | UI2C_CTL_STO;                                /* Send STOP signal */             
+            u8Ctrl = UI2C_CTL_PTRG | UI2C_CTL_STO;                                /* Send STOP signal */
         }
-        else if((ui2c->PROTSTS & UI2C_PROTSTS_NACKIF_Msk) == UI2C_PROTSTS_STORIF_Msk)
+        else if((ui2c->PROTSTS & UI2C_PROTSTS_STORIF_Msk) == UI2C_PROTSTS_STORIF_Msk)
         {
-            UI2C_CLR_PROT_INT_FLAG(ui2c, UI2C_PROTSTS_STORIF_Msk);                /* Clear STOP INT Flag */ 
-            u8Xfering = 0;            
-        }   
+            UI2C_CLR_PROT_INT_FLAG(ui2c, UI2C_PROTSTS_STORIF_Msk);                /* Clear STOP INT Flag */
+            u8Xfering = 0;
+        }
         else if((ui2c->PROTSTS & UI2C_PROTSTS_ARBLOIF_Msk) == UI2C_PROTSTS_ARBLOIF_Msk)
         {
             UI2C_CLR_PROT_INT_FLAG(ui2c, UI2C_PROTSTS_ARBLOIF_Msk);               /* Clear Arbitration Lost INT Flag */
-            u8Ctrl = UI2C_CTL_PTRG | UI2C_CTL_STO;            
-            u8Err = 1;            
-        }            
+            u8Ctrl = UI2C_CTL_PTRG | UI2C_CTL_STO;
+            u8Err = 1;
+        }
         UI2C_SET_CONTROL_REG(ui2c, u8Ctrl);                                       /* Write controlbit to UI2C_CTL register */
-    } 
-    
-    return u32rxLen;                                                              /* Return bytes length that have been received */  
+    }
+
+    return u32rxLen;                                                              /* Return bytes length that have been received */
 }
 
 /**
@@ -1384,24 +1496,35 @@ uint32_t UI2C_ReadMultiBytesOneReg(UI2C_T *ui2c, uint8_t u8SlaveAddr, uint8_t u8
   * @param[in]  *ui2c           Point to USCI I2C peripheral
   * @param[in]  u8SlaveAddr     Access Slave address(7-bit)
   * @param[in]  u16DataAddr     Specify a address(2 byte) of data read from
-  * 
+  *
   * @return     Read a byte data from Slave
   *
   * @details    The function is used for USCI I2C Master specify two bytes address that a data byte read from Slave.
   *
+  * @note       This function sets g_UI2C_i32ErrCode to UI2C_ERR_TIMEOUT if waiting USCI_I2C time-out.
   *
   */
 uint8_t UI2C_ReadByteTwoRegs(UI2C_T *ui2c, uint8_t u8SlaveAddr, uint16_t u16DataAddr)
 {
-    enum UI2C_MASTER_EVENT m_Event;    
+    enum UI2C_MASTER_EVENT m_Event;
     uint8_t u8Xfering = 1, u8Err = 0, rdata = 0, u8Addr = 1, u8Ctrl = 0;
- 
+    uint32_t u32TimeOutCount = 0U;
+
+    g_UI2C_i32ErrCode = 0;
     m_Event = MASTER_SEND_START;
     UI2C_SET_CONTROL_REG(ui2c, UI2C_CTL_STA);                                    /* Send START */
 
     while(u8Xfering && (u8Err == 0))
-    { 
-        while((ui2c->PROTSTS & 0x3F00) == 0){};
+    {
+        u32TimeOutCount = UI2C_TIMEOUT;
+        while((ui2c->PROTSTS & 0x3F00) == 0)
+        {
+            if(--u32TimeOutCount == 0)
+            {
+                g_UI2C_i32ErrCode = UI2C_ERR_TIMEOUT;
+                break;
+            }
+        }
 
         if((ui2c->PROTSTS & UI2C_PROTSTS_STARIF_Msk) == UI2C_PROTSTS_STARIF_Msk)
         {
@@ -1409,14 +1532,14 @@ uint8_t UI2C_ReadByteTwoRegs(UI2C_T *ui2c, uint8_t u8SlaveAddr, uint16_t u16Data
             if(m_Event == MASTER_SEND_START)
             {
                 UI2C_SET_DATA(UI2C0, (u8SlaveAddr << 1) | 0x00);                     /* Write SLA+W to Register TXDAT */
-                m_Event = MASTER_SEND_ADDRESS;                
+                m_Event = MASTER_SEND_ADDRESS;
             }
             else if(m_Event == MASTER_SEND_REPEAT_START)
             {
                 UI2C_SET_DATA(UI2C0, (u8SlaveAddr << 1) | 0x01);                     /* Write SLA+R to Register TXDAT */
                 m_Event = MASTER_SEND_H_RD_ADDRESS;
             }
-            u8Ctrl = UI2C_CTL_PTRG;              
+            u8Ctrl = UI2C_CTL_PTRG;
         }
         else if((ui2c->PROTSTS & UI2C_PROTSTS_ACKIF_Msk) == UI2C_PROTSTS_ACKIF_Msk)
         {
@@ -1425,27 +1548,27 @@ uint8_t UI2C_ReadByteTwoRegs(UI2C_T *ui2c, uint8_t u8SlaveAddr, uint16_t u16Data
             if(m_Event == MASTER_SEND_ADDRESS)
             {
                 UI2C_SET_DATA(UI2C0, (uint8_t)(u16DataAddr & 0xFF00) >> 8);
-                m_Event = MASTER_SEND_DATA;                
-                u8Ctrl = UI2C_CTL_PTRG;                
+                m_Event = MASTER_SEND_DATA;
+                u8Ctrl = UI2C_CTL_PTRG;
             }
             else if(m_Event == MASTER_SEND_DATA)
             {
                 if(u8Addr)
                 {
-                    UI2C_SET_DATA(ui2c, (uint8_t)(u16DataAddr & 0xFF));       /* Write Lo byte address of register */                    
+                    UI2C_SET_DATA(ui2c, (uint8_t)(u16DataAddr & 0xFF));       /* Write Lo byte address of register */
                     u8Ctrl = UI2C_CTL_PTRG;
                     u8Addr = 0;
                 }
                 else
                 {
-                    m_Event = MASTER_SEND_REPEAT_START;                
-                    u8Ctrl = UI2C_CTL_PTRG | UI2C_CTL_STA;                  
+                    m_Event = MASTER_SEND_REPEAT_START;
+                    u8Ctrl = UI2C_CTL_PTRG | UI2C_CTL_STA;
                 }
-            }            
+            }
             else if(m_Event == MASTER_SEND_H_RD_ADDRESS)
             {
-                m_Event = MASTER_READ_DATA; 
-                u8Ctrl = UI2C_CTL_PTRG;                 
+                m_Event = MASTER_READ_DATA;
+                u8Ctrl = UI2C_CTL_PTRG;
             }
         }
         else if((ui2c->PROTSTS & UI2C_PROTSTS_NACKIF_Msk) == UI2C_PROTSTS_NACKIF_Msk)
@@ -1461,26 +1584,26 @@ uint8_t UI2C_ReadByteTwoRegs(UI2C_T *ui2c, uint8_t u8SlaveAddr, uint16_t u16Data
             {
                 u8Err = 1;
             }
-            u8Ctrl = UI2C_CTL_PTRG | UI2C_CTL_STO;                                  /* Send STOP signal */               
+            u8Ctrl = UI2C_CTL_PTRG | UI2C_CTL_STO;                                  /* Send STOP signal */
         }
-        else if((ui2c->PROTSTS & UI2C_PROTSTS_NACKIF_Msk) == UI2C_PROTSTS_STORIF_Msk)
+        else if((ui2c->PROTSTS & UI2C_PROTSTS_STORIF_Msk) == UI2C_PROTSTS_STORIF_Msk)
         {
-            UI2C_CLR_PROT_INT_FLAG(ui2c, UI2C_PROTSTS_STORIF_Msk);                  /* Clear STOP INT Flag */ 
+            UI2C_CLR_PROT_INT_FLAG(ui2c, UI2C_PROTSTS_STORIF_Msk);                  /* Clear STOP INT Flag */
             u8Xfering = 0;
-        }   
+        }
         else if((ui2c->PROTSTS & UI2C_PROTSTS_ARBLOIF_Msk) == UI2C_PROTSTS_ARBLOIF_Msk)
-        {  
+        {
             UI2C_CLR_PROT_INT_FLAG(ui2c, UI2C_PROTSTS_ARBLOIF_Msk);                 /* Clear Arbitration Lost INT Flag */
-            u8Ctrl = UI2C_CTL_PTRG | UI2C_CTL_STO;            
+            u8Ctrl = UI2C_CTL_PTRG | UI2C_CTL_STO;
             u8Err = 1;
-        } 
-        
+        }
+
         UI2C_SET_CONTROL_REG(ui2c, u8Ctrl);                                         /* Write controlbit to UI2C_CTL register */
     }
     if(u8Err)
         rdata = 0;                                                                  /* If occurs error, return 0 */
-    
-    return rdata;                                                                   /* Return read data */   
+
+    return rdata;                                                                   /* Return read data */
 }
 
 /**
@@ -1489,41 +1612,52 @@ uint8_t UI2C_ReadByteTwoRegs(UI2C_T *ui2c, uint8_t u8SlaveAddr, uint16_t u16Data
   * @param[in]  *ui2c           Point to USCI I2C peripheral
   * @param[in]  u8SlaveAddr     Access Slave address(7-bit)
   * @param[in]  u16DataAddr     Specify a address (2 bytes) of data read from
-  * @param[out] *rdata          Point to array to store data from Slave 
+  * @param[out] *rdata          Point to array to store data from Slave
   * @param[in]  u32rLen         How many bytes need to read from Slave
-  * 
+  *
   * @return     A length of how many bytes have been received
   *
   * @details    The function is used for USCI I2C Master specify two bytes address that multi data bytes read from Slave.
   *
+  * @note       This function sets g_UI2C_i32ErrCode to UI2C_ERR_TIMEOUT if waiting USCI_I2C time-out.
   *
   */
 uint32_t UI2C_ReadMultiBytesTwoRegs(UI2C_T *ui2c, uint8_t u8SlaveAddr, uint16_t u16DataAddr, uint8_t *rdata, uint32_t u32rLen)
 {
-    enum UI2C_MASTER_EVENT m_Event;      
-    uint8_t u8Xfering = 1, u8Err = 0, u8Addr = 1, u8Ctrl = 0; 
-    uint32_t u32rxLen = 0;
-  
+    enum UI2C_MASTER_EVENT m_Event;
+    uint8_t u8Xfering = 1, u8Err = 0, u8Addr = 1, u8Ctrl = 0;
+    uint32_t u32rxLen = 0, u32TimeOutCount = 0U;
+
+    g_UI2C_i32ErrCode = 0;
     m_Event = MASTER_SEND_START;
     UI2C_SET_CONTROL_REG(ui2c, UI2C_CTL_STA);                                        /* Send START */
 
     while(u8Xfering && (u8Err == 0))
-    { 
-        while((ui2c->PROTSTS & 0x3F00) == 0){};
+    {
+        u32TimeOutCount = UI2C_TIMEOUT;
+        while((ui2c->PROTSTS & 0x3F00) == 0)
+        {
+            if(--u32TimeOutCount == 0)
+            {
+                g_UI2C_i32ErrCode = UI2C_ERR_TIMEOUT;
+                break;
+            }
+        }
+
         if((ui2c->PROTSTS & UI2C_PROTSTS_STARIF_Msk) == UI2C_PROTSTS_STARIF_Msk)
         {
             UI2C_CLR_PROT_INT_FLAG(ui2c, UI2C_PROTSTS_STARIF_Msk);                   /* Clear START INT Flag */
             if(m_Event == MASTER_SEND_START)
             {
                 UI2C_SET_DATA(UI2C0, (u8SlaveAddr << 1) | 0x00);                     /* Write SLA+W to Register TXDAT */
-                m_Event = MASTER_SEND_ADDRESS;                
+                m_Event = MASTER_SEND_ADDRESS;
             }
             else if(m_Event == MASTER_SEND_REPEAT_START)
             {
                 UI2C_SET_DATA(UI2C0, (u8SlaveAddr << 1) | 0x01);                     /* Write SLA+R to Register TXDAT */
                 m_Event = MASTER_SEND_H_RD_ADDRESS;
             }
-            u8Ctrl = UI2C_CTL_PTRG;              
+            u8Ctrl = UI2C_CTL_PTRG;
         }
         else if((ui2c->PROTSTS & UI2C_PROTSTS_ACKIF_Msk) == UI2C_PROTSTS_ACKIF_Msk)
         {
@@ -1532,27 +1666,27 @@ uint32_t UI2C_ReadMultiBytesTwoRegs(UI2C_T *ui2c, uint8_t u8SlaveAddr, uint16_t 
             if(m_Event == MASTER_SEND_ADDRESS)
             {
                 UI2C_SET_DATA(UI2C0, (uint8_t)(u16DataAddr & 0xFF00) >> 8);
-                m_Event = MASTER_SEND_DATA;                
-                u8Ctrl = UI2C_CTL_PTRG;                
+                m_Event = MASTER_SEND_DATA;
+                u8Ctrl = UI2C_CTL_PTRG;
             }
             else if(m_Event == MASTER_SEND_DATA)
             {
                 if(u8Addr)
                 {
-                    UI2C_SET_DATA(ui2c, (uint8_t)(u16DataAddr & 0xFF));              /* Write Lo byte address of register */                    
+                    UI2C_SET_DATA(ui2c, (uint8_t)(u16DataAddr & 0xFF));              /* Write Lo byte address of register */
                     u8Ctrl = UI2C_CTL_PTRG;
                     u8Addr = 0;
                 }
                 else
                 {
-                    m_Event = MASTER_SEND_REPEAT_START;                
-                    u8Ctrl = UI2C_CTL_PTRG | UI2C_CTL_STA;                  
+                    m_Event = MASTER_SEND_REPEAT_START;
+                    u8Ctrl = UI2C_CTL_PTRG | UI2C_CTL_STA;
                 }
-            }            
+            }
             else if(m_Event == MASTER_SEND_H_RD_ADDRESS)
             {
-                m_Event = MASTER_READ_DATA; 
-                u8Ctrl = UI2C_CTL_PTRG | UI2C_CTL_AA;                 
+                m_Event = MASTER_READ_DATA;
+                u8Ctrl = UI2C_CTL_PTRG | UI2C_CTL_AA;
             }
             else if(m_Event == MASTER_READ_DATA)
             {
@@ -1560,7 +1694,7 @@ uint32_t UI2C_ReadMultiBytesTwoRegs(UI2C_T *ui2c, uint8_t u8SlaveAddr, uint16_t 
                 if(u32rxLen<(u32rLen-1))
                     u8Ctrl = UI2C_CTL_PTRG | UI2C_CTL_AA;                             /* Clear SI and set ACK */
                 else
-                    u8Ctrl = UI2C_CTL_PTRG;                                           /* Clear SI */                
+                    u8Ctrl = UI2C_CTL_PTRG;                                           /* Clear SI */
             }
         }
         else if((ui2c->PROTSTS & UI2C_PROTSTS_NACKIF_Msk) == UI2C_PROTSTS_NACKIF_Msk)
@@ -1576,23 +1710,23 @@ uint32_t UI2C_ReadMultiBytesTwoRegs(UI2C_T *ui2c, uint8_t u8SlaveAddr, uint16_t 
             {
                 u8Err = 1;
             }
-            u8Ctrl = UI2C_CTL_PTRG | UI2C_CTL_STO;                                    /* Send STOP signal */               
+            u8Ctrl = UI2C_CTL_PTRG | UI2C_CTL_STO;                                    /* Send STOP signal */
         }
-        else if((ui2c->PROTSTS & UI2C_PROTSTS_NACKIF_Msk) == UI2C_PROTSTS_STORIF_Msk)
+        else if((ui2c->PROTSTS & UI2C_PROTSTS_STORIF_Msk) == UI2C_PROTSTS_STORIF_Msk)
         {
-            UI2C_CLR_PROT_INT_FLAG(ui2c, UI2C_PROTSTS_STORIF_Msk);                    /* Clear STOP INT Flag */ 
+            UI2C_CLR_PROT_INT_FLAG(ui2c, UI2C_PROTSTS_STORIF_Msk);                    /* Clear STOP INT Flag */
             u8Xfering = 0;
-        }   
+        }
         else if((ui2c->PROTSTS & UI2C_PROTSTS_ARBLOIF_Msk) == UI2C_PROTSTS_ARBLOIF_Msk)
-        {  
+        {
             UI2C_CLR_PROT_INT_FLAG(ui2c, UI2C_PROTSTS_ARBLOIF_Msk);                   /* Clear Arbitration Lost INT Flag */
-            u8Ctrl = UI2C_CTL_PTRG | UI2C_CTL_STO;            
+            u8Ctrl = UI2C_CTL_PTRG | UI2C_CTL_STO;
             u8Err = 1;
-        } 
-        
+        }
+
         UI2C_SET_CONTROL_REG(ui2c, u8Ctrl);                                           /* Write controlbit to UI2C_CTL register */
-    } 
-    return u32rxLen;                                                                  /* Return bytes length that have been received */    
+    }
+    return u32rxLen;                                                                  /* Return bytes length that have been received */
 }
 
 /*@}*/ /* end of group USCI_I2C_EXPORTED_FUNCTIONS */

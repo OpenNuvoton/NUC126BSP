@@ -21,7 +21,7 @@
  * @note
  *             Please make sure that Register Write-Protection Function has been disabled
  *             before using this function. User can check the status of
- *             Register Write-Protection Function with DrvSYS_IsProtectedRegLocked().
+ *             Register Write-Protection Function with SYS_IsRegLocked().
  */
 int FMC_Write_User(unsigned int u32Addr, unsigned int u32Data)
 {
@@ -53,7 +53,7 @@ int FMC_Write_User(unsigned int u32Addr, unsigned int u32Data)
  * @note
  *              Please make sure that Register Write-Protection Function has been disabled
  *              before using this function. User can check the status of
- *              Register Write-Protection Function with DrvSYS_IsProtectedRegLocked().
+ *              Register Write-Protection Function with SYS_IsRegLocked().
  */
 int FMC_Read_User(unsigned int u32Addr, unsigned int *data)
 {
@@ -85,7 +85,7 @@ int FMC_Read_User(unsigned int u32Addr, unsigned int *data)
  * @note
  *             Please make sure that Register Write-Protection Function has been disabled
  *             before using this function. User can check the status of
- *             Register Write-Protection Function with DrvSYS_IsProtectedRegLocked().
+ *             Register Write-Protection Function with SYS_IsRegLocked().
  */
 int FMC_Erase_User(unsigned int u32Addr)
 {

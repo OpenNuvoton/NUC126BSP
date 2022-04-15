@@ -30,7 +30,7 @@ volatile int32_t g_i32pointer = 0;
 /* Define functions prototype                                                                              */
 /*---------------------------------------------------------------------------------------------------------*/
 extern char GetChar(void);
-//int32_t main(void);
+int32_t main(void);
 void AutoFlow_FunctionRxTest(void);
 
 
@@ -47,7 +47,7 @@ void SYS_Init(void)
     /* Wait for HIRC clock ready */
     CLK_WaitClockReady(CLK_STATUS_HIRCSTB_Msk);
 
-    /* Select HCLK clock source as HIRC and HCLK source divider as 1 */
+    /* Select HCLK clock source as HIRC and HCLK clock divider as 1 */
     CLK_SetHCLK(CLK_CLKSEL0_HCLKSEL_HIRC, CLK_CLKDIV0_HCLK(1));
 
     /* Enable HXT clock (external XTAL 12MHz) */
@@ -112,7 +112,7 @@ void UART1_Init()
 /*---------------------------------------------------------------------------------------------------------*/
 /* MAIN function                                                                                           */
 /*---------------------------------------------------------------------------------------------------------*/
-int main(void)
+int32_t main(void)
 {
 
     /* Unlock protected registers */
@@ -168,7 +168,7 @@ void UART1_IRQHandler(void)
 /*---------------------------------------------------------------------------------------------------------*/
 void AutoFlow_FunctionRxTest()
 {
-    uint32_t u32i;
+    uint32_t u32i, u32Err = 0;
 
     printf("\n");
     printf("+-----------------------------------------------------------+\n");
@@ -220,11 +220,15 @@ void AutoFlow_FunctionRxTest()
     {
         if(g_u8RecData[u32i] != (u32i & 0xFF))
         {
-            printf("Compare Data Failed\n");
-            while(1);
+            u32Err = 1;
+            break;
         }
     }
-    printf("\n Receive OK & Check OK\n");
+
+    if( u32Err )
+        printf("Compare Data Failed\n");
+    else
+        printf("\n Receive OK & Check OK\n");
 
     /* Disable RDA and RTO Interrupt */
     UART_DisableInt(UART1, (UART_INTEN_RDAIEN_Msk | UART_INTEN_RXTOIEN_Msk));

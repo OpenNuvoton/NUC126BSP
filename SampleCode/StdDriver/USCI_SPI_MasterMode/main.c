@@ -111,7 +111,7 @@ void SYS_Init(void)
     CLK->PWRCTL |= CLK_PWRCTL_HXTEN_Msk;
 
     /* Waiting for clock ready */
-    while(!(CLK->STATUS & CLK_STATUS_HXTSTB_Msk));
+    CLK_WaitClockReady(CLK_STATUS_HXTSTB_Msk);
 
     /* Select HXT as the clock source of HCLK */
     CLK->CLKSEL0 = (CLK->CLKSEL0 & (~CLK_CLKSEL0_HCLKSEL_Msk)) | CLK_CLKSEL0_HCLKSEL_HXT;

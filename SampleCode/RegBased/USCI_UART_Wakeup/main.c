@@ -26,13 +26,17 @@ void USCI_UART_PowerDownWakeUpTest(void);
 
 void PowerDownFunction(void)
 {
+    uint32_t u32TimeOutCnt;
+
     /* Check if all the debug messages are finished */
-    UART_WAIT_TX_EMPTY(UART0);
+    u32TimeOutCnt = SystemCoreClock; /* 1 second time-out */
+    UART_WAIT_TX_EMPTY(UART0)
+        if(--u32TimeOutCnt == 0) break;
 
     /* Set the processor is deep sleep as its low power mode */
     SCB->SCR |= SCB_SCR_SLEEPDEEP_Msk;
 
-    /* Set system Power-down enabled*/
+    /* Set system Power-down enabled */
     CLK->PWRCTL |= CLK_PWRCTL_PDEN_Msk;
 
     /* Chip enter Power-down mode after CPU run WFI instruction */
@@ -265,7 +269,7 @@ void USCI_UART_PowerDownWakeUpTest(void)
     /* Disable UART wake-up function */
     UUART0->PROTCTL &= ~(UUART_PROTCTL_CTSWKEN_Msk | UUART_PROTCTL_DATWKEN_Msk);
 
-    /* Disble UART wake-up and receive end interrupt */
+    /* Disable UART wake-up and receive end interrupt */
     UUART1->INTEN &= ~UUART_INTEN_RXENDIEN_Msk;
     UUART1->WKCTL &= ~UUART_WKCTL_WKEN_Msk;
     NVIC_DisableIRQ(USCI_IRQn);

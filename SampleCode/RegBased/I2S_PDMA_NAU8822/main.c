@@ -173,6 +173,7 @@ void SYS_Init(void)
     /* Set PC multi-function pins for SPI0_I2SMCLK. */
     SYS->GPC_MFPL &= ~(SYS_GPC_MFPL_PC5MFP_Msk);
     SYS->GPC_MFPL |= SYS_GPC_MFPL_PC5MFP_SPI0_I2SMCLK;
+
     /* Configure SPI0 related multi-function pins. */
     /* GPB[7:4] : SPI0_CLK (I2S_BCLK), SPI0_MISO (I2S_DI), SPI0_MOSI (I2S_DO), SPI0_SS (I2S_LRCLK). */
     SYS->GPB_MFPL &= ~(SYS_GPB_MFPL_PB4MFP_Msk | SYS_GPB_MFPL_PB5MFP_Msk | SYS_GPB_MFPL_PB6MFP_Msk | SYS_GPB_MFPL_PB7MFP_Msk);
@@ -221,7 +222,7 @@ void PDMA_Init(void)
     /* Configure PDMA transfer mode */
     PDMA->REQSEL0_3 = (PDMA->REQSEL0_3 & ~(0x3Ful << 8)) | (PDMA_SPI0_TX << 8);
     PDMA->REQSEL0_3 = (PDMA->REQSEL0_3 & ~(0x3Ful << 16)) | (PDMA_SPI0_RX << 16);
-    
+
     PDMA->DSCT[1].CTL = (PDMA->DSCT[1].CTL & ~PDMA_DSCT_CTL_OPMODE_Msk) | PDMA_OP_SCATTER;
     PDMA->DSCT[1].FIRST = (uint32_t)&g_asDescTable_TX[0] - (PDMA->SCATBA);
 

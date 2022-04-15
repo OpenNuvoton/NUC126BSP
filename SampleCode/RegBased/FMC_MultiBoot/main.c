@@ -20,6 +20,7 @@
 extern uint32_t Image$$RO$$Base;
 #endif
 
+int32_t g_FMC_i32ErrCode;
 
 void SYS_Init(void)
 {

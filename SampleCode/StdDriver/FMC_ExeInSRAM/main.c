@@ -122,7 +122,7 @@ int main()
         if(u32Data != u32RData)
         {
             printf("[Read/Write FAIL]\n");
-            while(1);
+            return -1;
         }
     }
     /* Disable FMC ISP function */

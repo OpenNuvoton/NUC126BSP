@@ -143,6 +143,7 @@ void SYS_ResetCPU(void)
   *             - \ref USCI2_RST
   * @return     None
   * @details    This function reset selected module.
+  *             The register write-protection function should be disabled before using this function.
   */
 void SYS_ResetModule(uint32_t u32ModuleIndex)
 {

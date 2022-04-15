@@ -121,7 +121,7 @@ void I2C0_Close(void)
 /*---------------------------------------------------------------------------------------------------------*/
 int32_t main(void)
 {
-    uint32_t i;
+    uint32_t i, u32TimeOutCnt;
     uint8_t u8data, u8tmp, err;
 
     /* Unlock protected registers */
@@ -166,7 +166,17 @@ int32_t main(void)
         u8tmp = (uint8_t)i+3;
 
         /* Single Byte Write (Two Registers) */
-        while(I2C_WriteByteTwoRegs(I2C0, g_u8DeviceAddr, i, u8tmp));
+        u32TimeOutCnt = I2C_TIMEOUT;
+        while(I2C_WriteByteTwoRegs(I2C0, g_u8DeviceAddr, i, u8tmp))
+        {
+            if(--u32TimeOutCnt == 0)
+            {
+                err = 1;
+                printf("Wait for I2C Tx time-out!\n");
+                break;
+            }
+        }
+        if(u32TimeOutCnt == 0) break;
 
         /* Single Byte Read (Two Registers) */
         u8data = I2C_ReadByteTwoRegs(I2C0, g_u8DeviceAddr, i);

@@ -48,7 +48,7 @@ void GPAB_IRQHandler(void)
  *
  * @return      None
  *
- * @details     The PortC/PortD/PortE/PortD default IRQ, declared in startup_NUC126.s.
+ * @details     The PortC/PortD/PortE/PortF default IRQ, declared in startup_NUC126.s.
  */
 void GPCDEF_IRQHandler(void)
 {
@@ -163,8 +163,8 @@ int main(void)
     /*-----------------------------------------------------------------------------------------------------*/
     printf("PB.3 and PC.4 are used to test interrupt ......\n");
 
-    /* Configure PC.3 as Input mode and enable interrupt by rising edge trigger */
-    PB->MODE = (PB->MODE & (~GPIO_MODE_MODE2_Msk)) | (GPIO_MODE_INPUT << GPIO_MODE_MODE3_Pos);
+    /* Configure PB.3 as Input mode and enable interrupt by rising edge trigger */
+    PB->MODE = (PB->MODE & (~GPIO_MODE_MODE3_Msk)) | (GPIO_MODE_INPUT << GPIO_MODE_MODE3_Pos);
     PB->INTTYPE |= (GPIO_INTTYPE_EDGE << GPIO_INTTYPE_TYPE3_Pos);
     PB->INTEN |= GPIO_INTEN_RHIEN3_Msk;
     NVIC_EnableIRQ(GPAB_IRQn);

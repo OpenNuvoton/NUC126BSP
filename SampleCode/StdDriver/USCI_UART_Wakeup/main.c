@@ -26,8 +26,12 @@ void USCI_UART_PowerDownWakeUpTest(void);
 
 void PowerDownFunction(void)
 {
+    uint32_t u32TimeOutCnt;
+
     /* Check if all the debug messages are finished */
-    UART_WAIT_TX_EMPTY(UART0);
+    u32TimeOutCnt = SystemCoreClock; /* 1 second time-out */
+    UART_WAIT_TX_EMPTY(UART0)
+        if(--u32TimeOutCnt == 0) break;
 
     /* Enter to Power-down mode */
     CLK_PowerDown();
@@ -195,7 +199,7 @@ void USCI_UART_DataWakeUp(void)
 void USCI_UART_PowerDown_TestItem(void)
 {
     printf("+-----------------------------------------------------------+\n");
-    printf("|  USCI-UART Power-down and wake-up test                    |\n");
+    printf("|  USCI UART Power-down and wake-up test                    |\n");
     printf("+-----------------------------------------------------------+\n");
     printf("| [1] nCTS wake-up test                                     |\n");
     printf("| [2] Data wake-up test                                     |\n");

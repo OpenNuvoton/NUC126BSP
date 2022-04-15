@@ -21,7 +21,7 @@
 /* Define functions prototype                                                                              */
 /*---------------------------------------------------------------------------------------------------------*/
 extern char GetChar(void);
-//int32_t main(void);
+int32_t main(void);
 uint32_t GetUartBaudrate(UART_T* uart);
 void AutoBaudRate_RxTest(void);
 
@@ -115,7 +115,7 @@ void UART1_Init()
 /* MAIN function                                                                                           */
 /*---------------------------------------------------------------------------------------------------------*/
 
-int main(void)
+int32_t main(void)
 {
 
     /* Unlock protected registers */
@@ -188,7 +188,7 @@ uint32_t GetUartBaudrate(UART_T* uart)
 }
 
 /*---------------------------------------------------------------------------------------------------------*/
-/*  Auto Baud Rate Function Rx Test                                                                                 */
+/*  Auto Baud Rate Function Rx Test                                                                        */
 /*---------------------------------------------------------------------------------------------------------*/
 void AutoBaudRate_RxTest()
 {

@@ -134,7 +134,7 @@ int32_t main(void)
     UART_WAIT_TX_EMPTY(DEBUG_PORT);    
     
     /* Select voltage detector external input voltage pin as VDET_P0(PB.0) */
-    SYS->BODCTL &= ~SYS_BODCTL_VDETPINSEL_Msk;           
+    SYS->BODCTL &= ~SYS_BODCTL_VDETPINSEL_Msk;
 
     /* Enable voltage detector function */
     SYS->BODCTL |= SYS_BODCTL_VDETEN_Msk;   

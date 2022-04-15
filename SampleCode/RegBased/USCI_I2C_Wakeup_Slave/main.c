@@ -342,7 +342,7 @@ void UART_Init(void)
 
 int main()
 {
-    uint32_t i;
+    uint32_t i, u32TimeOutCnt;
     uint8_t  ch;
 
     /* Unlock protected registers */
@@ -423,8 +423,10 @@ int main()
     printf("Enter PD 0x%x 0x%x\n", UI2C0->PROTCTL, UI2C_GET_PROT_STATUS(UI2C0));
     printf("\nCHIP enter power down status.\n");
 
-    /* Waiting for UART printf finish*/
-    while((UART0->FIFOSTS & UART_FIFOSTS_TXEMPTYF_Msk) == 0);
+    /* Waiting for UART printf finish */
+    u32TimeOutCnt = SystemCoreClock; /* 1 second time-out */
+    while((UART0->FIFOSTS & UART_FIFOSTS_TXEMPTYF_Msk) == 0)
+        if(--u32TimeOutCnt == 0) break;
 
     /* Clear flage before enter power-down mode */
     if(UI2C0->PROTSTS != 0)
@@ -433,14 +435,21 @@ int main()
     /* Set the processor uses deep sleep as its low power mode */
     SCB->SCR |= SCB_SCR_SLEEPDEEP_Msk;
 
-    /* Set system Power-down enabled*/
+    /* Set system Power-down enabled */
     CLK->PWRCTL |= CLK_PWRCTL_PDEN_Msk;
 
     /* Chip enter Power-down mode after CPU run WFI instruction */
     __WFI();
 
-    while(g_u8SlvPWRDNWK == 0);
-    while(g_u8SlvI2CWK == 0);
+    u32TimeOutCnt = SystemCoreClock; /* 1 second time-out */
+    while( (g_u8SlvPWRDNWK==0) || (g_u8SlvI2CWK==0) )
+    {
+        if(--u32TimeOutCnt == 0)
+        {
+            printf("Wait for system or USCI_I2C interrupt time-out!\n");
+            return -1;
+        }
+    }
 
     if(g_u32WKfromAddr)
         printf("UI2C0 [A]ddress match Wake-up from Deep Sleep\n");

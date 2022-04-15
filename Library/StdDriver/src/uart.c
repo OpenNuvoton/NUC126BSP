@@ -42,11 +42,11 @@
  *
  *    @details      The function is used to clear UART specified interrupt flag.
  */
-void UART_ClearIntFlag(UART_T* uart , uint32_t u32InterruptFlag)
+void UART_ClearIntFlag(UART_T* uart, uint32_t u32InterruptFlag)
 {
 
     if(u32InterruptFlag & UART_INTSTS_RLSINT_Msk)       /* Clear Receive Line Status Interrupt */
-        uart->FIFOSTS = UART_FIFOSTS_BIF_Msk | UART_FIFOSTS_FEF_Msk | UART_FIFOSTS_FEF_Msk | UART_FIFOSTS_ADDRDETF_Msk;
+        uart->FIFOSTS = UART_FIFOSTS_BIF_Msk | UART_FIFOSTS_FEF_Msk | UART_FIFOSTS_PEF_Msk | UART_FIFOSTS_ADDRDETF_Msk;
 
     if(u32InterruptFlag & UART_INTSTS_MODEMINT_Msk)     /* Clear MODEM Status Interrupt */
         uart->MODEMSTS |= UART_MODEMSTS_CTSDETF_Msk;
@@ -359,7 +359,7 @@ void UART_SetTimeoutCnt(UART_T* uart, uint32_t u32TOC)
  *                                  - \ref UART_IRDA_RXEN
  *
  *    @return       None
-  *
+ *
  *    @details      The function is used to configure IrDA relative settings. It consists of TX or RX mode and baudrate.
  */
 void UART_SelectIrDAMode(UART_T* uart, uint32_t u32Buadrate, uint32_t u32Direction)
@@ -393,12 +393,12 @@ void UART_SelectIrDAMode(UART_T* uart, uint32_t u32Buadrate, uint32_t u32Directi
     /* Configure IrDA relative settings */
     if(u32Direction == UART_IRDA_RXEN)
     {
-        uart->IRDA |= UART_IRDA_RXINV_Msk;     //Rx signal is inverse
+        uart->IRDA |= UART_IRDA_RXINV_Msk;     /* Rx signal is inverse */
         uart->IRDA &= ~UART_IRDA_TXEN_Msk;
     }
     else
     {
-        uart->IRDA &= ~UART_IRDA_TXINV_Msk;    //Tx signal is not inverse
+        uart->IRDA &= ~UART_IRDA_TXINV_Msk;    /* Tx signal is not inverse */
         uart->IRDA |= UART_IRDA_TXEN_Msk;
     }
 
@@ -437,7 +437,7 @@ void UART_SelectRS485Mode(UART_T* uart, uint32_t u32Mode, uint32_t u32Addr)
  *    @param[in]    u32Mode         The LIN direction :
  *                                  - \ref UART_ALTCTL_LINTXEN_Msk
  *                                  - \ref UART_ALTCTL_LINRXEN_Msk
- *    @param[in]    u32BreakLength  The breakfield length.
+ *    @param[in]    u32BreakLength  The break field length.
  *
  *    @return       None
  *
@@ -472,7 +472,7 @@ uint32_t UART_Write(UART_T* uart, uint8_t *pu8TxBuf, uint32_t u32WriteBytes)
     for(u32Count = 0; u32Count != u32WriteBytes; u32Count++)
     {
         u32delayno = 0;
-        while((uart->FIFOSTS & UART_FIFOSTS_TXEMPTYF_Msk) == 0)   /* Wait Tx empty and Time-out manner */
+        while(UART_IS_TX_FULL(uart))     /* Wait Tx not full or Time-out manner */
         {
             u32delayno++;
             if(u32delayno >= 0x40000000)

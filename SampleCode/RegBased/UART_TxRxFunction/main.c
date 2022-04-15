@@ -223,7 +223,3 @@ void UART_FunctionTest()
     printf("\nUART Sample Demo End.\n");
 
 }
-
-
-
-

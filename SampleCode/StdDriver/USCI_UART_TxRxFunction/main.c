@@ -137,7 +137,7 @@ void USCI_UART_TEST_HANDLE()
     if(u32IntSts & UUART_PROTSTS_RXENDIF_Msk)
     {
 
-        /* Clear RX end interrupt flag */
+        /* Clear Rx end interrupt flag */
         UUART_CLR_PROT_INT_FLAG(UUART0, UUART_PROTSTS_RXENDIF_Msk);
 
         printf("\nInput:");

@@ -5,7 +5,7 @@
  * $Date: 16/10/25 4:28p $
  * @brief
  *           Show how to use auto baud rate detection function.
- *           This sample code needs to work with UART_AutoBaudRate_Master.
+ *           This sample code needs to work with USCI_UART_AutoBaudRate_Master.
  * @note
  * Copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
  *
@@ -154,7 +154,7 @@ int32_t main(void)
 }
 
 /*---------------------------------------------------------------------------------------------------------*/
-/*  Get UUART Baud Rate Function                                                                            */
+/*  Get UUART Baud Rate Function                                                                           */
 /*---------------------------------------------------------------------------------------------------------*/
 uint32_t GetUuartBaudrate(UUART_T *uuart)
 {

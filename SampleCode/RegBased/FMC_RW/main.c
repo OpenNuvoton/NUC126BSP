@@ -13,6 +13,7 @@
 #define PLLCTL_SETTING      CLK_PLLCTL_72MHz_HXT
 #define PLL_CLOCK           72000000
 
+int32_t g_FMC_i32ErrCode;
 
 void SYS_Init(void)
 {
@@ -49,7 +50,7 @@ void SYS_Init(void)
     //SystemCoreClockUpdate();
     PllClock        = PLL_CLOCK;            // PLL
     SystemCoreClock = PLL_CLOCK / 1;        // HCLK
-    CyclesPerUs     = PLL_CLOCK / 1000000;  // For SYS_SysTickDelay()
+    CyclesPerUs     = PLL_CLOCK / 1000000;  // For CLK_SysTickDelay()
 
     /*---------------------------------------------------------------------------------------------------------*/
     /* Init I/O Multi-function                                                                                 */

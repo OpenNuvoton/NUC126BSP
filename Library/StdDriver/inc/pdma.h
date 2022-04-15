@@ -7,7 +7,6 @@
  *
  * @note
  * SPDX-License-Identifier: Apache-2.0
- *
  * Copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
  *****************************************************************************/
 #ifndef __PDMA_H__
@@ -30,7 +29,7 @@ extern "C"
 /** @addtogroup PDMA_EXPORTED_CONSTANTS PDMA Exported Constants
   @{
 */
-#define PDMA_CH_MAX    5   /*!< Specify Maximum Channels of PDMA  \hideinitializer */
+#define PDMA_CH_MAX    5UL   /*!< Specify Maximum Channels of PDMA  \hideinitializer */
 
 /*---------------------------------------------------------------------------------------------------------*/
 /*  Operation Mode Constant Definitions                                                                    */
@@ -256,7 +255,7 @@ extern "C"
  *
  * @details     This macro set the selected channel transfer count.
  */
-#define PDMA_SET_TRANS_CNT(u32Ch, u32TransCount) ((uint32_t)(PDMA->DSCT[(u32Ch)].CTL=(PDMA->DSCT[(u32Ch)].CTL&~PDMA_DSCT_CTL_TXCNT_Msk)|((u32TransCount-1) << PDMA_DSCT_CTL_TXCNT_Pos)))
+#define PDMA_SET_TRANS_CNT(u32Ch, u32TransCount) ((uint32_t)(PDMA->DSCT[(u32Ch)].CTL=(PDMA->DSCT[(u32Ch)].CTL&~PDMA_DSCT_CTL_TXCNT_Msk)|(((u32TransCount)-1) << PDMA_DSCT_CTL_TXCNT_Pos)))
 
 /**
  * @brief       Set Scatter-gather descriptor Address

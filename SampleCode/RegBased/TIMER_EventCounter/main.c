@@ -11,7 +11,7 @@
 #include "NUC126.h"
 
 
-#define PLLCON_SETTING  CLK_PLLCTL_72MHz_HXT
+#define PLLCTL_SETTING  CLK_PLLCTL_72MHz_HXT
 #define PLL_CLOCK       72000000
 
 
@@ -74,7 +74,7 @@ void SYS_Init(void)
     CLK->PWRCTL |= CLK_PWRCTL_HXTEN_Msk;
 
     /* Enable PLL and Set PLL frequency */
-    CLK->PLLCTL = PLLCON_SETTING;
+    CLK->PLLCTL = PLLCTL_SETTING;
 
     /* Waiting for clock ready */
     while(!(CLK->STATUS & CLK_STATUS_PLLSTB_Msk));
@@ -96,7 +96,7 @@ void SYS_Init(void)
     /*---------------------------------------------------------------------------------------------------------*/
     /* Init I/O Multi-function                                                                                 */
     /*---------------------------------------------------------------------------------------------------------*/
-    /* Set PD multi-function pins for UART0 RXD, TXD */
+    /* Set PD multi-function pins for UART0 RXD and TXD */
     SYS->GPD_MFPL &= ~(SYS_GPD_MFPL_PD0MFP_Msk | SYS_GPD_MFPL_PD1MFP_Msk);
     SYS->GPD_MFPL |= (SYS_GPD_MFPL_PD0MFP_UART0_RXD | SYS_GPD_MFPL_PD1MFP_UART0_TXD);
 
@@ -125,6 +125,7 @@ void UART0_Init(void)
 int main(void)
 {
     volatile uint32_t u32InitCount;
+    uint32_t u32TimeOutCnt;
 
     /* Unlock protected registers */
     SYS_UnlockReg();
@@ -176,7 +177,7 @@ int main(void)
 
         /* Stop Timer2 counting */
         TIMER2->CTL = 0;
-        while(1);
+        return -1;
     }
 
     printf("Start to check Timer2 counter value ......\n\n");
@@ -185,14 +186,16 @@ int main(void)
     GenerateEventCounterSource(3, 4, 1);
 
     /* To check if counter value of Timer2 should be 1 */
-    while(TIMER_GetCounter(TIMER2) == 0);
+    u32TimeOutCnt = SystemCoreClock; /* 1 second time-out */
+    while(TIMER_GetCounter(TIMER2) == 0)
+        if(--u32TimeOutCnt == 0) break;
     if(TIMER_GetCounter(TIMER2) != 1)
     {
         printf("Get unexpected counter value. (%d)\n", TIMER_GetCounter(TIMER2));
 
         /* Stop Timer2 counting */
         TIMER2->CTL = 0;
-        while(1);
+        return -1;
     }
 
     /* To generate remains counts to T2 pin */

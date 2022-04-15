@@ -54,7 +54,7 @@ void PDMA_IRQHandler(void)
 
 /*--------------------------------------------------------------------------------------*/
 /* Capture function to calculate the input waveform information                         */
-/* g_au16Count[4] : Keep the internal counter value when input signal rising / falling     */
+/* g_au16Count[4] : Keep the internal counter value when input signal rising / falling  */
 /*               happens                                                                */
 /*                                                                                      */
 /* time    A    B     C     D                                                           */
@@ -65,13 +65,22 @@ void PDMA_IRQHandler(void)
 /* The capture internal counter down count from 0x10000, and reload to 0x10000 after    */
 /* input signal falling happens (Time B/C/D)                                            */
 /*--------------------------------------------------------------------------------------*/
-void CalPeriodTime(PWM_T *PWM, uint32_t u32Ch)
+int32_t CalPeriodTime(PWM_T *PWM, uint32_t u32Ch)
 {
     uint16_t u16RisingTime, u16FallingTime, u16HighPeriod, u16LowPeriod, u16TotalPeriod;
+    uint32_t u32TimeOutCnt;
 
     g_u32IsTestOver = 0;
     /* Wait PDMA interrupt (g_u32IsTestOver will be set at IRQ_Handler function) */
-    while(g_u32IsTestOver == 0);
+    u32TimeOutCnt = SystemCoreClock; /* 1 second time-out */
+    while(g_u32IsTestOver == 0)
+    {
+        if(--u32TimeOutCnt == 0)
+        {
+            printf("Wait for PDMA interrupt time-out!\n");
+            return -1;
+        }
+    }
 
     u16RisingTime = g_au16Count[1];
 
@@ -87,9 +96,15 @@ void CalPeriodTime(PWM_T *PWM, uint32_t u32Ch)
     printf("\nCapture Result: Rising Time = %d, Falling Time = %d \nHigh Period = %d, Low Period = %d, Total Period = %d.\n\n",
            u16RisingTime, u16FallingTime, u16HighPeriod, u16LowPeriod, u16TotalPeriod);
     if((u16HighPeriod < 17279) || (u16HighPeriod > 17281) || (u16LowPeriod < 40319) || (u16LowPeriod > 40321) || (u16TotalPeriod < 57599) || (u16TotalPeriod > 57601))
+    {
         printf("Capture Test Fail!!\n");
+        return -1;
+    }
     else
+    {
         printf("Capture Test Pass!!\n");
+        return 0;
+    }
 }
 
 void SYS_Init(void)
@@ -183,6 +198,8 @@ void UART0_Init()
 /*---------------------------------------------------------------------------------------------------------*/
 int32_t main(void)
 {
+    uint32_t u32TimeOutCnt;
+
     /* Init System, IP clock and multi-function I/O
        In the end of SYS_Init() will issue SYS_LockReg()
        to lock protected register. If user want to write
@@ -299,10 +316,18 @@ int32_t main(void)
         PWM1->CAPCTL |= PWM_CAPCTL_FCRLDEN2_Msk;
 
         /* Wait until PWM1 channel 2 Timer start to count */
-        while((PWM1->CNT[2]) == 0);
+        u32TimeOutCnt = SystemCoreClock; /* 1 second time-out */
+        while((PWM1->CNT[2]) == 0)
+        {
+            if(--u32TimeOutCnt == 0)
+            {
+                printf("Wait for PWM1 channel 2 Timer start time-out!\n");
+                return -1;
+            }
+        }
 
         /* Capture the Input Waveform Data */
-        CalPeriodTime(PWM1, 2);
+        if( CalPeriodTime(PWM1, 2) < 0 ) return -1;
         /*---------------------------------------------------------------------------------------------------------*/
         /* Stop PWM1 channel 0 (Recommended procedure method 1)                                                    */
         /* Set PWM Timer loaded value(Period) as 0. When PWM internal counter(CNT) reaches to 0, disable PWM Timer */
@@ -312,7 +337,15 @@ int32_t main(void)
         PWM_Stop(PWM1, PWM_CH_0_MASK);
 
         /* Wait until PWM1 channel 0 Timer Stop */
-        while((PWM1->CNT[0] & PWM_CNT_CNT_Msk) != 0);
+        u32TimeOutCnt = SystemCoreClock; /* 1 second time-out */
+        while((PWM1->CNT[0] & PWM_CNT_CNT_Msk) != 0)
+        {
+            if(--u32TimeOutCnt == 0)
+            {
+                printf("Wait for PWM1 channel 0 Timer stop time-out!\n");
+                return -1;
+            }
+        }
 
         /* Disable Timer for PWM1 channel 0 */
         PWM_ForceStop(PWM1, PWM_CH_0_MASK);
@@ -329,12 +362,20 @@ int32_t main(void)
         PWM_Stop(PWM1, PWM_CH_2_MASK);
 
         /* Wait until PWM1 channel 2 current counter reach to 0 */
-        while((PWM1->CNT[2] & PWM_CNT_CNT_Msk) != 0);
+        u32TimeOutCnt = SystemCoreClock; /* 1 second time-out */
+        while((PWM1->CNT[2] & PWM_CNT_CNT_Msk) != 0)
+        {
+            if(--u32TimeOutCnt == 0)
+            {
+                printf("Wait for PWM1 channel 2 current counter reach to 0 time-out!\n");
+                return -1;
+            }
+        }
 
         /* Disable Timer for PWM1 channel 2 */
         PWM_ForceStop(PWM1, PWM_CH_2_MASK);
 
-        /* Disable Capture Function and Capture Input path for  PWM1 channel 2*/
+        /* Disable Capture Function and Capture Input path for PWM1 channel 2 */
         PWM_DisableCapture(PWM1, PWM_CH_2_MASK);
 
         /* Clear Capture Interrupt flag for PWM1 channel 2 */

@@ -44,7 +44,6 @@ extern "C"
 
 /*@}*/ /* end of group SCUART_EXPORTED_CONSTANTS */
 
-
 /** @addtogroup SCUART_EXPORTED_FUNCTIONS SCUART Exported Functions
   @{
 */
@@ -318,7 +317,7 @@ uint32_t SCUART_Open(SC_T* sc, uint32_t u32Baudrate);
 uint32_t SCUART_Read(SC_T* sc, uint8_t *pu8RxBuf, uint32_t u32ReadBytes);
 uint32_t SCUART_SetLineConfig(SC_T* sc, uint32_t u32Baudrate, uint32_t u32DataWidth, uint32_t u32Parity, uint32_t u32StopBits);
 void SCUART_SetTimeoutCnt(SC_T* sc, uint32_t u32TOC);
-void SCUART_Write(SC_T* sc, uint8_t *pu8TxBuf, uint32_t u32WriteBytes);
+uint32_t SCUART_Write(SC_T* sc, uint8_t *pu8TxBuf, uint32_t u32WriteBytes);
 
 /*@}*/ /* end of group SCUART_EXPORTED_FUNCTIONS */
 

@@ -107,7 +107,7 @@ void SYS_Init(void)
     SYS->GPD_MFPL &= ~(SYS_GPD_MFPL_PD0MFP_Msk | SYS_GPD_MFPL_PD1MFP_Msk);
     SYS->GPD_MFPL |= (SYS_GPD_MFPL_PD0MFP_UART0_RXD | SYS_GPD_MFPL_PD1MFP_UART0_TXD);
 
-    /* Set PC multi-function pins for PWM0 Channel0~5 */
+    /* Set PC multi-function pins for PWM0 Channel 0~5 */
     SYS->GPC_MFPL &= ~(SYS_GPC_MFPL_PC0MFP_Msk | SYS_GPC_MFPL_PC1MFP_Msk |
                        SYS_GPC_MFPL_PC2MFP_Msk | SYS_GPC_MFPL_PC3MFP_Msk |
                        SYS_GPC_MFPL_PC4MFP_Msk | SYS_GPC_MFPL_PC5MFP_Msk);
@@ -115,7 +115,7 @@ void SYS_Init(void)
                       SYS_GPC_MFPL_PC2MFP_PWM0_CH2 | SYS_GPC_MFPL_PC3MFP_PWM0_CH3 |
                       SYS_GPC_MFPL_PC4MFP_PWM0_CH4 | SYS_GPC_MFPL_PC5MFP_PWM0_CH5);
 
-    /* Set PA and PC multi-function pins for PWM1 Channel0~5 */
+    /* Set PA and PC multi-function pins for PWM1 Channel 0~5 */
     SYS->GPC_MFPL &= ~(SYS_GPC_MFPL_PC6MFP_Msk | SYS_GPC_MFPL_PC7MFP_Msk);
     SYS->GPC_MFPL |= (SYS_GPC_MFPL_PC6MFP_PWM1_CH0 | SYS_GPC_MFPL_PC7MFP_PWM1_CH1);
     SYS->GPA_MFPL &= ~(SYS_GPA_MFPL_PA3MFP_Msk | SYS_GPA_MFPL_PA2MFP_Msk |

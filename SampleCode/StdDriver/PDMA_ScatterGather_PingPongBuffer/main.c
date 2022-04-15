@@ -138,6 +138,8 @@ void UART0_Init(void)
 /*---------------------------------------------------------------------------------------------------------*/
 int main(void)
 {
+    uint32_t u32TimeOutCnt;
+
     /* Unlock protected registers */
     SYS_UnlockReg();
 
@@ -153,7 +155,7 @@ int main(void)
 
     printf("\n\nCPU @ %dHz\n", SystemCoreClock);
     printf("+-----------------------------------------------------------------------+ \n");
-    printf("|    NUC126 PDMA Driver Ping-Pong Buffer Sample Code (Scatter-gather)     | \n");
+    printf("|    NUC126 PDMA Driver Ping-Pong Buffer Sample Code (Scatter-gather)   | \n");
     printf("+-----------------------------------------------------------------------+ \n");
 
     /* This sample will transfer data by looped around two descriptor tables from two different source to the same destination buffer in sequence.
@@ -278,16 +280,25 @@ int main(void)
     /* Start PDMA operatin */
     PDMA_Trigger(4);
 
-    while(1)
+    u32TimeOutCnt = SystemCoreClock; /* 1 second time-out */
+    while(g_u32IsTestOver == 0)
     {
-        if(g_u32IsTestOver == 1)
+        if(--u32TimeOutCnt == 0)
         {
-            g_u32IsTestOver = 0;
-            printf("test done...\n");
-
-            /* Close PDMA channel */
-            PDMA_Close();
+            printf("Wait for PDMA time-out!\n");
+            break;
         }
     }
+
+    if(g_u32IsTestOver == 1)
+    {
+        g_u32IsTestOver = 0;
+        printf("test done...\n");
+    }
+
+    /* Close PDMA channel */
+    PDMA_Close();
+
+    while(1);
 }
 

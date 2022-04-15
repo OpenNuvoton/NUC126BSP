@@ -118,7 +118,7 @@ void UART0_Init(void)
 int32_t main(void)
 {
     uint32_t au32Config[2];
-    
+
     /* Unlock protected registers */
     SYS_UnlockReg();
 

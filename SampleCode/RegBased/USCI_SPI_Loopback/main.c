@@ -29,7 +29,7 @@ void USCI_SPI_Init(void);
 /* ------------- */
 int main()
 {
-    uint32_t u32DataCount, u32TestCount, u32Err;
+    uint32_t u32DataCount, u32TestCount, u32Err, u32TimeOutCnt;
 
     /* Unlock protected registers */
     SYS_UnlockReg();
@@ -86,13 +86,29 @@ int main()
             /* Write to TX register */
             USPI1->TXDAT = g_au32SourceData[u32DataCount];
             /* Check SPI1 busy status */
-            while(USPI1->PROTSTS & USPI_PROTSTS_BUSY_Msk);
+            u32TimeOutCnt = SystemCoreClock; /* 1 second time-out */
+            while(USPI1->PROTSTS & USPI_PROTSTS_BUSY_Msk)
+            {
+                if(--u32TimeOutCnt == 0)
+                {
+                    printf("Wait for USCI_SPI time-out!\n");
+                    u32Err = 1;
+                    break;
+                }
+            }
+
+            if(u32Err)
+                break;
+
             /* Read received data */
             g_au32DestinationData[u32DataCount] = USPI1->RXDAT;
             u32DataCount++;
             if(u32DataCount == TEST_COUNT)
                 break;
         }
+
+        if(u32Err)
+            break;
 
         /*  Check the received data */
         for(u32DataCount = 0; u32DataCount < TEST_COUNT; u32DataCount++)

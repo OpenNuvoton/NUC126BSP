@@ -21,8 +21,10 @@ uint32_t u32Pclk1;
 void ProcessHardFault(void) {}
 void SH_Return(void) {}
 
-void SYS_Init(void)
+int32_t SYS_Init(void)
 {
+    uint32_t u32TimeOutCnt;
+
     /*---------------------------------------------------------------------------------------------------------*/
     /* Init System Clock                                                                                       */
     /*---------------------------------------------------------------------------------------------------------*/
@@ -30,11 +32,16 @@ void SYS_Init(void)
     CLK->PWRCTL |= (CLK_PWRCTL_HIRCEN_Msk | CLK_PWRCTL_HXTEN_Msk);
 
     /* Wait for HIRC clock ready */
-    while (!(CLK->STATUS & CLK_STATUS_HIRCSTB_Msk));
+    u32TimeOutCnt = SystemCoreClock; /* 1 second time-out */
+    while (!(CLK->STATUS & CLK_STATUS_HIRCSTB_Msk))
+        if(--u32TimeOutCnt == 0) return -1;
 
     /* Set core clock as PLL_CLOCK from PLL and HCLK clock divider as 1 */
     CLK->PLLCTL = PLLCTL_SETTING;
-    while (!(CLK->STATUS & CLK_STATUS_PLLSTB_Msk));
+    u32TimeOutCnt = SystemCoreClock; /* 1 second time-out */
+    while (!(CLK->STATUS & CLK_STATUS_PLLSTB_Msk))
+        if(--u32TimeOutCnt == 0) return -1;
+
     CLK->CLKSEL0 = (CLK->CLKSEL0 & (~CLK_CLKSEL0_HCLKSEL_Msk)) | CLK_CLKSEL0_HCLKSEL_PLL;
     CLK->CLKDIV0 = (CLK->CLKDIV0 & (~CLK_CLKDIV0_HCLKDIV_Msk)) | CLK_CLKDIV0_HCLK(1);
 
@@ -53,12 +60,14 @@ void SYS_Init(void)
     /*---------------------------------------------------------------------------------------------------------*/
     /* Init I/O Multi-function                                                                                 */
     /*---------------------------------------------------------------------------------------------------------*/
-    /* Set PA multi-function pins for I2C1 SDA and SCL */
+    /* Set PC multi-function pins for I2C1 SDA and SCL */
     SYS->GPC_MFPL &= ~(SYS_GPC_MFPL_PC5MFP_Msk | SYS_GPC_MFPL_PC4MFP_Msk);
     SYS->GPC_MFPL |= (SYS_GPC_MFPL_PC5MFP_I2C1_SDA | SYS_GPC_MFPL_PC4MFP_I2C1_SCL);
 
     /* I2C clock pin enable schmitt trigger */
     PC->SMTEN |= GPIO_SMTEN_SMTEN4_Msk;
+
+    return 0;
 }
 
 int main(void)
@@ -69,7 +78,7 @@ int main(void)
     SYS_UnlockReg();
 
     /* Init System, peripheral clock and multi-function I/O */
-    SYS_Init();
+    if( SYS_Init() < 0 ) goto _APROM;
 
     /* Enable ISP */
     CLK->AHBCLK |= CLK_AHBCLK_ISPCKEN_Msk;

@@ -220,6 +220,7 @@ void AdcSingleCycleScanModePDMATest()
     uint8_t  u8Option;
     uint32_t u32DataCount;
     uint32_t u32ErrorCount;
+    uint32_t u32TimeOutCnt;
 
     printf("\n");
     printf("+----------------------------------------------------------------------+\n");
@@ -287,7 +288,15 @@ void AdcSingleCycleScanModePDMATest()
             }
 
             /* Wait for PDMA transfer done */
-            while(g_u32PdmaTDoneInt == 0);
+            u32TimeOutCnt = SystemCoreClock; /* 1 second time-out */
+            while(g_u32PdmaTDoneInt == 0)
+            {
+                if(--u32TimeOutCnt == 0)
+                {
+                    printf("Wait for PDMA transfer done time-out!\n");
+                    return;
+                }
+            }
 
             /* Compare the log of ADC conversion data register with the content of PDMA target buffer */
             for(u32DataCount = 0; u32DataCount < ADC_TEST_COUNT; u32DataCount++)
@@ -356,7 +365,15 @@ void AdcSingleCycleScanModePDMATest()
             }
 
             /* Wait for PDMA transfer done */
-            while(g_u32PdmaTDoneInt == 0);
+            u32TimeOutCnt = SystemCoreClock; /* 1 second time-out */
+            while(g_u32PdmaTDoneInt == 0)
+            {
+                if(--u32TimeOutCnt == 0)
+                {
+                    printf("Wait for PDMA transfer done time-out!\n");
+                    return;
+                }
+            }
 
             /* Compare the log of ADC conversion data register with the content of PDMA target buffer */
             for(u32DataCount = 0; u32DataCount < ADC_TEST_COUNT; u32DataCount++)

@@ -77,7 +77,7 @@ void SYS_Init(void)
     /*---------------------------------------------------------------------------------------------------------*/
     /* Init I/O Multi-function                                                                                 */
     /*---------------------------------------------------------------------------------------------------------*/
-    /* Set PD multi-function pins for UART0 RXD, TXD */
+    /* Set PD multi-function pins for UART0 RXD and TXD */
     SYS->GPD_MFPL &= ~(SYS_GPD_MFPL_PD0MFP_Msk | SYS_GPD_MFPL_PD1MFP_Msk);
     SYS->GPD_MFPL |= (SYS_GPD_MFPL_PD0MFP_UART0_RXD | SYS_GPD_MFPL_PD1MFP_UART0_TXD);
 }
@@ -132,7 +132,12 @@ int main(void)
     sWriteRTC.u32Minute     = 30;
     sWriteRTC.u32Second     = 30;
     sWriteRTC.u32TimeScale  = RTC_CLOCK_24;
-    RTC_Open(&sWriteRTC);
+    if( RTC_Open(&sWriteRTC) < 0 )
+    {
+        printf("\n RTC initial fail!!");
+        printf("\n Please check h/w setting!!");
+        return -1;
+    }
 
     /* Enable RTC tick interrupt, one RTC tick is 1/4 second */
     RTC_EnableInt(RTC_INTEN_TICKIEN_Msk);
@@ -169,7 +174,7 @@ int main(void)
             if(u32Sec == sReadRTC.u32Second)
             {
                 printf("\nRTC tick period time is incorrect.\n");
-                while(1);
+                return -1;
             }
 
             u32Sec = sReadRTC.u32Second;

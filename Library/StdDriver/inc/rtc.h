@@ -68,9 +68,14 @@ extern "C"
 #define RTC_SATURDAY            0x6UL           /*!< Day of the Week is Saturday */
 
 /*---------------------------------------------------------------------------------------------------------*/
-/*  RTC Miscellaneous Constant Definitions                                                                         */
+/*  RTC Miscellaneous Constant Definitions                                                                 */
 /*---------------------------------------------------------------------------------------------------------*/
 #define RTC_YEAR2000            2000            /*!< RTC Reference for compute year data */
+
+/*---------------------------------------------------------------------------------------------------------*/
+/* RTC Time-out Handler Constant Definitions                                                               */
+/*---------------------------------------------------------------------------------------------------------*/
+#define RTC_TIMEOUT             (SystemCoreClock)   /*!< RTC time-out counter (1 second time-out) */
 
 /*@}*/ /* end of group RTC_EXPORTED_CONSTANTS */
 
@@ -192,16 +197,22 @@ typedef struct
   */
 static __INLINE void RTC_WaitAccessEnable(void)
 {
+    uint32_t u32TimeOutCnt;
+
     /* To wait RWENF bit is cleared and enable RWENF bit (Access Enable bit) again */
     RTC->RWEN = 0x0; // clear RWENF immediately
-    while(RTC->RWEN & RTC_RWEN_RWENF_Msk);
+    u32TimeOutCnt = RTC_TIMEOUT;
+    while(RTC->RWEN & RTC_RWEN_RWENF_Msk)
+        if(--u32TimeOutCnt == 0) break;
 
     /* To wait RWENF bit is set and user can access the protected-register of RTC from now on */
     RTC->RWEN = RTC_WRITE_KEY;
-    while((RTC->RWEN & RTC_RWEN_RWENF_Msk) == 0x0);
+    u32TimeOutCnt = RTC_TIMEOUT;
+    while((RTC->RWEN & RTC_RWEN_RWENF_Msk) == 0x0)
+        if(--u32TimeOutCnt == 0) break;
 }
 
-void RTC_Open(S_RTC_TIME_DATA_T *sPt);
+int32_t RTC_Open(S_RTC_TIME_DATA_T *sPt);
 void RTC_Close(void);
 void RTC_32KCalibration(uint32_t u32FrequencyX100);
 void RTC_GetDateAndTime(S_RTC_TIME_DATA_T *sPt);

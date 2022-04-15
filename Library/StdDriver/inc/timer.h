@@ -58,6 +58,10 @@ extern "C"
 #define TIMER_TRG_TO_ADC                        (TIMER_TRGCTL_TRGADC_Msk)         /*!< Each timer event to start ADC conversion */
 #define TIMER_TRG_TO_PDMA                       (TIMER_TRGCTL_TRGPDMA_Msk)        /*!< Each timer event to trigger PDMA transfer */
 
+#define TIMER_OK                                ( 0L)                             /*!< TIMER operation OK */
+#define TIMER_ERR_FAIL                          (-1L)                             /*!< TIMER operation failed */
+#define TIMER_ERR_TIMEOUT                       (-2L)                             /*!< TIMER operation abort due to timeout error */
+
 /*@}*/ /* end of group TIMER_EXPORTED_CONSTANTS */
 
 
@@ -432,25 +436,10 @@ static __INLINE uint32_t TIMER_GetCounter(TIMER_T *timer)
     return timer->CNT;
 }
 
-/**
-  * @brief      Reset Counter
-  *
-  * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0, TIMER1, TIMER2, TIMER3.
-  *
-  * @return     None
-  *
-  * @details    This function is usde to reset current counter value and internal prescale counter value.
-  */
-static __INLINE void TIMER_ResetCounter(TIMER_T *timer)
-{
-    timer->CNT = 0x0;
-    while(timer->CNT);
-}
-
 
 uint32_t TIMER_Open(TIMER_T *timer, uint32_t u32Mode, uint32_t u32Freq);
 void TIMER_Close(TIMER_T *timer);
-void TIMER_Delay(TIMER_T *timer, uint32_t u32Usec);
+int32_t TIMER_Delay(TIMER_T *timer, uint32_t u32Usec);
 void TIMER_EnableCapture(TIMER_T *timer, uint32_t u32CapMode, uint32_t u32Edge);
 void TIMER_DisableCapture(TIMER_T *timer);
 void TIMER_EnableEventCounter(TIMER_T *timer, uint32_t u32Edge);
@@ -460,6 +449,7 @@ void TIMER_EnableFreqCounter(TIMER_T *timer, uint32_t u32DropCount, uint32_t u32
 void TIMER_DisableFreqCounter(TIMER_T *timer);
 void TIMER_SetTriggerSource(TIMER_T *timer, uint32_t u32Src);
 void TIMER_SetTriggerTarget(TIMER_T *timer, uint32_t u32Mask);
+int32_t TIMER_ResetCounter(TIMER_T *timer);
 
 /*@}*/ /* end of group TIMER_EXPORTED_FUNCTIONS */
 

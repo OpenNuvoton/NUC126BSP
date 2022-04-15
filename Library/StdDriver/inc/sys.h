@@ -266,7 +266,7 @@ Example: If user want to set PA.2 as UART0_TXD and PA.3 as UART0_RXD in initial 
 #define SYS_GPB_MFPL_PB3MFP_TM_BRAKE1       (0x6UL<<SYS_GPB_MFPL_PB3MFP_Pos)    /*!< GPB_MFPL PB3 setting for TM_BRAKE1      */
 #define SYS_GPB_MFPL_PB3MFP_EBI_ALE         (0x7UL<<SYS_GPB_MFPL_PB3MFP_Pos)    /*!< GPB_MFPL PB3 setting for EBI_ALE        */
 #define SYS_GPB_MFPL_PB3MFP_USCI0_DAT1      (0x8UL<<SYS_GPB_MFPL_PB3MFP_Pos)    /*!< GPB_MFPL PB3 setting for USCI0_DAT1     */
-#define SYS_GPB_MFPL_PB3MFP_TM0_EXT        (0xAUL<<SYS_GPB_MFPL_PB3MFP_Pos)    /*!< GPB_MFPL PB3 setting for TM0_EXT         */
+#define SYS_GPB_MFPL_PB3MFP_TM0_EXT         (0xAUL<<SYS_GPB_MFPL_PB3MFP_Pos)    /*!< GPB_MFPL PB3 setting for TM0_EXT        */
 
 //PB.4 MFP
 #define SYS_GPB_MFPL_PB4MFP_GPIO            (0x0UL<<SYS_GPB_MFPL_PB4MFP_Pos)    /*!< GPB_MFPL PB4 setting for GPIO           */
@@ -1020,12 +1020,12 @@ Example: If user want to set PA.2 as UART0_TXD and PA.3 as UART0_RXD in initial 
 #define TM1_PD5                  SYS_GPD_MFPL_PD5MFP_TM1              /*!< GPD_MFPL PD5 setting for TM1            */
 #define TM1_EXT_PD3              SYS_GPD_MFPL_PD3MFP_TM1_EXT          /*!< GPD_MFPL PD3 setting for TM1_EXT        */
 #define TM1_EXT_PB4              SYS_GPB_MFPL_PB4MFP_TM1_EXT          /*!< GPB_MFPL PB4 setting for TM1_EXT        */
-#define TM1_EXT_PA6              SYS_GPA_MFPL_PA6MFP_TM1_EXT          /*!< GPA_MFPL PA6 setting for TM1_EXT         */
+#define TM1_EXT_PA6              SYS_GPA_MFPL_PA6MFP_TM1_EXT          /*!< GPA_MFPL PA6 setting for TM1_EXT        */
 #define TM1_EXT_PE11             SYS_GPE_MFPH_PE11MFP_TM1_EXT         /*!< GPE_MFPH PE11 setting for TM1_EXT       */
 #define TM1_EXT_PB0              SYS_GPB_MFPL_PB0MFP_TM1_EXT          /*!< GPB_MFPL PB0 setting for TM1_EXT        */
 #define TM2_PA9                  SYS_GPA_MFPH_PA9MFP_TM2              /*!< GPA_MFPH PA9 setting for TM2            */
 #define TM2_PB0                  SYS_GPB_MFPL_PB0MFP_TM2              /*!< GPB_MFPL PB0 setting for TM2            */
-#define TM2_PA14                 SYS_GPA_MFPH_PA14MFP_TM2             /*!< GPA_MFPH PA14 setting for TM2   */
+#define TM2_PA14                 SYS_GPA_MFPH_PA14MFP_TM2             /*!< GPA_MFPH PA14 setting for TM2           */
 #define TM2_PD10                 SYS_GPD_MFPH_PD10MFP_TM2             /*!< GPD_MFPH PD10 setting for TM2           */
 #define TM2_PD8                  SYS_GPD_MFPH_PD8MFP_TM2              /*!< GPD_MFPH PD8 setting for TM2            */
 #define TM2_PD3                  SYS_GPD_MFPL_PD3MFP_TM2              /*!< GPD_MFPL PD3 setting for TM2            */
@@ -1035,7 +1035,7 @@ Example: If user want to set PA.2 as UART0_TXD and PA.3 as UART0_RXD in initial 
 #define TM2_EXT_PA5              SYS_GPA_MFPL_PA5MFP_TM2_EXT          /*!< GPA_MFPL PA5 setting for TM2_EXT        */
 #define TM3_PD9                  SYS_GPD_MFPH_PD9MFP_TM3              /*!< GPD_MFPH PD9 setting for TM3            */
 #define TM3_PB1                  SYS_GPB_MFPL_PB1MFP_TM3              /*!< GPB_MFPL PB1 setting for TM3            */
-#define TM3_PA15                 SYS_GPA_MFPH_PA15MFP_TM3             /*!< GPA_MFPH PA15 setting for TM3   */
+#define TM3_PA15                 SYS_GPA_MFPH_PA15MFP_TM3             /*!< GPA_MFPH PA15 setting for TM3           */
 #define TM3_PD11                 SYS_GPD_MFPH_PD11MFP_TM3             /*!< GPD_MFPH PD11 setting for TM3           */
 #define TM3_EXT_PE1              SYS_GPE_MFPL_PE1MFP_TM3_EXT          /*!< GPE_MFPL PE1 setting for TM3_EXT        */
 #define TM3_EXT_PA4              SYS_GPA_MFPL_PA4MFP_TM3_EXT          /*!< GPA_MFPL PA4 setting for TM3_EXT        */
@@ -1788,11 +1788,14 @@ Example: If user want to set PA.2 as UART0_TXD and PA.3 as UART0_RXD in initial 
   */
 __STATIC_INLINE void SYS_UnlockReg(void)
 {
+    uint32_t u32TimeOutCnt = SystemCoreClock; /* 1 second time-out */
     do
     {
         SYS->REGLCTL = 0x59;
         SYS->REGLCTL = 0x16;
         SYS->REGLCTL = 0x88;
+
+        if(--u32TimeOutCnt == 0) break;
     }
     while(SYS->REGLCTL == 0);
 }

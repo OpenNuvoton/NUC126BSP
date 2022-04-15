@@ -134,11 +134,13 @@ void UART0_Init()
 /*---------------------------------------------------------------------------------------------------------*/
 int main(void)
 {
+    uint32_t u32TimeOutCnt;
+
     /* Unlock protected registers */
     SYS_UnlockReg();
 
     /* Init System, IP clock and multi-function I/O */
-    SYS_Init(); //In the end of SYS_Init() will issue SYS_LockReg() to lock protected register.
+    SYS_Init();
 
     /* Lock protected registers */
     /* If user want to write protected register, please issue SYS_UnlockReg() to unlock protected register. */
@@ -217,7 +219,15 @@ int main(void)
     PDMA->SWREQ = (1 << 2);
 
     /* Waiting for transfer done */
-    while(g_u32IsTestOver == 0);
+    u32TimeOutCnt = SystemCoreClock; /* 1 second time-out */
+    while(g_u32IsTestOver == 0)
+    {
+        if(--u32TimeOutCnt == 0)
+        {
+            printf("Wait for PDMA transfer done time-out!\n");
+            break;
+        }
+    }
 
     /* Check transfer result */
     if(g_u32IsTestOver == 1)

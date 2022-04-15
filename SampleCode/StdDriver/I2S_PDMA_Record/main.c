@@ -94,7 +94,7 @@ int32_t main(void)
     /* Sampling rate 16000 Hz; bit clock rate 512 kHz. */
     /* Master mode, 16-bit word width, stereo mode, I2S format. */
     SPII2S_Open(SPI1, SPII2S_MODE_MASTER, 16000, SPII2S_DATABIT_16, SPII2S_STEREO, SPII2S_FORMAT_I2S);
-    
+
     /* Data initiation */
     u32InitValue = 0x50005000;
     for(u32DataCount = 0; u32DataCount < TX_BUFF_LEN; u32DataCount++)
@@ -124,7 +124,7 @@ int32_t main(void)
 
     PDMA_SetTransferMode(1, PDMA_SPI1_TX, 1, (uint32_t)&g_asDescTable_DataTX[0]);
     PDMA_SetTransferMode(2, PDMA_SPI1_RX, 1, (uint32_t)&g_asDescTable_RX[0]);
-    
+
     /* Enable PDMA channel 2 interrupt */
     PDMA_EnableInt(2, PDMA_INT_TRANS_DONE);
 

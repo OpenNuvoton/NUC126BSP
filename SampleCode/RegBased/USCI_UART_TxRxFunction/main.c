@@ -149,7 +149,7 @@ void USCI_UART_TEST_HANDLE()
     if(u32IntSts & UUART_PROTSTS_RXENDIF_Msk)
     {
 
-        /* Cleare receive end interrupt flag */
+        /* Clear receive end interrupt flag */
         UUART_CLR_PROT_INT_FLAG(UUART0, UUART_PROTSTS_RXENDIF_Msk);
 
         printf("\nInput:");
@@ -187,7 +187,7 @@ void USCI_UART_TEST_HANDLE()
         uint16_t tmp;
         tmp = g_u32comRtail;
 
-        /* Cleare transmit end interrupt flag */
+        /* Clear transmit end interrupt flag */
         UUART_CLR_PROT_INT_FLAG(UUART0, UUART_PROTSTS_TXENDIF_Msk);
 
         if(g_u32comRhead != tmp)

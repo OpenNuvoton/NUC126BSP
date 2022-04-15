@@ -46,8 +46,10 @@ uint32_t GetApromSize()
     while(1);
 }
 
-void SYS_Init(void)
+int32_t SYS_Init(void)
 {
+    uint32_t u32TimeOutCnt;
+
     /*---------------------------------------------------------------------------------------------------------*/
     /* Init System Clock                                                                                       */
     /*---------------------------------------------------------------------------------------------------------*/
@@ -56,7 +58,9 @@ void SYS_Init(void)
     CLK->PWRCTL |= CLK_PWRCTL_HIRC48EN_Msk;
 
     /* Waiting for Internal RC clock ready */
-    while(!(CLK->STATUS & CLK_STATUS_HIRC48STB_Msk));
+    u32TimeOutCnt = SystemCoreClock; /* 1 second time-out */
+    while(!(CLK->STATUS & CLK_STATUS_HIRC48STB_Msk))
+        if( --u32TimeOutCnt == 0) return -1;
 
     /* Switch HCLK clock source to Internal RC and HCLK source divide 1 */
     CLK->CLKSEL0 = (CLK->CLKSEL0 & (~CLK_CLKSEL0_HCLKSEL_Msk)) | CLK_CLKSEL0_HCLKSEL_HIRC48;
@@ -68,6 +72,8 @@ void SYS_Init(void)
 
     /* Enable module clock */
     CLK->APBCLK0 |= CLK_APBCLK0_USBDCKEN_Msk;
+
+    return 0;
 }
 
 void USBD_IRQHandler(void);
@@ -80,7 +86,7 @@ int32_t main(void)
     SYS_UnlockReg();
 
     /* Init system and multi-funcition I/O */
-    SYS_Init();
+    if( SYS_Init() < 0 ) goto _APROM;
 
     CLK->AHBCLK |= CLK_AHBCLK_ISPCKEN_Msk;
     FMC->ISPCTL |= FMC_ISPCTL_ISPEN_Msk | FMC_ISPCTL_APUEN_Msk | FMC_ISPCTL_ISPFF_Msk;
@@ -148,6 +154,8 @@ int32_t main(void)
 
         USBD_IRQHandler();
     }
+
+_APROM:
 
     SYS->RSTSTS = (SYS_RSTSTS_PORF_Msk | SYS_RSTSTS_PINRF_Msk);//clear bit
     FMC->ISPCTL &=  ~(FMC_ISPCTL_ISPEN_Msk | FMC_ISPCTL_BS_Msk);

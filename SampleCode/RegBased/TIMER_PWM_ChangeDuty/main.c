@@ -11,7 +11,7 @@
 #include "NUC126.h"
 
 
-#define PLLCON_SETTING  CLK_PLLCTL_72MHz_HXT
+#define PLLCTL_SETTING  CLK_PLLCTL_72MHz_HXT
 #define PLL_CLOCK       72000000
 
 
@@ -75,7 +75,7 @@ void SYS_Init(void)
     while(!(CLK->STATUS & CLK_STATUS_HXTSTB_Msk));
 
     /* Enable PLL and Set PLL frequency */
-    CLK->PLLCTL = PLLCON_SETTING;
+    CLK->PLLCTL = PLLCTL_SETTING;
 
     /* Waiting for clock ready */
     while(!(CLK->STATUS & CLK_STATUS_PLLSTB_Msk));
@@ -96,11 +96,11 @@ void SYS_Init(void)
     /*---------------------------------------------------------------------------------------------------------*/
     /* Init I/O Multi-function                                                                                 */
     /*---------------------------------------------------------------------------------------------------------*/
-    /* Set PD multi-function pins for UART0 RXD, TXD */
+    /* Set PD multi-function pins for UART0 RXD and TXD */
     SYS->GPD_MFPL &= ~(SYS_GPD_MFPL_PD0MFP_Msk | SYS_GPD_MFPL_PD1MFP_Msk);
     SYS->GPD_MFPL |= (SYS_GPD_MFPL_PD0MFP_UART0_RXD | SYS_GPD_MFPL_PD1MFP_UART0_TXD);
 
-    /* Set Timer0 PWM CH0(TM0) pins */
+    /* Set Timer0 PWM CH0(TM0) pin */
     SYS->GPD_MFPL &= ~SYS_GPD_MFPL_PD4MFP_Msk;
     SYS->GPD_MFPL |= SYS_GPD_MFPL_PD4MFP_TM0;
 }
@@ -171,7 +171,7 @@ int main(void)
     /* Set PWM down count type */
     TPWM_SET_COUNTER_TYPE(TIMER0, TPWM_DOWN_COUNT);
 
-    /* Set PWM Timer clock prescaler*/
+    /* Set PWM Timer clock prescaler */
     TPWM_SET_PRESCALER(TIMER0, 0); // Divided by 1
 
     /* Set PWM period, (400 * TMRx_PWMCLK) */

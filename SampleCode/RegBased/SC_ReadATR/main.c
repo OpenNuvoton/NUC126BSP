@@ -11,7 +11,7 @@
 #include "NUC126.h"
 
 
-#define PLLCON_SETTING  CLK_PLLCTL_72MHz_HXT
+#define PLLCTL_SETTING  CLK_PLLCTL_72MHz_HXT
 #define PLL_CLOCK       72000000
 
 
@@ -62,7 +62,7 @@ void SYS_Init(void)
     CLK->PWRCTL |= CLK_PWRCTL_HXTEN_Msk;
 
     /* Enable PLL and Set PLL frequency */
-    CLK->PLLCTL = PLLCON_SETTING;
+    CLK->PLLCTL = PLLCTL_SETTING;
 
     while(!(CLK->STATUS & CLK_STATUS_PLLSTB_Msk));
 
@@ -91,7 +91,7 @@ void SYS_Init(void)
     /*---------------------------------------------------------------------------------------------------------*/
     /* Init I/O Multi-function                                                                                 */
     /*---------------------------------------------------------------------------------------------------------*/
-    /* Set PD multi-function pins for UART0 RXD, TXD */
+    /* Set PD multi-function pins for UART0 RXD and TXD */
     SYS->GPD_MFPL &= ~(SYS_GPD_MFPL_PD0MFP_Msk | SYS_GPD_MFPL_PD1MFP_Msk);
     SYS->GPD_MFPL |= (SYS_GPD_MFPL_PD0MFP_UART0_RXD | SYS_GPD_MFPL_PD1MFP_UART0_TXD);
 
@@ -124,8 +124,12 @@ void UART0_Init()
 
 void SC0_Init()
 {
+    uint32_t u32TimeOutCnt;
+
     /* Card detect level from low to high. */
-    while(SC0->CTL & SC_CTL_SYNC_Msk);
+    u32TimeOutCnt = SC_TIMEOUT;
+    while(SC0->CTL & SC_CTL_SYNC_Msk)
+        if(--u32TimeOutCnt == 0) break;
     SC0->CTL = SC_CTL_CDLV_Msk | SC_CTL_SCEN_Msk;
 }
 
@@ -153,8 +157,24 @@ void SC0_ResetReader(void)
     SC0->INTEN = SC_INTEN_RDAIEN_Msk; //Enable receive data reach interrupt
 }
 
-void SC0_ActivationCmd(void)
+__STATIC_INLINE void wait_SC_PINCTL_SYNC(SC_T *sc)
 {
+    uint32_t u32TimeOutCnt = SC_TIMEOUT;
+
+    while(SC0->PINCTL & SC_PINCTL_SYNC_Msk)
+    {
+        if(--u32TimeOutCnt == 0)
+        {
+            printf("Wait for SC_PINCTL sync flag is cleared time-out!\n");
+            break;
+        }
+    }
+}
+
+int32_t SC0_ActivationCmd(void)
+{
+    uint32_t u32TimeOutCnt;
+
     /* Disable Timer1 interrupt and use polling method to check time-out happened */
     SC0->INTEN &= ~SC_INTEN_TMR1IEN_Msk;
 
@@ -165,16 +185,24 @@ void SC0_ActivationCmd(void)
     SC0-> TMRCTL1 = SC_TMR_MODE_0 | (SC_TMRCTL1_CNT_Msk & (1 - 1));;
     SC0->ALTCTL |= SC_ALTCTL_CNTEN1_Msk; //Start a smartcard timer1
 
-    while(((SC0->INTSTS & SC_INTSTS_TMR1IF_Msk) == 0x00));
+    u32TimeOutCnt = SC_TIMEOUT;
+    while(((SC0->INTSTS & SC_INTSTS_TMR1IF_Msk) == 0x00))
+    {
+        if(--u32TimeOutCnt == 0)
+        {
+            printf("Wait for SC timer1 interrupt flag time-out!\n");
+            return -1;
+        }
+    }
     SC0->INTSTS = SC_INTSTS_TMR1IF_Msk; // Clear time-out flag
 
     /* Due to synchronization, user should check SYNC (SC_PINCTL[30]) bit when writing a new value to SC_PINCTL register */
-    while(SC0->PINCTL & SC_PINCTL_SYNC_Msk);
+    wait_SC_PINCTL_SYNC(SC0);
     /* Start clock */
     SC_SET_CLK_PIN(SC0, SC_CLK_ON);
 
     /* Due to synchronization, user should check SYNC (SC_PINCTL[30]) bit when writing a new value to SC_PINCTL register */
-    while(SC0->PINCTL & SC_PINCTL_SYNC_Msk);
+    wait_SC_PINCTL_SYNC(SC0);
     /* I/O pin high */
     SC_SET_IO_PIN(SC0, SC_PIN_STATE_HIGH);
 
@@ -182,18 +210,27 @@ void SC0_ActivationCmd(void)
     SC0-> TMRCTL1 = SC_TMR_MODE_0 | (SC_TMRCTL1_CNT_Msk & (109 - 1));;
     SC0->ALTCTL |= SC_ALTCTL_CNTEN1_Msk; //Start a smartcard timer1
 
-
-    while(((SC0->INTSTS & SC_INTSTS_TMR1IF_Msk) == 0x00));
+    u32TimeOutCnt = SC_TIMEOUT;
+    while(((SC0->INTSTS & SC_INTSTS_TMR1IF_Msk) == 0x00))
+    {
+        if(--u32TimeOutCnt == 0)
+        {
+            printf("Wait for SC timer1 interrupt flag time-out!\n");
+            return -1;
+        }
+    }
     SC0->INTSTS = SC_INTSTS_TMR1IF_Msk; // Clear time-out flag
 
     /* Due to synchronization, user should check SYNC (SC_PINCTL[30]) bit when writing a new value to SC_PINCTL register */
-    while(SC0->PINCTL & SC_PINCTL_SYNC_Msk);
+    wait_SC_PINCTL_SYNC(SC0);
     /* RST pin high */
     SC_SET_RST_PIN(SC0, SC_PIN_STATE_HIGH);
 
     /* Select operation mode 0  and give a count value */
     SC0-> TMRCTL0 = SC_TMR_MODE_0 | (SC_TMRCTL0_CNT_Msk & (22 * 32 + 22)); // Wait 726 ETU for ATR
     SC0->ALTCTL |= SC_ALTCTL_CNTEN0_Msk; //Start a smartcard timer0
+
+    return 0;
 }
 
 /*---------------------------------------------------------------------------------------------------------*/
@@ -201,7 +238,7 @@ void SC0_ActivationCmd(void)
 /*---------------------------------------------------------------------------------------------------------*/
 int main(void)
 {
-    uint32_t i;
+    uint32_t i, u32TimeOutCnt;
 
     /* Unlock protected registers */
     SYS_UnlockReg();
@@ -241,8 +278,9 @@ int main(void)
     SC0_ResetReader();
 
     /* Activation sequence generator */
-    SC0_ActivationCmd();
+    if( SC0_ActivationCmd() < 0 ) return -1;
 
+    u32TimeOutCnt = SC_TIMEOUT;
     while(1)
     {
         if(((SC0->INTSTS & SC_INTSTS_TMR0IF_Msk) == SC_INTSTS_TMR0IF_Msk) &&
@@ -252,6 +290,12 @@ int main(void)
             for(i = 0; i < g_u32SCInt; i++)
                 printf("%x ", ATR_Buf[i]);
             printf("\n");
+            break;
+        }
+        
+        if(--u32TimeOutCnt == 0)
+        {
+            printf("Read ATR time-out!\n");
             break;
         }
     }
