@@ -72,7 +72,7 @@ void SYS_Init(void)
     /* Wait for HXT clock ready */
     CLK_WaitClockReady(CLK_STATUS_HXTSTB_Msk);
 
-    /* Set core clock as PLL_CLOCK from PLL */
+    /* Set core clock as HCLK_CLOCK from PLL */
     CLK_SetCoreClock(HCLK_CLOCK);
 
     /* Enable UART module clock */

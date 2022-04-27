@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file     main.c
  * @brief    Demonstrate how to update chip flash data through RS485 interface
-             between chip RS485 and ISP Tool.
-             Nuvoton NuMicro ISP Programming Tool is also required in this
-             sample code to connect with chip RS485 and assign update file
-             of Flash.
+ *           between chip RS485 and ISP Tool.
+ *           Nuvoton NuMicro ISP Programming Tool is also required in this
+ *           sample code to connect with chip RS485 and assign update file
+ *           of Flash.
  *
  * @note
  * Copyright (C) 2019 Nuvoton Technology Corp. All rights reserved.
@@ -63,8 +63,8 @@ int32_t SYS_Init(void)
 
     /*---------------------------------------------------------------------------------------------------------*/
     /* Init I/O Multi-function                                                                                 */
-    /*---------------------------------------------------------------------------------------------------------*/   
-    
+    /*---------------------------------------------------------------------------------------------------------*/
+
     /* Set PB multi-function pins for UART1 RXD(PB.2), TXD(PB.3) and RTS(PB.8) */
     PB->MODE = (PB->MODE & (~GPIO_MODE_MODE8_Msk)) | (GPIO_MODE_OUTPUT << GPIO_MODE_MODE8_Pos);
     nRTSPin = REVEIVE_MODE;
@@ -89,24 +89,24 @@ int32_t main(void)
     WDT->CTL &= ~(WDT_CTL_WDTEN_Msk | WDT_CTL_ICEDEBUG_Msk);
     WDT->CTL |= (WDT_TIMEOUT_2POW18 | WDT_CTL_RSTEN_Msk);
 
-    /* Init UART0 for printf and test */
+    /* Init UART */
     UART_Init();
 
     /* Enable FMC ISP */
     FMC->ISPCTL |=  FMC_ISPCTL_ISPEN_Msk;
 
-    /* Get APROM size, data flash size and address */    
+    /* Get APROM size, data flash size and address */
     g_apromSize = GetApromSize();
     GetDataFlashInfo(&g_dataFlashAddr, &g_dataFlashSize);
-    
-    /* Set Systick time-out for 300ms */     
+
+    /* Set Systick time-out for 300ms */
     SysTick->LOAD = 300000 * CyclesPerUs;
     SysTick->VAL  = (0x00);
     SysTick->CTRL = SysTick->CTRL | SysTick_CTRL_CLKSOURCE_Msk | SysTick_CTRL_ENABLE_Msk;   /* Use CPU clock */
 
     /* Wait for CMD_CONNECT command until Systick time-out */
     while (1) {
-        
+
         /* Wait for CMD_CONNECT command */         
         if ((bufhead >= 4) || (bUartDataReady == TRUE)) {
             uint32_t lcmd;
@@ -126,32 +126,32 @@ int32_t main(void)
         }
     }
 
-    /* Prase command from master and send response back */      
+    /* Prase command from master and send response back */
     while (1) {
-        
+
         if (bUartDataReady == TRUE) {
-            
+
             WDT->CTL &= ~(WDT_CTL_WDTEN_Msk | WDT_CTL_ICEDEBUG_Msk);
             WDT->CTL |= (WDT_TIMEOUT_2POW18 | WDT_CTL_RSTEN_Msk);
-            
-            bUartDataReady = FALSE;;        /* Reset UART data ready flag */     
-            ParseCmd(uart_rcvbuf, 64);      /* Parse command from master */  
+
+            bUartDataReady = FALSE;;        /* Reset UART data ready flag */
+            ParseCmd(uart_rcvbuf, 64);      /* Parse command from master */
             NVIC_DisableIRQ(UART_T_IRQn);   /* Disable NVIC */
             nRTSPin = TRANSMIT_MODE;        /* Control RTS in transmit mode */
             PutString();                    /* Send response to master */
 
             /* Wait for data transmission is finished */
-            while ((UART_T->FIFOSTS & UART_FIFOSTS_TXEMPTYF_Msk) == 0);  
+            while ((UART_T->FIFOSTS & UART_FIFOSTS_TXEMPTYF_Msk) == 0);
 
             nRTSPin = REVEIVE_MODE;         /* Control RTS in reveive mode */
-            NVIC_EnableIRQ(UART_T_IRQn);    /* Enable NVIC */            
-           
-        }        
-        
+            NVIC_EnableIRQ(UART_T_IRQn);    /* Enable NVIC */
+
+        }
+
     }
 
 _APROM:
-    
+
     /* Reset system and boot from APROM */
     SYS->RSTSTS = (SYS_RSTSTS_PORF_Msk | SYS_RSTSTS_PINRF_Msk); /* Clear reset status flag */
     FMC->ISPCTL = FMC->ISPCTL & 0xFFFFFFFC;

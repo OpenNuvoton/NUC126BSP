@@ -213,7 +213,7 @@ void PDMA_IRQHandler(void)
     {
         if(PDMA_GET_TD_STS() & 0x2)             /* channel 1 done */
         {
-            /* Reset PDMA Scater-Gatter table */
+            /* Reset PDMA Scatter-Gather table */
             PDMA_ResetTxSGTable(u8TxIdx);
             u8TxIdx ^= 1;
         }

@@ -42,7 +42,7 @@ int32_t SYS_Init(void)
         if(--u32TimeOutCnt == 0) return -1;
     CLK->CLKSEL0 = (CLK->CLKSEL0 & (~CLK_CLKSEL0_HCLKSEL_Msk)) | CLK_CLKSEL0_HCLKSEL_PLL;
     CLK->CLKDIV0 = (CLK->CLKDIV0 & (~CLK_CLKDIV0_HCLKDIV_Msk)) | CLK_CLKDIV0_HCLK(1);
-    
+
     /* Update System Core Clock */
     PllClock        = PLL_CLOCK;            // PLL
     SystemCoreClock = PLL_CLOCK / 1;        // HCLK
@@ -81,17 +81,17 @@ int32_t main(void)
     WDT->CTL &= ~(WDT_CTL_WDTEN_Msk | WDT_CTL_ICEDEBUG_Msk);
     WDT->CTL |= (WDT_TIMEOUT_2POW18 | WDT_CTL_RSTEN_Msk);
 
-    /* Init UART0 for printf and test */
+    /* Init UART */
     UART_Init();
 
     /* Enable FMC ISP */
     FMC->ISPCTL |=  FMC_ISPCTL_ISPEN_Msk;
-    
-    /* Get APROM size, data flash size and address */    
+
+    /* Get APROM size, data flash size and address */
     g_apromSize = GetApromSize();
     GetDataFlashInfo(&g_dataFlashAddr, &g_dataFlashSize);
-    
-    /* Set Systick time-out for 300ms */     
+
+    /* Set Systick time-out for 300ms */
     SysTick->LOAD = 300000 * CyclesPerUs;
     SysTick->VAL  = (0x00);
     SysTick->CTRL = SysTick->CTRL | SysTick_CTRL_CLKSOURCE_Msk | SysTick_CTRL_ENABLE_Msk;   /* Use CPU clock */

@@ -66,7 +66,7 @@ void SYS_Init(void)
     SystemCoreClock = PLL_CLOCK / 1;        // HCLK
     CyclesPerUs     = PLL_CLOCK / 1000000;  // For CLK_SysTickDelay()
 
-    /* Enable UART module clock and I2C controller */
+    /* Enable UART module clock */
     CLK->APBCLK0 |= CLK_APBCLK0_UART0CKEN_Msk;
 
     /* Select UART module clock source as HXT and UART module clock divider as 1 */

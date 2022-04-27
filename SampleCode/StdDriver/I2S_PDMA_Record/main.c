@@ -235,7 +235,7 @@ void PDMA_IRQHandler(void)
             }
 
             ++g_count;
-            /* Reset PDMA Scater-Gatter table */
+            /* Reset PDMA Scatter-Gather table */
             PDMA_ResetRxSGTable(u8RxIdx);
             u8RxIdx ^= 1;
         }

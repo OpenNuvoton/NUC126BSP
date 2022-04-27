@@ -135,7 +135,9 @@ void I2C_MasterRx(uint32_t u32Status)
         g_u8MstRxAbortFlag = 1;
         getchar();
         I2C_SET_CONTROL_REG(I2C0, I2C_CTL_SI);
+        u32TimeOutCnt = I2C_TIMEOUT;
         while(I2C0->CTL & I2C_CTL_SI_Msk)
+            if(--u32TimeOutCnt == 0) break;
     }
 }
 
@@ -305,8 +307,6 @@ void I2C0_Init(void)
 
     /* Get I2C0 Bus Clock */
     printf("I2C clock %d Hz\n", (SystemCoreClock / (((I2C0->CLKDIV) + 1) << 2)));
-
-
 
     /* Enable I2C0 interrupt and set corresponding NVIC bit */
     I2C0->CTL |= I2C_CTL_INTEN_Msk;

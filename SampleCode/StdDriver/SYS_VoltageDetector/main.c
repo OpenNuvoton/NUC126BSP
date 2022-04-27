@@ -27,11 +27,11 @@ void BOD_IRQHandler(void)
     {
         /* Clear voltage detector interrupt flag */
         SYS->BODCTL |= SYS_BODCTL_VDETIF_Msk;
-        
+
         if(SYS->BODCTL & SYS_BODCTL_VDETOUT_Msk)
             printf("The input voltage is lower than Bandgap.\n");
         else
-            printf("The input voltage is higher than Bandgap.\n");            
+            printf("The input voltage is higher than Bandgap.\n");
     }
 
 }

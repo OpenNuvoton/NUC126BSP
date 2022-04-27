@@ -60,7 +60,7 @@ void CLKDIRC_IRQHandler(void)
         u32TimeOutCnt = SystemCoreClock; /* 1 second time-out */
         while(!(CLK->STATUS & CLK_STATUS_HIRCSTB_Msk))
             if(--u32TimeOutCnt == 0) break;
-        CLK->CLKSEL0 &= (~CLK_CLKSEL0_HCLKSEL_Msk) ;
+        CLK->CLKSEL0 = (CLK->CLKSEL0 & (~CLK_CLKSEL0_HCLKSEL_Msk)) | CLK_CLKSEL0_HCLKSEL_HIRC;
         printf("HXT Frequency is abnormal! HCLK is switched to HIRC.\n");
 
         /* Disable HXT clock frequency monitor interrupt */
