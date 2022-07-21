@@ -49,9 +49,6 @@ void SYS_Init(void)
     /* Waiting for HIRC clock ready */
     while(!(CLK->STATUS & CLK_STATUS_HIRCSTB_Msk));
 
-    /* Waiting for HIRC clock ready */
-    while(!(CLK->STATUS & CLK_STATUS_HIRCSTB_Msk));
-
     /* Switch HCLK clock source to HIRC */
     CLK->CLKSEL0 = CLK_CLKSEL0_HCLKSEL_HIRC;
 
@@ -278,7 +275,7 @@ int main(void)
     SC0_ResetReader();
 
     /* Activation sequence generator */
-    if( SC0_ActivationCmd() < 0 ) return -1;
+    if( SC0_ActivationCmd() < 0 ) goto lexit;
 
     u32TimeOutCnt = SC_TIMEOUT;
     while(1)
@@ -292,13 +289,15 @@ int main(void)
             printf("\n");
             break;
         }
-        
+
         if(--u32TimeOutCnt == 0)
         {
             printf("Read ATR time-out!\n");
             break;
         }
     }
+
+lexit:
 
     while(1);
 }

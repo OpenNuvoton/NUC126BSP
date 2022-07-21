@@ -475,8 +475,8 @@ static __INLINE uint32_t FMC_ReadCID(void)
     FMC->ISPADDR = 0x0;                          /* Must keep 0x0 when read CID */
     FMC->ISPTRG = FMC_ISPTRG_ISPGO_Msk;          /* Trigger to start ISP procedure */
 #if ISBEN
-    __ISB();
-#endif                                           /* To make sure ISP/CPU be Synchronized */
+    __ISB();                                     /* To make sure ISP/CPU be Synchronized */
+#endif
     u32TimeOutCnt = FMC_TIMEOUT_READ;
     while(FMC->ISPTRG & FMC_ISPTRG_ISPGO_Msk)    /* Waiting for ISP Done */
     {
@@ -513,8 +513,8 @@ static __INLINE uint32_t FMC_ReadPID(void)
     FMC->ISPADDR = 0x04;                        /* Must keep 0x4 when read PID */
     FMC->ISPTRG = FMC_ISPTRG_ISPGO_Msk;         /* Trigger to start ISP procedure */
 #if ISBEN
-    __ISB();
-#endif                                          /* To make sure ISP/CPU be Synchronized */
+    __ISB();                                    /* To make sure ISP/CPU be Synchronized */
+#endif
     u32TimeOutCnt = FMC_TIMEOUT_READ;
     while(FMC->ISPTRG & FMC_ISPTRG_ISPGO_Msk)   /* Waiting for ISP Done */
     {
@@ -551,8 +551,8 @@ static __INLINE uint32_t FMC_ReadUCID(uint32_t u32Index)
     FMC->ISPADDR = (0x04 * u32Index) + 0x10;    /* The UCID is at offset 0x10 with word alignment. */
     FMC->ISPTRG = FMC_ISPTRG_ISPGO_Msk;         /* Trigger to start ISP procedure */
 #if ISBEN
-    __ISB();
-#endif                                          /* To make sure ISP/CPU be Synchronized */
+    __ISB();                                    /* To make sure ISP/CPU be Synchronized */
+#endif
     u32TimeOutCnt = FMC_TIMEOUT_READ;
     while(FMC->ISPTRG & FMC_ISPTRG_ISPGO_Msk)   /* Waiting for ISP Done */
     {
@@ -593,8 +593,8 @@ static __INLINE int32_t FMC_SetVectorPageAddr(uint32_t u32PageAddr)
     FMC->ISPADDR = u32PageAddr;      /* The address of specified page which will be map to address 0x0. It must be page alignment. */
     FMC->ISPTRG = 0x1;               /* Trigger to start ISP procedure */
 #if ISBEN
-    __ISB();
-#endif                               /* To make sure ISP/CPU be Synchronized */
+    __ISB();                         /* To make sure ISP/CPU be Synchronized */
+#endif
     u32TimeOutCnt = FMC_TIMEOUT_WRITE;
     while(FMC->ISPTRG)               /* Waiting for ISP Done */
     {

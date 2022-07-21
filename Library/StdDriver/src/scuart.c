@@ -68,11 +68,14 @@ static uint32_t SCUART_GetClock(SC_T *sc)
         u32Clk = CLK_GetPLLClockFreq();
     else if(u32ClkSrc == 2)
     {
-        SystemCoreClockUpdate();
-        if(CLK->CLKSEL0 & CLK_CLKSEL0_PCLK1SEL_Msk)
-            u32Clk = SystemCoreClock / 2;
+        if(u32Num == 1)
+        {
+            u32Clk = CLK_GetPCLK1Freq();
+        }
         else
-            u32Clk = SystemCoreClock;
+        {
+            u32Clk = CLK_GetPCLK0Freq();
+        }
     }
     else
         u32Clk = __HIRC;
@@ -146,7 +149,7 @@ uint32_t SCUART_Read(SC_T* sc, uint8_t *pu8RxBuf, uint32_t u32ReadBytes)
   * @param[in]  pu8TxBuf        The buffer containing data to send to transmit FIFO.
   * @param[in]  u32WriteBytes   Number of data to transmit.
   *
-  * @return     None
+  * @return     Actual number of data put into SCUART Tx FIFO.
   *
   * @details    This function is used to write data into Tx FIFO to send data out.
   */

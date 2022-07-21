@@ -552,7 +552,7 @@ uint32_t CLK_EnablePLL(uint32_t u32PllClkSrc, uint32_t u32PllFreq)
     uint32_t u32Tmp, u32Tmp2, u32Tmp3, u32Min, u32MinNF, u32MinNR;
 
     /* Disable PLL first to avoid unstable when setting PLL */
-    CLK_DisablePLL();
+    CLK->PLLCTL |= CLK_PLLCTL_PD_Msk;
 
     /* PLL source clock is from HXT */
     if(u32PllClkSrc == CLK_PLLCTL_PLLSRC_HXT)

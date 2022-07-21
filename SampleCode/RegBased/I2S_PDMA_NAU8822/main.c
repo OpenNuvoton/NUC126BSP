@@ -131,7 +131,7 @@ void SYS_Init(void)
     /* Switch HCLK clock source to HXT */
     CLK->CLKSEL0 = CLK_CLKSEL0_HCLKSEL_HXT;
 
-    /* Set PLL to power down mode and PLL_STB bit in CLKSTATUS register will be cleared by hardware.*/
+    /* Set PLL to power down mode and PLLSTB bit in CLK_STATUS register will be cleared by hardware.*/
     CLK->PLLCTL |= CLK_PLLCTL_PD_Msk;
 
     /* Set PLL frequency */
@@ -145,7 +145,7 @@ void SYS_Init(void)
 
     /* Select HXT as the clock source of UART */
     CLK->CLKSEL1 = (CLK->CLKSEL1 & (~CLK_CLKSEL1_UARTSEL_Msk)) | CLK_CLKSEL1_UARTSEL_HXT;
-    /* Select HXT as the clock source of SPI1 */
+    /* Select HXT as the clock source of TIMER0 */
     CLK->CLKSEL1 = (CLK->CLKSEL1 & (~CLK_CLKSEL1_TMR0SEL_Msk)) | CLK_CLKSEL1_TMR0SEL_HXT;
 
     /* Enable peripheral clock */

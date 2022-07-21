@@ -261,7 +261,7 @@ int32_t main(void)
         printf("Protected Address is Unlocked\n");
     }
 
-    /* Enable Brown-Out Detector and Low Voltage Reset function, and set Brown-Out Detector voltage 2.7V */
+    /* Enable Brown-Out Detector and set Brown-Out Detector voltage 2.7V */
     SYS_EnableBOD(SYS_BODCTL_BOD_INTERRUPT_EN, SYS_BODCTL_BODVL_2_7V);
 
     /* Enable BOD interrupt */

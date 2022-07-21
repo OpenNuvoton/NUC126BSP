@@ -10,7 +10,6 @@
 #include <stdio.h>
 #include "NUC126.h"
 
-#define PLLCTL_SETTING  CLK_PLLCTL_72MHz_HXT
 #define PLL_CLOCK       72000000
 
 /*---------------------------------------------------------------------------------------------------------*/
@@ -292,7 +291,7 @@ int main()
             if(--u32TimeOutCnt == 0)
             {
                 printf("Wait for USCI_I2C Tx finish time-out!\n");
-                return -1;
+                goto lexit;
             }
         }
         g_u8EndFlagM = 0;
@@ -313,7 +312,7 @@ int main()
             if(--u32TimeOutCnt == 0)
             {
                 printf("Wait for USCI_I2C Rx finish time-out!\n");
-                return -1;
+                goto lexit;
             }
         }
         g_u8EndFlagM = 0;
@@ -322,10 +321,12 @@ int main()
         if(g_u8RxData != g_au8TxData[2])
         {
             printf("USCI_I2C Byte Write/Read Failed, Data 0x%x\n", g_u8RxData);
-            return -1;
+            goto lexit;
         }
     }
     printf("USCI_I2C Access EEPROM Test OK\n");
+
+lexit:
 
     while(1);
 }

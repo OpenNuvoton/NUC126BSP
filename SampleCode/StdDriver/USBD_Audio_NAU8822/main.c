@@ -215,10 +215,10 @@ int32_t main(void)
     CLK_EnableXtalRC(CLK_PWRCTL_LXTEN_Msk);
     CLK_WaitClockReady(CLK_STATUS_LXTSTB_Msk);
 
-    /* Init I2C0 to access WAU8822 */
+    /* Init I2C0 to access NAU8822 */
     I2C0_Init();
 
-    /* Initialize WAU8822 codec */
+    /* Initialize NAU8822 codec */
     WAU8822_Setup();
 
     SPII2S_Open(SPI0, g_u32MasterSlave, PLAY_RATE, SPII2S_DATABIT_16, SPII2S_STEREO, SPII2S_FORMAT_I2S);

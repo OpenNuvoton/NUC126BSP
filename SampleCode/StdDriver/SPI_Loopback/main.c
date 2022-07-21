@@ -84,8 +84,13 @@ int main(void)
                 {
                     printf("Wait for SPI busy flag is cleared time-out!\n");
                     u32Err = 1;
+                    break;
                 }
             }
+
+            if(u32Err)
+                break;
+
             /* Read received data */
             g_au32DestinationData[u32DataCount] = SPI_READ_RX(SPI0);
             u32DataCount++;

@@ -156,7 +156,7 @@ void SYS_Init(void)
     /* Waiting for HIRC clock ready */
     while(!(CLK->STATUS & CLK_STATUS_HIRCSTB_Msk));
 
-    /* Select HCLK clock source as HIRC and and HCLK clock divider as 1 */
+    /* Select HCLK clock source as HIRC and HCLK clock divider as 1 */
     CLK->CLKSEL0 &= ~CLK_CLKSEL0_HCLKSEL_Msk;
     CLK->CLKSEL0 |= CLK_CLKSEL0_HCLKSEL_HIRC;
     CLK->CLKDIV0 &= ~CLK_CLKDIV0_HCLKDIV_Msk;
@@ -182,7 +182,7 @@ void SYS_Init(void)
     /* Enable UART module clock and I2C controller */
     CLK->APBCLK0 |= (CLK_APBCLK0_UART0CKEN_Msk | CLK_APBCLK0_I2C0CKEN_Msk);
 
-    /* Select UART module clock source as HXT and UART module clock divider as 1 */
+    /* Select UART module clock source as HXT */
     CLK->CLKSEL1 &= ~CLK_CLKSEL1_UARTSEL_Msk;
     CLK->CLKSEL1 |= CLK_CLKSEL1_UARTSEL_HXT;
 
@@ -317,7 +317,7 @@ int32_t main(void)
             if(--u32TimeOutCnt == 0)
             {
                 printf("Wait for I2C Tx finish time-out!\n");
-                return -1;
+                goto lexit;
             }
         }
         g_u8EndFlag = 0;
@@ -338,7 +338,7 @@ int32_t main(void)
             if(--u32TimeOutCnt == 0)
             {
                 printf("Wait for I2C Rx finish time-out!\n");
-                return -1;
+                goto lexit;
             }
         }
 
@@ -346,10 +346,12 @@ int32_t main(void)
         if(g_u8RxData != g_au8TxData[2])
         {
             printf("I2C Byte Write/Read Failed, Data 0x%x\n", g_u8RxData);
-            return -1;
+            goto lexit;
         }
     }
     printf("I2C Access EEPROM Test OK\n");
+
+lexit:
 
     s_I2C0HandlerFn = NULL;
 

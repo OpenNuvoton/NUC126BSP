@@ -145,7 +145,7 @@ int main(void)
             {
                 printf("\n RTC initial fail!!");
                 printf("\n Please check h/w setting!!");
-                return -1;
+                goto lexit;
             }
         }
     }
@@ -184,12 +184,16 @@ int main(void)
             if(u32Sec == u32CurSec)
             {
                 printf("\nRTC tick period time is incorrect.\n");
-                return -1;
+                goto lexit;
             }
 
             u32Sec = u32CurSec;
         }
     }
+
+lexit:
+
+    wihle(1);
 }
 
 /*** (C) COPYRIGHT 2016 Nuvoton Technology Corp. ***/

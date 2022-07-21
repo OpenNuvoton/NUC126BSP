@@ -27,11 +27,11 @@ void BOD_IRQHandler(void)
     {
         /* Clear voltage detector interrupt flag */
         SYS->BODCTL |= SYS_BODCTL_VDETIF_Msk;
-        
+
         if(SYS->BODCTL & SYS_BODCTL_VDETOUT_Msk)
             printf("The input voltage is lower than Bandgap.\n");
         else
-            printf("The input voltage is higher than Bandgap.\n");            
+            printf("The input voltage is higher than Bandgap.\n");
     }
 
 }
@@ -131,20 +131,18 @@ int32_t main(void)
 
     printf("Change VDET_P0(PB.0) input voltage.\n");
     printf("The voltage detector interrupt is requested when the input voltage \nis dropped down or raised up through the Bandgap voltage(1.2V).\n\n");
-    UART_WAIT_TX_EMPTY(DEBUG_PORT);    
-    
+
     /* Select voltage detector external input voltage pin as VDET_P0(PB.0) */
     SYS->BODCTL &= ~SYS_BODCTL_VDETPINSEL_Msk;
 
     /* Enable voltage detector function */
-    SYS->BODCTL |= SYS_BODCTL_VDETEN_Msk;   
+    SYS->BODCTL |= SYS_BODCTL_VDETEN_Msk;
 
     /* Enable voltage detector interrupt function */
     SYS->BODCTL |= SYS_BODCTL_VDETIEN_Msk;
-    NVIC_EnableIRQ(BOD_IRQn);    
+    NVIC_EnableIRQ(BOD_IRQn);
 
     /* Wait for voltage detector interrupt happen */
     while(1);
 
 }
-

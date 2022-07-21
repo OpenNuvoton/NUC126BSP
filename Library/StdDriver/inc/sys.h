@@ -758,7 +758,7 @@ Example: If user want to set PA.2 as UART0_TXD and PA.3 as UART0_RXD in initial 
 
 
 /*---------------------------------------------------------------------------------------------------------*/
-/*  Multi-Function constant definitions.                                                                   */
+/*  Multi-Function setting constant definitions abbreviation.                                              */
 /*---------------------------------------------------------------------------------------------------------*/
 #define ACMP0_N_PB4              SYS_GPB_MFPL_PB4MFP_ACMP0_N          /*!< GPB_MFPL PB4 setting for ACMP0_N        */
 #define ACMP0_O_PD6              SYS_GPD_MFPL_PD6MFP_ACMP0_O          /*!< GPD_MFPL PD6 setting for ACMP0_O        */
@@ -1159,7 +1159,9 @@ Example: If user want to set PA.2 as UART0_TXD and PA.3 as UART0_RXD in initial 
 #define XT1_IN_PF4               SYS_GPF_MFPL_PF4MFP_XT1_IN           /*!< GPF_MFPL PF4 setting for XT1_IN         */
 #define XT1_OUT_PF3              SYS_GPF_MFPL_PF3MFP_XT1_OUT          /*!< GPF_MFPL PF3 setting for XT1_OUT        */
 
-
+/*---------------------------------------------------------------------------------------------------------*/
+/*  Multi-Function setting mask constant definitions abbreviation.                                         */
+/*---------------------------------------------------------------------------------------------------------*/
 #define ACMP0_N_PB4_Msk          SYS_GPB_MFPL_PB4MFP_Msk              /*<! ACMP0_N         PB4      MFP Mask */
 #define ACMP0_O_PD6_Msk          SYS_GPD_MFPL_PD6MFP_Msk              /*<! ACMP0_O         PD6      MFP Mask */
 #define ACMP0_O_PD7_Msk          SYS_GPD_MFPL_PD7MFP_Msk              /*<! ACMP0_O         PD7      MFP Mask */

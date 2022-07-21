@@ -133,7 +133,7 @@ void SYS_Init(void)
     /* Waiting for HIRC clock ready */
     CLK_WaitClockReady(CLK_STATUS_HIRCSTB_Msk);
 
-    /* Select HCLK clock source as HIRC and and HCLK clock divider as 1 */
+    /* Select HCLK clock source as HIRC and HCLK clock divider as 1 */
     CLK_SetHCLK(CLK_CLKSEL0_HCLKSEL_HIRC, CLK_CLKDIV0_HCLK(1));
 
     /* Enable HXT clock (external XTAL 12MHz) */
@@ -307,12 +307,12 @@ int32_t main(void)
             if(--u32TimeOutCnt == 0)
             {
                 printf("Wait for PWM1 channel 2 Timer start to count time-out!\n");
-                return -1;
+                goto lexit;
             }
         }
 
         /* Capture the Input Waveform Data */
-        if( CalPeriodTime(PWM1, 2) < 0 ) return -1;
+        if( CalPeriodTime(PWM1, 2) < 0 ) goto lexit;
         /*---------------------------------------------------------------------------------------------------------*/
         /* Stop PWM1 channel 0 (Recommended procedure method 1)                                                    */
         /* Set PWM Timer loaded value(Period) as 0. When PWM internal counter(CNT) reaches to 0, disable PWM Timer */
@@ -328,7 +328,7 @@ int32_t main(void)
             if(--u32TimeOutCnt == 0)
             {
                 printf("Wait for PWM1 channel 0 Timer Stop time-out!\n");
-                return -1;
+                goto lexit;
             }
         }
 
@@ -353,7 +353,7 @@ int32_t main(void)
             if(--u32TimeOutCnt == 0)
             {
                 printf("Wait for PWM1 channel 2 current counter reach to 0 time-out!\n");
-                return -1;
+                goto lexit;
             }
         }
 
@@ -366,4 +366,8 @@ int32_t main(void)
         /* Clear Capture Interrupt flag for PWM1 channel 2 */
         PWM_ClearCaptureIntFlag(PWM1, 2, PWM_CAPTURE_INT_FALLING_LATCH);
     }
+
+lexit:
+
+    while(1);
 }

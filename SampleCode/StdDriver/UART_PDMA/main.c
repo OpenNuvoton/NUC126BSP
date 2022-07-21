@@ -149,7 +149,7 @@ void PDMA_Callback_0(void)
 
 void PDMA_Callback_1(void)
 {
-    int32_t i ;
+    int32_t i;
 
     printf("\tTransfer Done %d!\t", ++IntCnt);
 

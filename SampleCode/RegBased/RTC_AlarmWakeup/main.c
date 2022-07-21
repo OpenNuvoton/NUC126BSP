@@ -167,7 +167,7 @@ int main(void)
             {
                 printf("\n RTC initial fail!!");
                 printf("\n Please check h/w setting!!");
-                return -1;
+                goto lexit;
             }
         }
     }
@@ -202,6 +202,8 @@ int main(void)
     printf("    20%02x/%02x/%02x %02x:%02x:%02x\n",
            (RTC->CAL >> RTC_CAL_YEAR_Pos) & 0xFF, (RTC->CAL >> RTC_CAL_MON_Pos) & 0xFF, (RTC->CAL >> RTC_CAL_DAY_Pos) & 0xFF,
            (RTC->TIME >> RTC_TIME_HR_Pos) & 0xFF, (RTC->TIME >> RTC_TIME_MIN_Pos) & 0xFF, (RTC->TIME >> RTC_TIME_SEC_Pos) & 0xFF);
+
+lexit:
 
     while(1);
 }

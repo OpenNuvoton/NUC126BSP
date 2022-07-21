@@ -236,7 +236,7 @@ void SYS_Init(void)
     /* Waiting for HIRC clock ready */
     while(!(CLK->STATUS & CLK_STATUS_HIRCSTB_Msk));
 
-    /* Select HCLK clock source as HIRC and and HCLK clock divider as 1 */
+    /* Select HCLK clock source as HIRC and HCLK clock divider as 1 */
     CLK->CLKSEL0 &= ~CLK_CLKSEL0_HCLKSEL_Msk;
     CLK->CLKSEL0 |= CLK_CLKSEL0_HCLKSEL_HIRC;
     CLK->CLKDIV0 &= ~CLK_CLKDIV0_HCLKDIV_Msk;
@@ -265,7 +265,7 @@ void SYS_Init(void)
     /* PDMA Clock enable */
     CLK->AHBCLK |= CLK_AHBCLK_PDMACKEN_Msk;
 
-    /* Select UART module clock source as HXT and UART module clock divider as 1 */
+    /* Select UART module clock source as HXT */
     CLK->CLKSEL1 &= ~CLK_CLKSEL1_UARTSEL_Msk;
     CLK->CLKSEL1 |= CLK_CLKSEL1_UARTSEL_HXT;
 
@@ -516,7 +516,11 @@ int32_t main(void)
     printf("\nI2C Slave Mode is Running.\n\n");
 
     /* I2C0 access I2C1 */
-    if( I2C_Write_to_SLAVE_PDMA_RX(0x16) < 0 ) return -1;
+    if( I2C_Write_to_SLAVE_PDMA_RX(0x16) < 0 )
+    {
+        err = 1;
+        goto lexit;
+    }
 
     /* Waiting for PDMA channel 1 transfer done */
     u32TimeOutCnt = SystemCoreClock; /* 1 second time-out */
@@ -524,8 +528,9 @@ int32_t main(void)
     {
         if(--u32TimeOutCnt == 0)
         {
+            err = 1;
             printf("Wait for PDMA transfer done time-out!\n");
-            return -1;
+            goto lexit;
         }
     }
     g_u32IsTestOver = 0;
@@ -540,6 +545,8 @@ int32_t main(void)
             printf("[%03d]: Tx[0x%X] != Rx[0x%X]\n", i, g_au8MstTxData[i], g_au8SlvData[i]);
         }
     }
+
+lexit:
 
     if(err)
         printf("Master write data to Slave(PDMA RX) fail...\n");

@@ -72,7 +72,7 @@ void SYS_Init(void)
     /* Waiting for clock ready */
     CLK_WaitClockReady(CLK_STATUS_HXTSTB_Msk);
 
-    /* Set core clock as PLL_CLOCK from PLL and SysTick source to HCLK/2*/
+    /* Set core clock as PLL_CLOCK from PLL and SysTick source to HCLK/2 */
     CLK_SetCoreClock(PLL_CLOCK);
     CLK_SetSysTickClockSrc(CLK_CLKSEL0_STCLKSEL_HCLK_DIV2);
 
@@ -165,10 +165,7 @@ int main(void)
     if(TIMER_GetCounter(TIMER2) != 0)
     {
         printf("Default counter value is not 0. (%d)\n", TIMER_GetCounter(TIMER2));
-
-        /* Stop Timer2 counting */
-        TIMER_Close(TIMER2);
-        return -1;
+        goto lexit;
     }
 
     printf("Start to check Timer2 counter value ......\n\n");
@@ -183,10 +180,7 @@ int main(void)
     if(TIMER_GetCounter(TIMER2) != 1)
     {
         printf("Get unexpected counter value. (%d)\n", TIMER_GetCounter(TIMER2));
-
-        /* Stop Timer2 counting */
-        TIMER_Close(TIMER2);
-        return -1;
+        goto lexit;
     }
 
     /* To generate remains counts to T2 pin */
@@ -210,6 +204,8 @@ int main(void)
     {
         printf("FAIL.\n");
     }
+
+lexit:
 
     /* Stop Timer2 counting */
     TIMER_Close(TIMER2);

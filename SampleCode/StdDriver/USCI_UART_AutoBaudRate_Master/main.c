@@ -21,7 +21,6 @@
 /* Define functions prototype                                                                              */
 /*---------------------------------------------------------------------------------------------------------*/
 int32_t main(void);
-extern char GetChar(void);
 void USCI_AutoBaudRate_TxTest(void);
 
 

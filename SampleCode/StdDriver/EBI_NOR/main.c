@@ -189,7 +189,10 @@ int main(void)
 
     /* Step 2, erase chip */
     if(NOR_MX29LV320T_EraseChip(EBI_BANK1, TRUE) < 0)
+    {
+        printf("Erase chip FAIL !!!\n\n");
         goto lexit;
+    }
 
 
     /* Step 3, program flash and compare data */

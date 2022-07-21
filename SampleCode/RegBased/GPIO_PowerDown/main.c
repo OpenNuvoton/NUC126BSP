@@ -155,7 +155,7 @@ int main(void)
 
     /* Configure PB.3 as Input mode and enable interrupt by rising edge trigger */
     PB->MODE = (PB->MODE & (~GPIO_MODE_MODE3_Msk)) | (GPIO_MODE_INPUT << GPIO_MODE_MODE3_Pos);
-    PB->INTTYPE |= (GPIO_INTTYPE_EDGE << 3);
+    PB->INTTYPE |= (GPIO_INTTYPE_EDGE << GPIO_INTTYPE_TYPE3_Pos);
     PB->INTEN |= GPIO_INTEN_RHIEN3_Msk;
     NVIC_EnableIRQ(GPAB_IRQn);
 

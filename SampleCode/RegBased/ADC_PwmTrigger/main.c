@@ -35,7 +35,7 @@ void SYS_Init(void)
     /* Waiting for HIRC clock ready */
     while(!(CLK->STATUS & CLK_STATUS_HIRCSTB_Msk));
 
-    /* Select HCLK clock source as HIRC and and HCLK clock divider as 1 */
+    /* Select HCLK clock source as HIRC and HCLK clock divider as 1 */
     CLK->CLKSEL0 = (CLK->CLKSEL0 & ~CLK_CLKSEL0_HCLKSEL_Msk) | CLK_CLKSEL0_HCLKSEL_HIRC;
     CLK->CLKDIV0 = (CLK->CLKDIV0 & ~CLK_CLKDIV0_HCLKDIV_Msk) | CLK_CLKDIV0_HCLK(1);
 
@@ -62,7 +62,7 @@ void SYS_Init(void)
     /* Enable PWM01 module clock */
     CLK->APBCLK0 |= CLK_APBCLK0_PWM0CKEN_Msk | CLK_APBCLK0_PWM1CKEN_Msk;
 
-    /* Select UART module clock source as HXT and UART module clock divider as 1 */
+    /* Select UART module clock source as HXT */
     CLK->CLKSEL1 = (CLK->CLKSEL1 & ~CLK_CLKSEL1_UARTSEL_Msk) | CLK_CLKSEL1_UARTSEL_HXT;
 
     /* Select ADC module clock source */
@@ -172,6 +172,7 @@ void ADC_PWMTrigTest_SingleOpMode()
             return;
         }
     }
+
     PWM0->INTSTS0 = PWM_INTSTS0_PIF0_Msk | PWM_INTSTS0_ZIF0_Msk;
 
     /* Disable the PWM0 counter */
@@ -195,15 +196,13 @@ void ADC_PWMTrigTest_SingleOpMode()
 
     /* Disable ADC */
     ADC->ADCR = 0;
-
-//     while(1);
 }
 
 
 /*---------------------------------------------------------------------------------------------------------*/
 /* MAIN function                                                                                           */
 /*---------------------------------------------------------------------------------------------------------*/
-int main(void)
+int32_t main(void)
 {
 
     /* Unlock protected registers */

@@ -35,7 +35,7 @@ void SYS_Init(void)
     /* Waiting for HIRC clock ready */
     CLK_WaitClockReady(CLK_STATUS_HIRCSTB_Msk);
 
-    /* Select HCLK clock source as HIRC and and HCLK clock divider as 1 */
+    /* Select HCLK clock source as HIRC and HCLK clock divider as 1 */
     CLK_SetHCLK(CLK_CLKSEL0_HCLKSEL_HIRC, CLK_CLKDIV0_HCLK(1));
 
     /* Enable HXT clock (external XTAL 12MHz) */
@@ -46,9 +46,6 @@ void SYS_Init(void)
 
     /* Set core clock as PLL_CLOCK from PLL */
     CLK_SetCoreClock(PLL_CLOCK);
-
-    /* Waiting for PLL clock ready */
-    CLK_WaitClockReady(CLK_STATUS_PLLSTB_Msk);
 
     /* Enable UART module clock */
     CLK_EnableModuleClock(UART0_MODULE);
@@ -217,7 +214,7 @@ void AdcContScanModeTest()
             /* Power on ADC module */
             ADC_POWER_ON(ADC);
 
-			/* Set the ADC operation mode as continuous scan, input mode as differential and
+            /* Set the ADC operation mode as continuous scan, input mode as differential and
                enable analog input channel 0 and 2 */
             ADC_Open(ADC, ADC_ADCR_DIFFEN_DIFFERENTIAL, ADC_ADCR_ADMD_CONTINUOUS, 0x5);
 

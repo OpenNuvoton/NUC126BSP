@@ -27,8 +27,8 @@ int32_t SYS_Init(void)
     /*---------------------------------------------------------------------------------------------------------*/
     /* Init System Clock                                                                                       */
     /*---------------------------------------------------------------------------------------------------------*/
-    /* Enable HIRC clock (Internal RC 22.1184MHz) and HXT clock (external XTAL 12MHz) */
-    CLK->PWRCTL |= (CLK_PWRCTL_HIRCEN_Msk | CLK_PWRCTL_HXTEN_Msk);
+    /* Enable HIRC clock (Internal RC 22.1184MHz) */
+    CLK->PWRCTL |= CLK_PWRCTL_HIRCEN_Msk;
 
     /* Wait for HIRC clock ready */
     u32TimeOutCnt = SystemCoreClock; /* 1 second time-out */
@@ -85,7 +85,7 @@ int32_t main(void)
     UART_Init();
 
     /* Enable FMC ISP */
-    FMC->ISPCTL |=  FMC_ISPCTL_ISPEN_Msk;
+    FMC->ISPCTL |= FMC_ISPCTL_ISPEN_Msk;
 
     /* Get APROM size, data flash size and address */
     g_apromSize = GetApromSize();
@@ -98,8 +98,8 @@ int32_t main(void)
 
     /* Wait for CMD_CONNECT command until Systick time-out */
     while (1) {
-        
-        /* Wait for CMD_CONNECT command */         
+
+        /* Wait for CMD_CONNECT command */
         if ((bufhead >= 4) || (bUartDataReady == TRUE)) {
             uint32_t lcmd;
             lcmd = inpw(uart_rcvbuf);

@@ -42,7 +42,7 @@ void PowerDownFunction(void)
     /* Set the processor is deep sleep as its low power mode */
     SCB->SCR |= SCB_SCR_SLEEPDEEP_Msk;
 
-    /* Set system Power-down enabled*/
+    /* Set system Power-down enabled */
     CLK->PWRCTL |= CLK_PWRCTL_PDEN_Msk;
 
     /* Chip enter Power-down mode after CPU run WFI instruction */

@@ -11,7 +11,6 @@
 #include <stdio.h>
 #include "NUC126.h"
 
-#define PLLCTL_SETTING  CLK_PLLCTL_72MHz_HXT
 #define PLL_CLOCK       72000000
 
 /*---------------------------------------------------------------------------------------------------------*/
@@ -408,7 +407,7 @@ int main()
         if(--u32TimeOutCnt == 0)
         {
             printf("Wait for system or USCI_I2C interrupt time-out!\n");
-            return -1;
+            break;
         }
     }
 

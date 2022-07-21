@@ -131,7 +131,7 @@ void SYS_Init(void)
     /* Switch HCLK clock source to HXT */
     CLK_SetHCLK(CLK_CLKSEL0_HCLKSEL_HXT, CLK_CLKDIV0_HCLK(1));
 
-    /* Set PLL to power down mode and PLL_STB bit in CLKSTATUS register will be cleared by hardware.*/
+    /* Set PLL to power down mode and PLLSTB bit in CLK_STATUS register will be cleared by hardware.*/
     CLK->PLLCTL |= CLK_PLLCTL_PD_Msk;
 
     /* Set PLL frequency */

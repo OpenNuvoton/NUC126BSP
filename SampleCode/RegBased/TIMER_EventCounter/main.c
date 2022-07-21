@@ -168,16 +168,21 @@ int main(void)
     /* Enable Timer2 external event counter input function */
     TIMER2->CMP = 56789;
     TIMER2->CTL = TIMER_CTL_CNTEN_Msk | TIMER_CTL_INTEN_Msk | TIMER_CTL_EXTCNTEN_Msk | TIMER_CONTINUOUS_MODE;
-    while(!(TIMER2->CTL & TIMER_CTL_ACTSTS_Msk));
+    u32TimeOutCnt = SystemCoreClock; /* 1 second time-out */
+    while(!(TIMER2->CTL & TIMER_CTL_ACTSTS_Msk))
+    {
+        if(--u32TimeOutCnt == 0)
+        {
+            printf("Wait for TIMER2 is active time-out!\n");
+            goto lexit;
+        }
+    }
 
     /* To check if counter value of Timer2 should be 0 while event counter mode is enabled */
     if(TIMER_GetCounter(TIMER2) != 0)
     {
         printf("Default counter value is not 0. (%d)\n", TIMER_GetCounter(TIMER2));
-
-        /* Stop Timer2 counting */
-        TIMER2->CTL = 0;
-        return -1;
+        goto lexit;
     }
 
     printf("Start to check Timer2 counter value ......\n\n");
@@ -192,10 +197,7 @@ int main(void)
     if(TIMER_GetCounter(TIMER2) != 1)
     {
         printf("Get unexpected counter value. (%d)\n", TIMER_GetCounter(TIMER2));
-
-        /* Stop Timer2 counting */
-        TIMER2->CTL = 0;
-        return -1;
+        goto lexit;
     }
 
     /* To generate remains counts to T2 pin */
@@ -219,6 +221,8 @@ int main(void)
     {
         printf("FAIL.\n");
     }
+
+lexit:
 
     /* Stop Timer2 counting */
     TIMER2->CTL = 0;

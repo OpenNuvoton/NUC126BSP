@@ -247,11 +247,13 @@ int32_t main(void)
             if(--u32TimeOutCnt == 0)
             {
                 printf("Wait for I2C Tx finish time-out!\n");
-                return -1;
+                goto lexit;
             }
         }
     }
     printf("Master Access Slave(0x%X) at GC Mode Test OK\n", g_u8DeviceAddr);
+
+lexit:
 
     s_I2C0HandlerFn = NULL;
 
