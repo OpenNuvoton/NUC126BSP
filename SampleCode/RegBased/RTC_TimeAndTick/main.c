@@ -193,7 +193,7 @@ int main(void)
 
 lexit:
 
-    wihle(1);
+    while(1);
 }
 
 /*** (C) COPYRIGHT 2016 Nuvoton Technology Corp. ***/

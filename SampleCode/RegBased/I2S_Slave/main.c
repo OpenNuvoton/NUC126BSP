@@ -61,7 +61,7 @@ int32_t main(void)
 
     /* Slave mode, 16-bit word width, stereo mode, I2S format. */
     SPI1->I2SCTL = SPII2S_MODE_SLAVE | SPII2S_DATABIT_16 | SPII2S_STEREO | SPII2S_FORMAT_I2S;
-    /* Set TX FIFO threshold to 2 and RX FIFO threshold to 1 */
+    /* Set TX FIFO threshold to 2 and RX FIFO threshold to 2 */
     SPI1->FIFOCTL = SPII2S_FIFO_TX_LEVEL_WORD_2 | SPII2S_FIFO_RX_LEVEL_WORD_2;
 
     /* I2S peripheral clock rate is equal to PCLK1 clock rate. */

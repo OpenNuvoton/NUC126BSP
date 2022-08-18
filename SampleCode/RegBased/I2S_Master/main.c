@@ -62,7 +62,7 @@ int32_t main(void)
 
     /* Master mode, 16-bit word width, stereo mode, I2S format. */
     SPI1->I2SCTL = SPII2S_MODE_MASTER | SPII2S_DATABIT_16 | SPII2S_STEREO | SPII2S_FORMAT_I2S;
-    /* Set TX FIFO threshold to 2 and RX FIFO threshold to 1 */
+    /* Set TX FIFO threshold to 2 and RX FIFO threshold to 2 */
     SPI1->FIFOCTL = SPII2S_FIFO_TX_LEVEL_WORD_2 | SPII2S_FIFO_RX_LEVEL_WORD_2;
     /* Sampling rate 16000 Hz; bit clock rate 512 kHz. */
     SPI1->I2SCLK = (SPI1->I2SCLK & ~SPI_I2SCLK_BCLKDIV_Msk) | (11 << SPI_I2SCLK_BCLKDIV_Pos);

@@ -174,7 +174,7 @@ int main(void)
             if(u32Sec == sReadRTC.u32Second)
             {
                 printf("\nRTC tick period time is incorrect.\n");
-                return -1;
+                goto lexit;
             }
 
             u32Sec = sReadRTC.u32Second;
