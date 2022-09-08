@@ -219,7 +219,7 @@ int32_t main(void)
     I2C0_Init();
 
     /* Initialize NAU8822 codec */
-    WAU8822_Setup();
+    NAU8822_Setup();
 
     SPII2S_Open(SPI0, g_u32MasterSlave, PLAY_RATE, SPII2S_DATABIT_16, SPII2S_STEREO, SPII2S_FORMAT_I2S);
     /* SPII2S driver will overwrite SPI clock source setting. Just re-set it here */
@@ -355,7 +355,7 @@ int32_t main(void)
                 ch = getchar();
                 u32Data = u32Data * 16 + ((ch >= '0' && ch <= '9') ? ch - '0' : ch - 'a' + 10);
                 printf("%03x\n", u32Data);
-                I2C_WriteWAU8822(u32Reg,  u32Data);
+                I2C_WriteNAU8822(u32Reg,  u32Data);
             }
         }
 
