@@ -37,8 +37,8 @@ uint16_t gCtrlSignal1 = 0;     /* BIT0: DTR(Data Terminal Ready) , BIT1: RTS(Req
 #define RXBUFSIZE           512 /* RX buffer size */
 #define TXBUFSIZE           512 /* RX buffer size */
 
-#define TX_FIFO_SIZE_0      64  /* TX Hardware FIFO size */
-#define TX_FIFO_SIZE_1      64  /* TX Hardware FIFO size */
+#define TX_FIFO_SIZE_0      16  /* TX Hardware FIFO size */
+#define TX_FIFO_SIZE_1      16  /* TX Hardware FIFO size */
 
 /*---------------------------------------------------------------------------------------------------------*/
 /* Global variables                                                                                        */

@@ -36,7 +36,7 @@ uint16_t gCtrlSignal = 0;     /* BIT0: DTR(Data Terminal Ready) , BIT1: RTS(Requ
 #define RXBUFSIZE           512 /* RX buffer size */
 #define TXBUFSIZE           512 /* RX buffer size */
 
-#define TX_FIFO_SIZE        64  /* TX Hardware FIFO size */
+#define TX_FIFO_SIZE        16  /* TX Hardware FIFO size */
 
 #define CONFIG_BASE      0x00300000
 #define DATA_FLASH_BASE  MASS_STORAGE_OFFSET
