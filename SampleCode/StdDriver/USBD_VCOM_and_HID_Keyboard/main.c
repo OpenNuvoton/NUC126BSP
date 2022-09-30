@@ -32,8 +32,6 @@ uint16_t gCtrlSignal = 0;     /* BIT0: DTR(Data Terminal Ready) , BIT1: RTS(Requ
 #define RXBUFSIZE           512 /* RX buffer size */
 #define TXBUFSIZE           512 /* RX buffer size */
 
-#define TX_FIFO_SIZE        16  /* TX Hardware FIFO size */
-
 
 /*---------------------------------------------------------------------------------------------------------*/
 /* Global variables                                                                                        */
@@ -183,9 +181,9 @@ void UART02_IRQHandler(void)
         {
             /* Fill the Tx FIFO */
             size = comTbytes;
-            if(size >= TX_FIFO_SIZE)
+            if(size >= UART0_FIFO_SIZE)
             {
-                size = TX_FIFO_SIZE;
+                size = UART0_FIFO_SIZE;
             }
 
             while(size)
