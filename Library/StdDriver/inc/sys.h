@@ -1790,7 +1790,7 @@ Example: If user want to set PA.2 as UART0_TXD and PA.3 as UART0_RXD in initial 
   */
 __STATIC_INLINE void SYS_UnlockReg(void)
 {
-    uint32_t u32TimeOutCnt = SystemCoreClock; /* 1 second time-out */
+    uint32_t u32TimeOutCnt = __HIRC;
     do
     {
         SYS->REGLCTL = 0x59;
