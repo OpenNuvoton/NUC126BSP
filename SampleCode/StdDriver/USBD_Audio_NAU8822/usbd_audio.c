@@ -1077,7 +1077,7 @@ void AdjFreq(void)
     if((i32PreFlag != g_i32AdjFlag) || (i32Cnt++ > 40000))
     {
         i32PreFlag = g_i32AdjFlag;
-        printf("%d %d %d %d %x\n", g_i32AdjFlag, u32Size, g_usbd_PlayVolumeL, g_usbd_RecVolumeL, FAUDIOCFG);
+        printf("%d %d %d %d %x\n", g_i32AdjFlag, u32Size, g_usbd_PlayVolumeL, g_usbd_RecVolumeL, (uint32_t)FAUDIOCFG);
         i32Cnt = 0;
     }
 
