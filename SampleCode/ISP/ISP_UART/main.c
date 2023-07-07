@@ -19,6 +19,11 @@
 /* Define functions prototype                                                                              */
 /*---------------------------------------------------------------------------------------------------------*/
 int32_t main(void);
+void ProcessHardFault(void);
+void SH_Return(void);
+
+void ProcessHardFault(void){}
+void SH_Return(void){}
 
 int32_t SYS_Init(void)
 {

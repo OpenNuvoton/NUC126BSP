@@ -11,10 +11,11 @@
 
 #include <stdio.h>
 #include "NUC126.h"
-# if defined (__GNUC__)
+#if (defined (__GNUC__) && (!(defined(__ARMCC_VERSION))))
 extern void initialise_monitor_handles(void);
 #endif
 
+	
 /*---------------------------------------------------------------------------------------------------------*/
 /* Main Function                                                                                            */
 /*---------------------------------------------------------------------------------------------------------*/
@@ -22,7 +23,7 @@ extern void initialise_monitor_handles(void);
 int32_t main()
 {
     int8_t item;
-# if defined (__GNUC__)
+#if (defined (__GNUC__) && (!(defined(__ARMCC_VERSION))))
     initialise_monitor_handles();
 #endif
     /*

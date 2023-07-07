@@ -10,6 +10,7 @@
       <TargetName>USCI_SPI_Loopback</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
+      <pCCUsed>6160000::V6.16::ARMCLANG</pCCUsed>
       <TargetOption>
         <TargetCommonOption>
           <Device>NUC126VG4AE</Device>
