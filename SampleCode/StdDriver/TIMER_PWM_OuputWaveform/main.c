@@ -107,10 +107,10 @@ int main(void)
     printf("# Timer2 PWM_CH0 output frequency is  9000 Hz and duty is 75%%.\n");
     printf("# Timer3 PWM_CH0 output frequency is  4000 Hz and duty is 20%%.\n");
     printf("# I/O configuration:\n");
-    printf("    - Timer0 PWM_CH0 on P3.4\n");
-    printf("    - Timer1 PWM_CH0 on P3.7\n");
-    printf("    - Timer2 PWM_CH0 on P3.8\n");
-    printf("    - Timer3 PWM_CH0 on P3.9\n\n");
+    printf("    - Timer0 PWM_CH0 on PD.4\n");
+    printf("    - Timer1 PWM_CH0 on PD.7\n");
+    printf("    - Timer2 PWM_CH0 on PD.8\n");
+    printf("    - Timer3 PWM_CH0 on PD.9\n\n");
 
     /* Change Timer to PWM counter mode */
     TPWM_ENABLE_PWM_MODE(TIMER0);
