@@ -186,16 +186,16 @@ int main(void)
     {
         if((u32FMCChecksum == 0) || (u32FMCChecksum == 0xFFFFFFFF))
         {
-            printf("\n[Get checksum ... WRONG]");
+            printf("\n[Get checksum ... WRONG]\n");
         }
         else
         {
-            printf("\n[Compare checksum ... PASS]");
+            printf("\n[Compare checksum ... PASS]\n");
         }
     }
     else
     {
-        printf("\n[Compare checksum ... WRONG]");
+        printf("\n[Compare checksum ... WRONG]\n");
     }
 
     /* Disable CRC function */

@@ -278,7 +278,7 @@ void SendChar_ToUART(int ch)
 
 #else
 /* Non-block implement of send char */
-# define BUF_SIZE    512
+# define BUF_SIZE    2048
 void SendChar_ToUART(int ch)
 {
     static uint8_t u8Buf[BUF_SIZE] = {0};
