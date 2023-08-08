@@ -17,10 +17,6 @@
 /* Global variables                                                                                        */
 /*---------------------------------------------------------------------------------------------------------*/
 volatile uint8_t g_u8DeviceAddr;
-volatile uint8_t g_au8MstTxData[3];
-volatile uint8_t g_u8MstRxData;
-volatile uint8_t g_u8MstEndFlag = 0;
-volatile uint8_t g_u8MstDataLen;
 
 void SYS_Init(void)
 {
@@ -106,17 +102,20 @@ int main()
     /* Init UART for print message */
     UART_Open(UART0, 115200);
 
+    /* Init USCI_I2C0 */
+    UI2C0_Init(100000);
+
     /*
         This sample code sets USCI_I2C bus clock to 100kHz. Then, Master accesses Slave with multi bytes write
         and multi bytes read operations, and check if the read data is equal to the programmed data.
     */
 
     printf("+---------------------------------------------------------+\n");
-    printf("|  USCI_I2C Driver Sample Code for Master access          |\n");
-    printf("|  7-bit address Slave. Needs to work with USCI_I2C_Slave |\n");
-    printf("|  sample code                                            |\n");
+    printf("| UI2C Driver Sample Code for Multi Bytes Read/Write Test |\n");
+    printf("| Needs to work with USCI_I2C_Slave sample code           |\n");
     printf("|                                                         |\n");
-    printf("|  UI2C0(Master)  <----> UI2C0(Slave)                     |\n");
+    printf("|      UI2C Master (I2C0) <---> UI2C Slave (I2C0)         |\n");
+    printf("| !! This sample code requires two borads to test !!      |\n");
     printf("+---------------------------------------------------------+\n");
 
     printf("\n");
@@ -124,11 +123,11 @@ int main()
     printf("The I/O connection for UI2C0:\n");
     printf("UI2C0_SDA(PC.5), UI2C0_SCL(PC.4)\n\n");
 
-    /* Init UI2C0 bus bard rate */
-    UI2C0_Init(100000);
+    printf("Press any key to continue\n");
+    getchar();
 
     /* Slave address */
-    g_u8DeviceAddr = 0x15;
+    g_u8DeviceAddr = 0x16;
 
     for(i = 0; i<256; i++)
     {
@@ -152,10 +151,16 @@ int main()
     for(i = 0; i<256; i++)
     {
         if(txbuf[i] != rDataBuf[i])
+        {
             printf("Data compare fail... R[%d] Data: 0x%X\n", i, rDataBuf[i]);
+            goto failExit;
+        }
     }
     printf("Multi bytes Read access Pass.....\n");
+    while (1);
 
+failExit:
+    printf("Multi bytes Read access Fail.....\n");
     while(1);
 }
 

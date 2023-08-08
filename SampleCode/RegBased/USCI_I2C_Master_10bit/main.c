@@ -172,7 +172,7 @@ void UI2C_MasterTx(uint32_t u32Status)
         }
         else if(m_Event == MASTER_SEND_DATA)
         {
-            if(g_u8DataLenM != 3)
+            if(g_u8DataLenM != 4)
             {
                 UI2C_SET_DATA(UI2C0, g_au8TxData[g_u8DataLenM++]);  /* ADDRESS has been transmitted and write DATA to Register TXDAT */
                 UI2C_SET_CONTROL_REG(UI2C0, UI2C_CTL_PTRG);
@@ -381,6 +381,8 @@ int32_t Read_Write_SLAVE(uint16_t slvaddr)
 /*---------------------------------------------------------------------------------------------------------*/
 int main()
 {
+    int32_t i32Ret1, i32Ret2;
+
     /* Unlock protected registers */
     SYS_UnlockReg();
 
@@ -405,26 +407,39 @@ int main()
     printf("+-------------------------------------------------------+\n");
 
     printf("\n");
-    printf("Configure UI2C0 as a Master\n");
+    printf("Configure UI2C0 as a master, UI2C1 as Slave.\n");
     printf("The I/O connection for UI2C0:\n");
     printf("UI2C0_SDA(PC.5), UI2C0_SCL(PC.4)\n");
 
     /* Init UI2C0 bard rate */
     UI2C0_Init(100000);
 
+    printf("Press any key to continue\n");
+    getchar();
+
     /* Master Access Slave with no address mask */
     printf("\n");
     printf(" == No Mask Address ==\n");
-    Read_Write_SLAVE(0x116);
-    Read_Write_SLAVE(0x136);
-    printf("SLAVE Address test OK.\n");
+    if (0 > (i32Ret1 = Read_Write_SLAVE(0x116)))
+        printf("SLAVE Address(0x116) test FAIL.\n");
+        
+    if (0 > (i32Ret2 = Read_Write_SLAVE(0x136)))
+        printf("SLAVE Address(0x136) test FAIL.\n");
+
+    if ((i32Ret1 == 0) && (i32Ret2 == 0))
+        printf("SLAVE Address test OK.\n");
 
     /* Master Access Slave with address mask */
     printf("\n");
     printf(" == Mask Address ==\n");
-    Read_Write_SLAVE(0x116 & ~0x04);
-    Read_Write_SLAVE(0x136 & ~0x02);
-    printf("SLAVE Address Mask test OK.\n");
+    if (0 > (i32Ret1 = Read_Write_SLAVE(0x116 & ~0x04)))
+        printf("SLAVE Address Mask(0x112) test FAIL.\n");
+
+    if (0 > (i32Ret2 = Read_Write_SLAVE(0x136 & ~0x02)))
+        printf("SLAVE Address Mask(0x134) test FAIL.\n");    
+
+    if ((i32Ret1 == 0) && (i32Ret2 == 0))
+        printf("SLAVE Address Mask test OK.\n");
 
     while(1);
 }

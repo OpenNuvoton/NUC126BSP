@@ -550,6 +550,7 @@ int32_t Read_Write_SLAVE(uint16_t slvaddr)
 int main()
 {
     uint32_t i;
+    int32_t i32Ret1, i32Ret2;
 
     /* Unlock protected registers */
     SYS_UnlockReg();
@@ -599,15 +600,25 @@ int main()
     /* Master Access Slave with no address mask */
     printf("\n");
     printf(" == No Mask Address ==\n");
-    Read_Write_SLAVE(0x116);
-    Read_Write_SLAVE(0x136);
-    printf("SLAVE Address test OK.\n");
+    if (0 > (i32Ret1 = Read_Write_SLAVE(0x116)))
+        printf("SLAVE Address(0x116) test FAIL.\n");
+        
+    if (0 > (i32Ret2 = Read_Write_SLAVE(0x136)))
+        printf("SLAVE Address(0x136) test FAIL.\n");
+
+    if ((i32Ret1 == 0) && (i32Ret2 == 0))
+        printf("SLAVE Address test OK.\n");
     /* Master Access Slave with address mask */
     printf("\n");
     printf(" == Mask Address ==\n");
-    Read_Write_SLAVE(0x116 & ~0x04);
-    Read_Write_SLAVE(0x136 & ~0x02);
-    printf("SLAVE Address Mask test OK.\n");
+    if (0 > (i32Ret1 = Read_Write_SLAVE(0x116 & ~0x04)))
+        printf("SLAVE Address Mask(0x112) test FAIL.\n");
+
+    if (0 > (i32Ret2 = Read_Write_SLAVE(0x136 & ~0x02)))
+        printf("SLAVE Address Mask(0x134) test FAIL.\n");    
+
+    if ((i32Ret1 == 0) && (i32Ret2 == 0))
+        printf("SLAVE Address Mask test OK.\n");
 
     while(1);
 }

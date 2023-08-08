@@ -256,8 +256,8 @@ void UI2C0_Init(uint32_t u32ClkSpeed)
 
 
     /* Set UI2C0 Slave Addresses */
-    UI2C0->DEVADDR0 = 0x15;   /* Slave Address : 0x15 */
-    UI2C0->DEVADDR1 = 0x35;   /* Slave Address : 0x35 */
+    UI2C0->DEVADDR0 = 0x16;   /* Slave Address : 0x16 */
+    UI2C0->DEVADDR1 = 0x36;   /* Slave Address : 0x36 */
 
     /* Set UI2C0 Slave Addresses Msk */
     UI2C0->ADDRMSK0 = 0x1;   /* Slave Address : 0x1 */
@@ -350,6 +350,8 @@ int32_t Read_Write_SLAVE(uint8_t slvaddr)
 /*---------------------------------------------------------------------------------------------------------*/
 int main()
 {
+    int32_t i32Ret1, i32Ret2;
+
     /* Unlock protected registers */
     SYS_UnlockReg();
 
@@ -381,19 +383,32 @@ int main()
     /* Init USCI_I2C0 */
     UI2C0_Init(100000);
 
+    printf("Press any key to continue\n");
+    getchar();
+
     /* Master Access Slave with no address mask */
     printf("\n");
     printf(" == No Mask Address ==\n");
-    Read_Write_SLAVE(0x15);
-    Read_Write_SLAVE(0x35);
-    printf("SLAVE Address test OK.\n");
+    if (0 > (i32Ret1 = Read_Write_SLAVE(0x15)))
+        printf("SLAVE Address(0x15) test FAIL.\n");
+        
+    if (0 > (i32Ret2 = Read_Write_SLAVE(0x35)))
+        printf("SLAVE Address(0x35) test FAIL.\n");
+
+    if ((i32Ret1 == 0) && (i32Ret2 == 0))
+        printf("SLAVE Address test OK.\n");
 
     /* Access Slave with address mask */
     printf("\n");
     printf(" == Mask Address ==\n");
-    Read_Write_SLAVE(0x15 & ~0x01);
-    Read_Write_SLAVE(0x35 & ~0x04);
-    printf("SLAVE Address Mask test OK.\n");
+    if (0 > (i32Ret1 = Read_Write_SLAVE(0x15 & ~0x01)))
+        printf("SLAVE Address Mask(0x14) test FAIL.\n");
+
+    if (0 > (i32Ret2 = Read_Write_SLAVE(0x35 & ~0x04)))
+        printf("SLAVE Address Mask(0x31) test FAIL.\n");    
+
+    if ((i32Ret1 == 0) && (i32Ret2 == 0))
+        printf("SLAVE Address Mask test OK.\n");
 
     while(1);
 }

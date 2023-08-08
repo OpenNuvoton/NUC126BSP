@@ -18,16 +18,15 @@
 /*---------------------------------------------------------------------------------------------------------*/
 /* Global variables                                                                                        */
 /*---------------------------------------------------------------------------------------------------------*/
+uint8_t g_au8MstTxData[3];
 volatile uint8_t g_u8DeviceHAddr;
 volatile uint8_t g_u8DeviceLAddr;
-volatile uint8_t g_u8DeviceAddr;
-volatile uint8_t g_au8MstTxData[3];
 volatile uint8_t g_u8MstRxData;
 volatile uint8_t g_u8MstEndFlag = 0;
 volatile uint8_t g_u8MstDataLen;
 
+volatile enum UI2C_MASTER_EVENT m_Event;
 
-enum UI2C_MASTER_EVENT m_Event;
 typedef void (*UI2C_FUNC)(uint32_t u32Status);
 
 static UI2C_FUNC s_UI2C0HandlerFn = NULL;
@@ -130,6 +129,12 @@ void UI2C_MasterRx(uint32_t u32Status)
             /* TO DO */
             printf("Status 0x%x is NOT processed\n", u32Status);
     }
+    else if((u32Status & UI2C_PROTSTS_STORIF_Msk) == UI2C_PROTSTS_STORIF_Msk)
+    {
+        UI2C_CLR_PROT_INT_FLAG(UI2C0, UI2C_PROTSTS_STORIF_Msk);  /* Clear STOP INT Flag */
+        UI2C_SET_CONTROL_REG(UI2C0, UI2C_CTL_PTRG);
+        g_u8MstEndFlag = 1;
+    }
 }
 
 /*---------------------------------------------------------------------------------------------------------*/
@@ -170,7 +175,7 @@ void UI2C_MasterTx(uint32_t u32Status)
         }
         else if(m_Event == MASTER_SEND_DATA)
         {
-            if(g_u8MstDataLen != 3)
+            if(g_u8MstDataLen != 4)
             {
                 UI2C_SET_DATA(UI2C0, g_au8MstTxData[g_u8MstDataLen++]);  /* ADDRESS has been transmitted and write DATA to Register TXDAT */
                 UI2C_SET_CONTROL_REG(UI2C0, UI2C_CTL_PTRG);
@@ -208,6 +213,12 @@ void UI2C_MasterTx(uint32_t u32Status)
         }
         else
             printf("Get Wrong NACK Event\n");
+    }
+    else if((u32Status & UI2C_PROTSTS_STORIF_Msk) == UI2C_PROTSTS_STORIF_Msk)
+    {
+        UI2C_CLR_PROT_INT_FLAG(UI2C0, UI2C_PROTSTS_STORIF_Msk);  /* Clear STOP INT Flag */
+        UI2C_SET_CONTROL_REG(UI2C0, UI2C_CTL_PTRG);
+        g_u8MstEndFlag = 1;
     }
 }
 
@@ -325,7 +336,6 @@ int32_t Read_Write_SLAVE(uint16_t slvaddr)
         s_UI2C0HandlerFn = (UI2C_FUNC)UI2C_MasterRx;
 
         g_u8MstDataLen = 0;
-        g_u8DeviceAddr = slvaddr;
 
         m_Event = MASTER_SEND_START;
         UI2C_SET_CONTROL_REG(UI2C0, UI2C_CTL_STA);
@@ -358,6 +368,8 @@ int32_t Read_Write_SLAVE(uint16_t slvaddr)
 /*---------------------------------------------------------------------------------------------------------*/
 int main()
 {
+    int32_t i32Ret1, i32Ret2;
+
     /* Unlock protected registers */
     SYS_UnlockReg();
 
@@ -377,15 +389,14 @@ int main()
 
     printf("+-------------------------------------------------------+\n");
     printf("|  USCI_I2C Driver Sample Code for Master access        |\n");
-    printf("|  10-bit address Slave (Loopback)                      |\n");
-    printf("|  UI2C0(Master)  <----> UI2C1(Slave)                   |\n");
+    printf("|  10-bit address Slave                                 |\n");
+    printf("|  UI2C0(Master)  <----> UI2C0(Slave)                   |\n");
     printf("+-------------------------------------------------------+\n");
 
     printf("\n");
     printf("Configure UI2C0 as a master, UI2C1 as Slave.\n");
     printf("The I/O connection for UI2C0:\n");
     printf("UI2C0_SDA(PC.5), UI2C0_SCL(PC.4)\n");
-    printf("UI2C1_SDA(PD.14), UI2C1_SCL(PD.15)\n");
 
     /* Init USCI_I2C0 bus baud rate */
     UI2C0_Init(100000);
@@ -393,15 +404,25 @@ int main()
     /* Master Access Slave with no address mask */
     printf("\n");
     printf(" == No Mask Address ==\n");
-    Read_Write_SLAVE(0x116);
-    Read_Write_SLAVE(0x136);
-    printf("SLAVE Address test OK.\n");
+    if (0 > (i32Ret1 = Read_Write_SLAVE(0x116)))
+        printf("SLAVE Address(0x116) test FAIL.\n");
+        
+    if (0 > (i32Ret2 = Read_Write_SLAVE(0x136)))
+        printf("SLAVE Address(0x136) test FAIL.\n");
+
+    if ((i32Ret1 == 0) && (i32Ret2 == 0))
+        printf("SLAVE Address test OK.\n");
     /* Master Access Slave with address mask */
     printf("\n");
     printf(" == Mask Address ==\n");
-    Read_Write_SLAVE(0x116 & ~0x04);
-    Read_Write_SLAVE(0x136 & ~0x02);
-    printf("SLAVE Address Mask test OK.\n");
+    if (0 > (i32Ret1 = Read_Write_SLAVE(0x116 & ~0x04)))
+        printf("SLAVE Address Mask(0x112) test FAIL.\n");
+
+    if (0 > (i32Ret2 = Read_Write_SLAVE(0x136 & ~0x02)))
+        printf("SLAVE Address Mask(0x134) test FAIL.\n");    
+
+    if ((i32Ret1 == 0) && (i32Ret2 == 0))
+        printf("SLAVE Address Mask test OK.\n");
 
     while(1);
 }
