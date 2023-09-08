@@ -6,10 +6,10 @@
  * @brief    NUC126 series USCI I2C(UI2C) driver header file
  *
  * @note
- * SPDX-License-Identifier: Apache-2.0
  *
- * Copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
+ * @copyright SPDX-License-Identifier: Apache-2.0
  *
+ * @copyright Copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
  ******************************************************************************/
 #ifndef __USCI_I2C_H__
 #define __USCI_I2C_H__

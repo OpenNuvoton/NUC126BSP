@@ -5,7 +5,8 @@
  * $Date: 17/05/04 1:21p $
  * @brief    Show how to use the timer2 capture function to capture timer2 counter value.
  * @note
- * Copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
+ * @copyright SPDX-License-Identifier: Apache-2.0
+ * @copyright Copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
  ******************************************************************************/
 #include <stdio.h>
 #include "NUC126.h"

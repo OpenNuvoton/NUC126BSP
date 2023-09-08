@@ -6,9 +6,9 @@
  * @brief    NUC126 series Cyclic Redundancy Check(CRC) driver header file
  *
  * @note
- * SPDX-License-Identifier: Apache-2.0
  *
- * Copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
+ * @copyright SPDX-License-Identifier: Apache-2.0
+ * @copyright Copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
  *****************************************************************************/
 #ifndef __CRC_H__
 #define __CRC_H__

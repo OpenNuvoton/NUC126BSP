@@ -5,7 +5,8 @@
  * $Date: 17/05/04 1:54p $
  * @brief    Read the SIM phone book from SC0 port.
  * @note
- * Copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
+ * @copyright SPDX-License-Identifier: Apache-2.0
+ * @copyright Copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
  ******************************************************************************/
 #include <stdio.h>
 #include "NUC126.h"

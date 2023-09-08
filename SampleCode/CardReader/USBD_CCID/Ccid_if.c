@@ -5,7 +5,8 @@
  * $Date: 16/10/25 4:25p $
  * @brief    NUC126 USBD CCID interface file
  * @note
- * Copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
+ * @copyright SPDX-License-Identifier: Apache-2.0
+ * @copyright Copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
  ******************************************************************************/
 #include <string.h>
 #include "NUC126.h"

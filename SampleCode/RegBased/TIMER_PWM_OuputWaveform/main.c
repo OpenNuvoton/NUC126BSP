@@ -5,7 +5,8 @@
  * $Date: 17/05/04 1:23p $
  * @brief    Demonstrate output different duty waveform in Timer0~Timer3 PWM.
  * @note
- * Copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
+ * @copyright SPDX-License-Identifier: Apache-2.0
+ * @copyright Copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
  ******************************************************************************/
 #include <stdio.h>
 #include "NUC126.h"

@@ -6,10 +6,10 @@
  * @brief    NUC126 Series System Setting Source File
  *
  * @note
- * SPDX-License-Identifier: Apache-2.0
  *
- * Copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
+ * @copyright SPDX-License-Identifier: Apache-2.0
  *
+ * @copyright Copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
  ******************************************************************************/
 #include <stdio.h>
 #include <stdint.h>

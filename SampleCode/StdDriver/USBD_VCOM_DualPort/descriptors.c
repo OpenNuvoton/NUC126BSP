@@ -3,7 +3,8 @@
  * @brief    USBD descriptors
  *
  * @note
- * Copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
+ * @copyright SPDX-License-Identifier: Apache-2.0
+ * @copyright Copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
  ******************************************************************************/
 
 /*!<Includes */

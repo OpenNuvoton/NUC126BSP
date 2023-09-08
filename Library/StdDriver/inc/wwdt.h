@@ -6,9 +6,9 @@
  * @brief    NUC126 series Window Watchdog Timet(WWDT) driver header file
  *
  * @note
- * SPDX-License-Identifier: Apache-2.0
  *
- * Copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
+ * @copyright SPDX-License-Identifier: Apache-2.0
+ * @copyright Copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
  *****************************************************************************/
 #ifndef __WWDT_H__
 #define __WWDT_H__

@@ -5,8 +5,9 @@
  * $Date: 16/10/25 4:29p $
  * @brief    Demonstrate how to use PWM counter output waveform.
  * @note
- * Copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
+ * @copyright SPDX-License-Identifier: Apache-2.0
  *
+ * @copyright Copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
  ******************************************************************************/
 #include <stdio.h>
 #include "NUC126.h"

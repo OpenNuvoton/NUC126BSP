@@ -6,7 +6,8 @@
  * @brief    USBD CCID smartcard interface control header
  *
  * @note
- * Copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
+ * @copyright SPDX-License-Identifier: Apache-2.0
+ * @copyright Copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
  *****************************************************************************/
 #ifndef __SC_INTF_H__
 #define __SC_INTF_H__

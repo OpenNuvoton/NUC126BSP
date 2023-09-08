@@ -6,10 +6,10 @@
  * @brief    NUC126 series General Purpose I/O (GPIO) driver header file
  *
  * @note
- * SPDX-License-Identifier: Apache-2.0
  *
- * Copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
+ * @copyright SPDX-License-Identifier: Apache-2.0
  *
+ * @copyright Copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
  ******************************************************************************/
 #ifndef __GPIO_H__
 #define __GPIO_H__

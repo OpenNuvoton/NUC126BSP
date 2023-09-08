@@ -4,7 +4,8 @@
  * @version  1.0.0
  *
  * @note
- * Copyright (C) 2019 Nuvoton Technology Corp. All rights reserved.
+ * @copyright SPDX-License-Identifier: Apache-2.0
+ * @copyright Copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
  ******************************************************************************/
 #ifndef __UART_TRANS_H__
 #define __UART_TRANS_H__

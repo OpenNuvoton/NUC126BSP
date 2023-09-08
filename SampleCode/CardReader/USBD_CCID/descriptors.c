@@ -5,7 +5,8 @@
  * $Date: 16/10/25 4:25p $
  * @brief    NUC126 USBD CCID sample descriptors file
  * @note
- * Copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
+ * @copyright SPDX-License-Identifier: Apache-2.0
+ * @copyright Copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
  ******************************************************************************/
 #include "NUC126.h"
 #include "ccid.h"

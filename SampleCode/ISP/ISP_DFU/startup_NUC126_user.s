@@ -4,8 +4,9 @@
 ; * @brief    NUC126 Series Startup Source File
 ; *
 ; * @note
-; * Copyright (C) 2019 Nuvoton Technology Corp. All rights reserved.
+; * @copyright SPDX-License-Identifier: Apache-2.0
 ; *
+; * @copyright Copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
 ; ******************************************************************************/
     IF :LNOT: :DEF: Stack_Size
 Stack_Size      EQU     0x00000400

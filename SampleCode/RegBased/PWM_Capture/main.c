@@ -5,8 +5,9 @@
  * $Date: 16/10/25 4:27p $
  * @brief    Capture the PWM1 Channel 0 waveform by PWM1 Channel 2.
  * @note
- * Copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
+ * @copyright SPDX-License-Identifier: Apache-2.0
  *
+ * @copyright Copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
  ******************************************************************************/
 #include <stdio.h>
 #include "NUC126.h"

@@ -6,10 +6,10 @@
  * @brief    NUC126 Series System Setting Header File
  *
  * @note
- * SPDX-License-Identifier: Apache-2.0
  *
- * Copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
+ * @copyright SPDX-License-Identifier: Apache-2.0
  *
+ * @copyright Copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
  ******************************************************************************/
 #ifndef __SYSTEM_NUC126_H__
 #define __SYSTEM_NUC126_H__
@@ -100,4 +100,3 @@ extern void SystemCoreClockUpdate(void);
 
 #endif
 
-/* Copyright (C) 2014 Nuvoton Technology Corp. All rights reserved. */
