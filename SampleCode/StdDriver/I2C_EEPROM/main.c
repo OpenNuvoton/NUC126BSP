@@ -26,7 +26,18 @@ volatile uint8_t g_u8EndFlag = 0;
 
 typedef void (*I2C_FUNC)(uint32_t u32Status);
 
-static I2C_FUNC s_I2C0HandlerFn = NULL;
+static volatile I2C_FUNC s_I2C0HandlerFn = NULL;
+
+/*---------------------------------------------------------------------------------------------------------*/
+/* Function prototype declaration                                                                          */
+/*---------------------------------------------------------------------------------------------------------*/
+void I2C0_IRQHandler(void);
+void I2C_MasterRx(uint32_t);
+void I2C_MasterTx(uint32_t);
+void SYS_Init(void);
+void UART0_Init(void);
+void I2C0_Close(void);
+void I2C0_Init(void);
 
 /*---------------------------------------------------------------------------------------------------------*/
 /*  I2C0 IRQ Handler                                                                                       */

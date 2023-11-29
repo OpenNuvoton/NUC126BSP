@@ -30,7 +30,7 @@ volatile enum UI2C_MASTER_EVENT m_Event;
 
 typedef void (*UI2C_FUNC)(uint32_t u32Status);
 
-static UI2C_FUNC s_UI2C0HandlerFn = NULL;
+static volatile UI2C_FUNC s_UI2C0HandlerFn = NULL;
 /*---------------------------------------------------------------------------------------------------------*/
 /*  USCI_I2C IRQ Handler                                                                                   */
 /*---------------------------------------------------------------------------------------------------------*/
@@ -53,6 +53,12 @@ void UI2C_MasterRx(uint32_t u32Status)
     {
         /* Clear USCI_I2C0 Timeout Flag */
         UI2C_CLR_PROT_INT_FLAG(UI2C0, UI2C_PROTSTS_TOIF_Msk);
+    }
+    else if ((u32Status & UI2C_PROTSTS_ARBLOIF_Msk) == UI2C_PROTSTS_ARBLOIF_Msk)
+    {
+        UI2C_CLR_PROT_INT_FLAG(UI2C0, UI2C_PROTSTS_ARBLOIF_Msk); /* Clear ARBLO INT Flag */
+        m_Event = MASTER_STOP;
+        UI2C_SET_CONTROL_REG(UI2C0, (UI2C_CTL_PTRG | UI2C_CTL_STO)); /* Send STOP signal */
     }
     else if((u32Status & UI2C_PROTSTS_STARIF_Msk) == UI2C_PROTSTS_STARIF_Msk)
     {
@@ -126,6 +132,11 @@ void UI2C_MasterRx(uint32_t u32Status)
             m_Event = MASTER_STOP;
             UI2C_SET_CONTROL_REG(UI2C0, (UI2C_CTL_PTRG | UI2C_CTL_STO));    /* DATA has been received and send STOP signal */
         }
+        else if (m_Event == MASTER_STOP)
+        {
+            /* ARBLOIF has been triggered and NACK has been received */
+            UI2C_SET_CONTROL_REG(UI2C0, (UI2C_CTL_PTRG | UI2C_CTL_STO));    /* Send STOP signal */
+        }
         else
             /* TO DO */
             printf("Status 0x%x is NOT processed\n", u32Status);
@@ -147,6 +158,12 @@ void UI2C_MasterTx(uint32_t u32Status)
     {
         /* Clear USCI_I2C0 Timeout Flag */
         UI2C_CLR_PROT_INT_FLAG(UI2C0, UI2C_PROTSTS_TOIF_Msk);
+    }
+    else if((u32Status & UI2C_PROTSTS_ARBLOIF_Msk) == UI2C_PROTSTS_ARBLOIF_Msk)
+    {
+        UI2C_CLR_PROT_INT_FLAG(UI2C0, UI2C_PROTSTS_ARBLOIF_Msk); /* Clear ARBLO INT Flag */
+        m_Event = MASTER_STOP;
+        UI2C_SET_CONTROL_REG(UI2C0, (UI2C_CTL_PTRG | UI2C_CTL_STO)); /* Send STOP signal */
     }
     else if((u32Status & UI2C_PROTSTS_STARIF_Msk) == UI2C_PROTSTS_STARIF_Msk)
     {
@@ -210,6 +227,11 @@ void UI2C_MasterTx(uint32_t u32Status)
         {
             /* ADDRESS has been transmitted and NACK has been received */
             m_Event = MASTER_STOP;
+            UI2C_SET_CONTROL_REG(UI2C0, (UI2C_CTL_PTRG | UI2C_CTL_STO));            /* Send STOP signal */
+        }
+        else if (m_Event == MASTER_STOP)
+        {
+            /* ARBLOIF has been triggered and NACK has been received */
             UI2C_SET_CONTROL_REG(UI2C0, (UI2C_CTL_PTRG | UI2C_CTL_STO));            /* Send STOP signal */
         }
         else

@@ -36,8 +36,8 @@ enum UI2C_SLAVE_EVENT s_Event;
 
 typedef void (*UI2C_FUNC)(uint32_t u32Status);
 
-static UI2C_FUNC s_UI2C0HandlerFn = NULL;
-static UI2C_FUNC s_UI2C1HandlerFn = NULL;
+static volatile UI2C_FUNC s_UI2C0HandlerFn = NULL;
+static volatile UI2C_FUNC s_UI2C1HandlerFn = NULL;
 /*---------------------------------------------------------------------------------------------------------*/
 /*  USCI_I2C IRQ Handler                                                                                   */
 /*---------------------------------------------------------------------------------------------------------*/
