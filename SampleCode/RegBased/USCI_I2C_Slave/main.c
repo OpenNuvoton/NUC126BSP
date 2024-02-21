@@ -47,6 +47,8 @@ void USCI_IRQHandler(void)
 /*---------------------------------------------------------------------------------------------------------*/
 void UI2C_LB_SlaveTRx(uint32_t u32Status)
 {
+    uint32_t temp;
+
     if((u32Status & UI2C_PROTSTS_STARIF_Msk) == UI2C_PROTSTS_STARIF_Msk)
     {
         /* Clear START INT Flag */
@@ -96,17 +98,30 @@ void UI2C_LB_SlaveTRx(uint32_t u32Status)
         }
         else if(s_Event == SLAVE_GET_DATA)
         {
-            g_au8RxData[g_u8DataLenS] = (unsigned char)(UI2C0->RXDAT);
-            g_u8DataLenS++;
-
-            if(g_u8DataLenS == 2)
+            temp = (unsigned char)(UI2C0->RXDAT);
+            if(g_u8DataLenS < 2)
             {
+                /* Address has been received; ACK has been returned*/
+                g_au8RxData[g_u8DataLenS++] = temp;
                 slave_buff_addr = (g_au8RxData[0] << 8) + g_au8RxData[1];
             }
-            if(g_u8DataLenS == 3)
+            else
             {
-                g_u8SlvData[slave_buff_addr] = g_au8RxData[2];
-                g_u8DataLenS = 0;
+                g_u8SlvData[slave_buff_addr++] = temp;
+                if (slave_buff_addr == 256)
+                {
+                    slave_buff_addr = 0;
+                }
+            }
+        }
+        else if(s_Event == SLAVE_SEND_DATA)
+        {
+            /* Write transmit data to USCI I2C TXDAT*/
+            UI2C0->TXDAT = g_u8SlvData[slave_buff_addr++];
+
+            if(slave_buff_addr == 256)
+            {
+                slave_buff_addr = 0;
             }
         }
 
