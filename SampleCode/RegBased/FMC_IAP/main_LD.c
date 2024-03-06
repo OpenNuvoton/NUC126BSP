@@ -28,16 +28,18 @@ int32_t IAP_Func1(int32_t n);
 int32_t IAP_Func2(int32_t n);
 int32_t IAP_Func3(int32_t n);
 
+#define SIG_KEY             0xdeadfeedul  /* The sign key is used to located function table */
+
 #if defined ( __ICCARM__ )
 # pragma location = "FunTblSection" /* The location of FunTblSection is defined in FMC_IAP_LD.icf file. */
-__root const uint32_t g_funcTable[4] =
+__root const uint32_t g_funcTable[] =
 {
-    (uint32_t)IAP_Func0, (uint32_t)IAP_Func1, (uint32_t)IAP_Func2, (uint32_t)IAP_Func3
+    (uint32_t)IAP_Func0, (uint32_t)IAP_Func1, (uint32_t)IAP_Func2, (uint32_t)IAP_Func3,SIG_KEY
 } ;
 #else
-__attribute__((at(FUN_TBL_BASE))) const uint32_t g_funcTable[4] =
+const uint32_t g_funcTable[] =
 {
-    (uint32_t)IAP_Func0, (uint32_t)IAP_Func1, (uint32_t)IAP_Func2, (uint32_t)IAP_Func3
+    (uint32_t)IAP_Func0, (uint32_t)IAP_Func1, (uint32_t)IAP_Func2, (uint32_t)IAP_Func3, SIG_KEY
 };
 #endif
 
