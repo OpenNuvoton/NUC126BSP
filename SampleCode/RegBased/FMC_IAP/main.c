@@ -26,7 +26,8 @@ extern uint32_t loaderImageLimit;
 
 uint32_t g_u32ImageSize;
 
-uint32_t *g_au32funcTable = (uint32_t *)0x100e00; /* The location of function table */
+uint32_t *g_au32funcTable;          /* The location of function table */
+#define SIG_KEY     0xdeadfeedul    /* key for function table location */
 
 int32_t g_FMC_i32ErrCode;
 
@@ -163,6 +164,21 @@ void FMC_LDROM_Test(void)
     }
 }
 
+uint32_t GetFuncTable(void)
+{
+    uint32_t u32Addr;
+    
+    for(u32Addr = 0x100000;u32Addr < 0x101000;u32Addr += 4)
+    {
+        if(M32(u32Addr) == SIG_KEY)
+            return (u32Addr - 16);
+    }
+    
+    return 0;
+
+}
+
+
 /*---------------------------------------------------------------------------------------------------------*/
 /*  Main Function                                                                                          */
 /*---------------------------------------------------------------------------------------------------------*/
@@ -252,7 +268,15 @@ int32_t main(void)
         /* Erase LDROM, program LD sample code to LDROM, and verify LD sample code */
         FMC_LDROM_Test();
     }
-
+    
+    /* Get function table */
+    g_au32funcTable = (uint32_t *) GetFuncTable();
+    if(g_au32funcTable == 0)
+    {
+        printf("Fail to locate LDROM functions\n");
+        goto lexit;
+    }
+        
     for(i = 0; i < 4; i++)
     {
         /* Call the function of LDROM */
