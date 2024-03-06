@@ -61,7 +61,6 @@ extern "C"
 #define ACMP_CTL_NEGSEL_PIN          (0UL << 4)  /*!< ACMP_CTL setting for selecting the voltage of ACMP negative input pin as the source of ACMP V-. */
 #define ACMP_CTL_NEGSEL_CRV          (1UL << 4)  /*!< ACMP_CTL setting for selecting internal comparator reference voltage as the source of ACMP V-. */
 #define ACMP_CTL_NEGSEL_VBG          (2UL << 4)  /*!< ACMP_CTL setting for selecting internal Band-gap voltage as the source of ACMP V-. */
-#define ACMP_CTL_NEGSEL_DAC          (3UL << 4)  /*!< ACMP_CTL setting for selecting DAC output voltage as the source of ACMP V-. */
 #define ACMP_CTL_HYSTERESIS_ENABLE   (1UL << 2)  /*!< ACMP_CTL setting for enabling the hysteresis function. */
 #define ACMP_CTL_HYSTERESIS_DISABLE  (0UL << 2)  /*!< ACMP_CTL setting for disabling the hysteresis function. */
 
@@ -110,7 +109,6 @@ extern "C"
   *                  - \ref ACMP_CTL_NEGSEL_PIN
   *                  - \ref ACMP_CTL_NEGSEL_CRV
   *                  - \ref ACMP_CTL_NEGSEL_VBG
-  *                  - \ref ACMP_CTL_NEGSEL_DAC
   * @return None
   * @details This macro will set NEGSEL (ACMP_CTL[5:4]) to determine the source of negative input.
   */

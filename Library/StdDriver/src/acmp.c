@@ -41,7 +41,6 @@ extern "C"
   *                  - \ref ACMP_CTL_NEGSEL_PIN
   *                  - \ref ACMP_CTL_NEGSEL_CRV
   *                  - \ref ACMP_CTL_NEGSEL_VBG
-  *                  - \ref ACMP_CTL_NEGSEL_DAC
   * @param[in]  u32HysteresisEn The hysteresis function option. Including:
   *                  - \ref ACMP_CTL_HYSTERESIS_ENABLE
   *                  - \ref ACMP_CTL_HYSTERESIS_DISABLE
