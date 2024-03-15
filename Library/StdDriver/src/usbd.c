@@ -89,11 +89,7 @@ void USBD_Open(const S_USBD_INFO_T *param, CLASS_REQ pfnClassReq, SET_INTERFACE_
     g_usbd_CtrlMaxPktSize = g_usbd_sInfo->gu8DevDesc[7];
 
     /* Initial USB engine */
-#ifdef SUPPORT_LPM
-    USBD->ATTR = 0x7D0 | USBD_LPMACK;
-#else
     USBD->ATTR = 0x7D0;
-#endif
 
     /* Force SE0 */
     USBD_SET_SE0();
@@ -296,23 +292,6 @@ void USBD_GetDescriptor(void)
                 break;
             }
         }
-
-#ifdef SUPPORT_LPM
-        case DESC_BOS:
-        {
-            uint32_t u32TotalLen;
-
-            u32TotalLen = g_usbd_sInfo->gu8BosDesc[3];
-            u32TotalLen = g_usbd_sInfo->gu8BosDesc[2] + (u32TotalLen << 8);
-
-            DBG_PRINTF("Get BOS desc len %d, acture len %d\n", u32Len, u32TotalLen);
-            u32Len = Minimum(u32Len, u32TotalLen);
-            DBG_PRINTF("Minimum len %d\n", u32Len);
-
-            USBD_PrepareCtrlIn((uint8_t *)g_usbd_sInfo->gu8BosDesc, u32Len);
-            break;
-        }
-#endif
 
         default:
             // Not support. Reply STALL.
