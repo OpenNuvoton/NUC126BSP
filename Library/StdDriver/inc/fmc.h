@@ -800,6 +800,8 @@ void FMC_EnableConfigUpdate(void);
 void FMC_DisableConfigUpdate(void);
 void FMC_EnableLDUpdate(void);
 void FMC_DisableLDUpdate(void);
+void FMC_EnableSPUpdate(void);
+void FMC_DisableSPUpdate(void);
 int32_t FMC_ReadConfig(uint32_t *u32Config, uint32_t u32Count);
 int32_t FMC_WriteConfig(uint32_t *u32Config, uint32_t u32Count);
 void FMC_SetBootSource(int32_t i32BootSrc);
