@@ -114,6 +114,21 @@ void FMC_DisableLDUpdate(void)
     FMC->ISPCTL &= ~FMC_ISPCTL_LDUEN_Msk;
 }
 
+/**
+  * @brief    Disable SPROM update function
+  *
+  * @param    None
+  *
+  * @return   None
+  *
+  * @details  Disable SPROM update function will forbid SPROM programming.
+  *           SPROM update is default to be disable.
+  */
+void FMC_DisableSPUpdate(void)
+{
+    FMC->ISPCTL &= ~FMC_ISPCTL_SPUEN_Msk;
+}
+
 
 /**
   * @brief    Enable APROM update function
@@ -162,6 +177,20 @@ void FMC_EnableLDUpdate(void)
     FMC->ISPCTL |= FMC_ISPCTL_LDUEN_Msk;
 }
 
+/**
+  * @brief    Enable SPROM update function
+  *
+  * @param    None
+  *
+  * @return   None
+  *
+  * @details  Enable SPROM to be able to program.
+  *
+  */
+void FMC_EnableSPUpdate(void)
+{
+    FMC->ISPCTL |= FMC_ISPCTL_SPUEN_Msk;
+}
 
 /**
   * @brief    Get the current boot source
