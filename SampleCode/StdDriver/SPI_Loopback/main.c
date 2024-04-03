@@ -10,11 +10,14 @@
 #include <stdio.h>
 #include "NUC126.h"
 
-//*** <<< Use Configuration Wizard in Context Menu >>> ***
+// *** <<< Use Configuration Wizard in Context Menu >>> ***
 // <c> Two SPI port loopback transfer
 //#define TwoPortLoopback
 // </c>
-//*** <<< end of configuration section >>> ***
+// <o> GPIO Slew Rate Control
+// <0=> Basic <1=> Higher
+#define SlewRateMode        0
+// *** <<< end of configuration section >>> ***
 
 #define PLL_CLOCK           72000000
 
@@ -254,11 +257,27 @@ void SYS_Init(void)
     /* Setup SPI0 multi-function pins */
     SYS->GPB_MFPL &= ~(SYS_GPB_MFPL_PB4MFP_Msk | SYS_GPB_MFPL_PB5MFP_Msk | SYS_GPB_MFPL_PB6MFP_Msk | SYS_GPB_MFPL_PB7MFP_Msk);
     SYS->GPB_MFPL |= (SYS_GPB_MFPL_PB4MFP_SPI0_SS | SYS_GPB_MFPL_PB5MFP_SPI0_MOSI | SYS_GPB_MFPL_PB6MFP_SPI0_MISO | SYS_GPB_MFPL_PB7MFP_SPI0_CLK);
+
+#if (SlewRateMode == 0)
+    /* Enable SPI0 I/O basic slew rate */
+    PB->SLEWCTL &= ~(GPIO_SLEWCTL_HSREN4_Msk | GPIO_SLEWCTL_HSREN5_Msk | GPIO_SLEWCTL_HSREN6_Msk | GPIO_SLEWCTL_HSREN7_Msk);
+#elif (SlewRateMode == 1)
+    /* Enable SPI0 I/O higher slew rate */
+    PB->SLEWCTL |= (GPIO_SLEWCTL_HSREN4_Msk | GPIO_SLEWCTL_HSREN5_Msk | GPIO_SLEWCTL_HSREN6_Msk | GPIO_SLEWCTL_HSREN7_Msk);
+#endif
 #endif
 
     /* Setup SPI1 multi-function pins */
     SYS->GPA_MFPL &= ~(SYS_GPA_MFPL_PA4MFP_Msk | SYS_GPA_MFPL_PA5MFP_Msk | SYS_GPA_MFPL_PA6MFP_Msk | SYS_GPA_MFPL_PA7MFP_Msk);
     SYS->GPA_MFPL |= (SYS_GPA_MFPL_PA4MFP_SPI1_SS | SYS_GPA_MFPL_PA5MFP_SPI1_MOSI | SYS_GPA_MFPL_PA6MFP_SPI1_MISO | SYS_GPA_MFPL_PA7MFP_SPI1_CLK);
+
+#if (SlewRateMode == 0)
+    /* Enable SPI1 I/O basic slew rate */
+    PA->SLEWCTL &= ~(GPIO_SLEWCTL_HSREN4_Msk | GPIO_SLEWCTL_HSREN5_Msk | GPIO_SLEWCTL_HSREN6_Msk | GPIO_SLEWCTL_HSREN7_Msk);
+#elif (SlewRateMode == 1)
+    /* Enable SPI1 I/O higher slew rate */
+    PA->SLEWCTL |= (GPIO_SLEWCTL_HSREN4_Msk | GPIO_SLEWCTL_HSREN5_Msk | GPIO_SLEWCTL_HSREN6_Msk | GPIO_SLEWCTL_HSREN7_Msk);
+#endif
 
     /* Update System Core Clock */
     /* User can use SystemCoreClockUpdate() to calculate SystemCoreClock and CyclesPerUs automatically. */

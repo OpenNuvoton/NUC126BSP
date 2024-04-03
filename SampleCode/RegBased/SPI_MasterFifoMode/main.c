@@ -1,22 +1,23 @@
 /**************************************************************************//**
  * @file     main.c
- * @version  V3.0
- * $Revision: 3 $
- * $Date: 17/05/04 1:48p $
+ * @version  V3.00
  * @brief    Configure SPI0 as Master mode and demonstrate how to communicate
  *           with an off-chip SPI Slave device with FIFO mode. This sample
  *           code needs to work with SPI_SlaveFifoMode sample code.
  *
- * @note
  * @copyright SPDX-License-Identifier: Apache-2.0
- *
  * @copyright Copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
  ******************************************************************************/
 #include <stdio.h>
 #include "NUC126.h"
 
+// *** <<< Use Configuration Wizard in Context Menu >>> ***
+// <o> GPIO Slew Rate Control
+// <0=> Basic <1=> Higher
+#define SlewRateMode    0
+// *** <<< end of configuration section >>> ***
 
-#define TEST_COUNT 16
+#define TEST_COUNT      16
 
 uint32_t g_au32SourceData[TEST_COUNT];
 uint32_t g_au32DestinationData[TEST_COUNT];
@@ -50,7 +51,7 @@ int main(void)
 
     printf("\n\n");
     printf("+----------------------------------------------------------------------+\n");
-    printf("|                      SPI Master Mode Sample Code                     |\n");
+    printf("|                     SPI Master Mode Sample Code                      |\n");
     printf("+----------------------------------------------------------------------+\n");
     printf("\n");
     printf("Configure SPI0 as a master.\n");
@@ -107,6 +108,7 @@ void SYS_Init(void)
     /*---------------------------------------------------------------------------------------------------------*/
     /* Init System Clock                                                                                       */
     /*---------------------------------------------------------------------------------------------------------*/
+
     /* Enable external 12MHz XTAL */
     CLK->PWRCTL |= CLK_PWRCTL_HXTEN_Msk;
 
@@ -131,13 +133,22 @@ void SYS_Init(void)
     /*---------------------------------------------------------------------------------------------------------*/
     /* Init I/O Multi-function                                                                                 */
     /*---------------------------------------------------------------------------------------------------------*/
+
     /* Set PD multi-function pins for UART0 RXD and TXD */
     SYS->GPD_MFPL &= ~(SYS_GPD_MFPL_PD0MFP_Msk | SYS_GPD_MFPL_PD1MFP_Msk);
     SYS->GPD_MFPL |= (SYS_GPD_MFPL_PD0MFP_UART0_RXD | SYS_GPD_MFPL_PD1MFP_UART0_TXD);
 
     /* Setup SPI0 multi-function pins */
     SYS->GPB_MFPL &= ~(SYS_GPB_MFPL_PB4MFP_Msk | SYS_GPB_MFPL_PB5MFP_Msk | SYS_GPB_MFPL_PB6MFP_Msk | SYS_GPB_MFPL_PB7MFP_Msk);
-    SYS->GPB_MFPL |= SYS_GPB_MFPL_PB4MFP_SPI0_SS | SYS_GPB_MFPL_PB5MFP_SPI0_MOSI | SYS_GPB_MFPL_PB6MFP_SPI0_MISO | SYS_GPB_MFPL_PB7MFP_SPI0_CLK;
+    SYS->GPB_MFPL |= (SYS_GPB_MFPL_PB4MFP_SPI0_SS | SYS_GPB_MFPL_PB5MFP_SPI0_MOSI | SYS_GPB_MFPL_PB6MFP_SPI0_MISO | SYS_GPB_MFPL_PB7MFP_SPI0_CLK);
+
+#if (SlewRateMode == 0)
+    /* Enable SPI0 I/O basic slew rate */
+    PB->SLEWCTL &= ~(GPIO_SLEWCTL_HSREN4_Msk | GPIO_SLEWCTL_HSREN5_Msk | GPIO_SLEWCTL_HSREN6_Msk | GPIO_SLEWCTL_HSREN7_Msk);
+#elif (SlewRateMode == 1)
+    /* Enable SPI0 I/O higher slew rate */
+    PB->SLEWCTL |= (GPIO_SLEWCTL_HSREN4_Msk | GPIO_SLEWCTL_HSREN5_Msk | GPIO_SLEWCTL_HSREN6_Msk | GPIO_SLEWCTL_HSREN7_Msk);
+#endif
 }
 
 void UART_Init(void)
