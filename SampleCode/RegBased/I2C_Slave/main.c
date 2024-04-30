@@ -225,6 +225,8 @@ void I2C0_Init(void)
     printf("I2C clock %d Hz\n", (SystemCoreClock / (((I2C0->CLKDIV) + 1) << 2)));
 
     /* Set I2C0 4 Slave Addresses */
+    /* Note: I2C does not support General Call (GC) mode for device address calling. */
+    /* Therefore, ensure that the GC mode is not enabled when setting the slave address. */
     /* Slave Address : 0x15 */
     I2C0->ADDR0 = (I2C0->ADDR0 & ~I2C_ADDR0_ADDR_Msk) | (0x15 << I2C_ADDR0_ADDR_Pos);
     /* Slave Address : 0x35 */

@@ -116,7 +116,6 @@ void UI2C_MasterRx(uint32_t u32Status)
         else if(m_Event == MASTER_READ_DATA)
         {
             g_u8RxData = (unsigned char) UI2C_GET_DATA(UI2C0) & 0xFF;
-            g_u8EndFlagM = 1;
             m_Event = MASTER_STOP;
             UI2C_SET_CONTROL_REG(UI2C0, (UI2C_CTL_PTRG | UI2C_CTL_STO));    /* DATA has been received and send STOP signal */
         }
@@ -181,7 +180,6 @@ void UI2C_MasterTx(uint32_t u32Status)
             }
             else
             {
-                g_u8EndFlagM = 1;
                 m_Event = MASTER_STOP;
                 UI2C_SET_CONTROL_REG(UI2C0, (UI2C_CTL_PTRG | UI2C_CTL_STO));        /* Send STOP signal */
             }

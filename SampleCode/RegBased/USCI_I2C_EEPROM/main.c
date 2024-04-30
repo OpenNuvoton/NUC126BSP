@@ -11,7 +11,6 @@
 #include <stdio.h>
 #include "NUC126.h"
 
-#define PLLCTL_SETTING  CLK_PLLCTL_72MHz_HXT
 #define PLL_CLOCK       72000000
 
 /*---------------------------------------------------------------------------------------------------------*/
@@ -22,7 +21,7 @@ uint8_t g_au8TxData[3];
 volatile uint8_t g_u8RxData;
 volatile uint8_t g_u8DataLenM;
 volatile uint8_t g_u8EndFlagM = 0;
-enum UI2C_MASTER_EVENT m_Event;
+volatile enum UI2C_MASTER_EVENT m_Event;
 
 typedef void (*UI2C_FUNC)(uint32_t u32Status);
 
@@ -183,7 +182,7 @@ void SYS_Init(void)
     while(!(CLK->STATUS & CLK_STATUS_HIRCSTB_Msk));
 
     /* Select HCLK clock source as HIRC and HCLK clock divider as 1 */
-    CLK->CLKSEL0 = (CLK->CLKSEL0 & (~CLK_CLKSEL0_HCLKSEL_Msk)) | CLK_CLKSEL0_HCLKSEL_HXT;
+    CLK->CLKSEL0 = (CLK->CLKSEL0 & (~CLK_CLKSEL0_HCLKSEL_Msk)) | CLK_CLKSEL0_HCLKSEL_HIRC;
     CLK->CLKDIV0 = (CLK->CLKDIV0 & (~CLK_CLKDIV0_HCLKDIV_Msk)) | CLK_CLKDIV0_HCLK(1);
 
     CLK->PWRCTL |= CLK_PWRCTL_HXTEN_Msk;
