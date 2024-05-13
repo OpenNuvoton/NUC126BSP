@@ -17,7 +17,7 @@
 /* Global variables                                                                                        */
 /*---------------------------------------------------------------------------------------------------------*/
 uint8_t g_u8DeviceAddr;
-uint8_t g_au8TxData[3];
+volatile uint8_t g_au8TxData[3];
 volatile uint8_t g_u8RxData;
 volatile uint8_t g_u8DataLenM;
 volatile uint8_t g_u8EndFlagM = 0;
