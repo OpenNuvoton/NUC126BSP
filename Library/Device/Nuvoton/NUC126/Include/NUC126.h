@@ -28,7 +28,7 @@
   *
   * <b>Copyright Notice</b>
   *
-  * Copyright (C) 2016~2023 Nuvoton Technology Corp. All rights reserved.
+  * Copyright (C) 2016~2024 Nuvoton Technology Corp. All rights reserved.
   */
 
 #ifndef __NUC126_H__
