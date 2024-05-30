@@ -1,21 +1,23 @@
 /**************************************************************************//**
  * @file     sclib.h
  * @version  V3.00
- * $Revision: 4 $
- * $Date: 16/10/25 5:26p $
  * @brief    Smartcard library header File
  *
- * @note
- *
  * @copyright SPDX-License-Identifier: Apache-2.0
- * @copyright Copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
+ * @copyright Copyright (C) 2022 Nuvoton Technology Corp. All rights reserved.
  *****************************************************************************/
 #ifndef __SCLIB_H__
 #define __SCLIB_H__
 
 #include "NUC126.h"
 
-/** @addtogroup Component_Library Component Library
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
+
+/** @addtogroup LIBRARY Library
   @{
 */
 
@@ -26,12 +28,6 @@
 /** @addtogroup SCLIB_EXPORTED_CONSTANTS Smartcard Library Exported Constants
   @{
 */
-
-
-#ifdef __cplusplus
-extern "C"
-{
-#endif
 
 #define SCLIB_MAX_ATR_LEN                       32  ///< Max ATR length. ISO-7816 8.2.1
 #define SCLIB_MIN_ATR_LEN                       2   ///< Min ATR length, TS and T0
@@ -136,6 +132,7 @@ typedef struct
   *       calling this API, otherwise this API return with \ref SCLIB_ERR_CLOCK error code.
   * @note EMV book 1 is stricter than ISO-7816 on ATR checking. Enable EMV check iff the
   *       application supports EMV cards only.
+  * @note If EMVCheck is set \ref TRUE, this API will call \ref SCLIB_SetIFSD to set IFSD if necessary.
   */
 int32_t SCLIB_Activate(uint32_t num, uint32_t u32EMVCheck);
 
@@ -153,10 +150,13 @@ int32_t SCLIB_Activate(uint32_t num, uint32_t u32EMVCheck);
   *       calling this API, otherwise this API return with \ref SCLIB_ERR_CLOCK error code.
   * @note EMV book 1 is stricter than ISO-7816 on ATR checking. Enable EMV check iff the
   *       application supports EMV cards only.
+  * @note If EMVCheck is set \ref TRUE, this API will call \ref SCLIB_SetIFSD to set IFSD if necessary.
   * @note Only use this function instead of \ref SCLIB_Activate if there's large capacitor on VCC pin and
   *       VCC raise slowly.
   */
 int32_t SCLIB_ActivateDelay(uint32_t num, uint32_t u32EMVCheck, uint32_t u32Delay);
+
+
 
 /**
   * @brief Cold reset a smartcard
@@ -233,6 +233,7 @@ int32_t SCLIB_StartTransmission(uint32_t num, uint8_t *cmdBuf, uint32_t cmdLen, 
   */
 int32_t SCLIB_SetIFSD(uint32_t num, uint8_t size);
 
+
 /**
   * @brief  A callback called by library while smartcard request for a time extension
   * @param[in]  u32Protocol What protocol the card is using while it requested for a time extension.
@@ -243,12 +244,11 @@ int32_t SCLIB_SetIFSD(uint32_t num, uint8_t size);
   *         can use this function to report this status to PC. See CCID rev 1.1 Table 6.2-3
   */
 #if defined (__GNUC__)
-void SCLIB_RequestTimeExtension () __attribute__ ((weak));
+void SCLIB_RequestTimeExtension(uint32_t u32Protocol) __attribute__ ((weak));
 void SCLIB_RequestTimeExtension(uint32_t u32Protocol);
 #else
 __weak void SCLIB_RequestTimeExtension(uint32_t u32Protocol);
 #endif
-
 /**
   * @brief Process card detect event in IRQ handler
   * @param[in] num Smartcard interface number. From 0 ~ ( \ref SC_INTERFACE_NUM - 1)
@@ -289,17 +289,35 @@ uint32_t SCLIB_CheckTxRxEvent(uint32_t num);
   */
 uint32_t SCLIB_CheckErrorEvent(uint32_t num);
 
+/**
+  * @brief Activate a smartcard without historical bytes check, this function can be called if
+  *        \ref SCLIB_Activate or \ref SCLIB_ActivateDelay return an error
+  * @param[in] num Smartcard interface number. From 0 ~ ( \ref SC_INTERFACE_NUM - 1)
+  * @return Smartcard reset success or not
+  * @retval SCLIB_SUCCESS Smartcard reset success
+  * @retval Others Smartcard reset failed
+  */
+int32_t SCLIB_ResetAnyway(uint32_t num);
+
+/**
+  * @brief Set a specific baud rate to catch ATR for a card which is not compatible with ISO-7816, 
+  *        this function should be called before \ref SCLIB_Activate or \ref SCLIB_ActivateDelay
+  * @param[in] num Smartcard interface number. From 0 ~ ( \ref SC_INTERFACE_NUM - 1)
+  * @param[in] br ATR default baud rate should be 9600 according to ISO-7816
+  * @return Baud rate set success or not
+  * @retval SCLIB_SUCCESS set ATR baud rate success
+  * @retval Others set ATR baud rate failed
+  */
+int32_t SCLIB_SetSpecificAtrBR(uint32_t num, uint32_t br);
+
+/*@}*/ /* end of group SCLIB_EXPORTED_FUNCTIONS */
+
+/*@}*/ /* end of group SCLIB */
+
+/*@}*/ /* end of group LIBRARY */
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif //__SCLIB_H__
-
-/*@}*/ /* end of group SCLIB_EXPORTED_FUNCTIONS */
-
-/*@}*/ /* end of group SC_Library */
-
-/*@}*/ /* end of group Component Library */
-
-/*** (C) COPYRIGHT 2016 Nuvoton Technology Corp. ***/
+#endif /* __SCLIB_H__ */

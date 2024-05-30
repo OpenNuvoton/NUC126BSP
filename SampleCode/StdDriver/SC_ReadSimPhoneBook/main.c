@@ -49,7 +49,7 @@ void get_pin(void)
     int i = 0;
     char c = 0;
 
-    printf("Please input PIN number:");
+    printf("Please input PIN number:\n");
     while(i < 8)
     {
         c = getchar();
