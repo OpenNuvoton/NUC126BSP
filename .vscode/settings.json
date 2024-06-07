@@ -1,7 +1,0 @@
-{
-    "C_Cpp.default.includePath": [
-        "Library\\CMSIS\\Include",
-        "Library\\Device\\Nuvoton\\NUC126\\Include",
-        "Library\\StdDriver\\inc"
-    ]
-}
