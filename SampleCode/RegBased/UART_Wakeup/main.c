@@ -53,6 +53,8 @@ void PowerDownFunction(void)
 
 void SYS_Init(void)
 {
+	uint32_t u32TimeOutCnt;
+
 
     /* Set PF multi-function pins for X32_OUT(PF.0) and X32_IN(PF.1) */
     SYS->GPF_MFPL = (SYS->GPF_MFPL & (~SYS_GPF_MFPL_PF0MFP_Msk)) | SYS_GPF_MFPL_PF0MFP_X32_OUT;
@@ -66,8 +68,12 @@ void SYS_Init(void)
     CLK->PWRCTL |= (CLK_PWRCTL_HIRCEN_Msk | CLK_PWRCTL_LXTEN_Msk);
 
     /* Wait for HIRC and LXT clock ready */
-    while(!(CLK->STATUS & CLK_STATUS_HIRCSTB_Msk));
-    while(!(CLK->STATUS & CLK_STATUS_LXTSTB_Msk));
+    u32TimeOutCnt = __HIRC;
+    while(!(CLK->STATUS & CLK_STATUS_HIRCSTB_Msk))
+		if(--u32TimeOutCnt == 0) break;
+    u32TimeOutCnt = __HIRC;
+    while(!(CLK->STATUS & CLK_STATUS_LXTSTB_Msk))
+		if(--u32TimeOutCnt == 0) break;
 
     /* Select HCLK clock source as HIRC and HCLK clock divider as 1 */
     CLK->CLKSEL0 = (CLK->CLKSEL0 & (~CLK_CLKSEL0_HCLKSEL_Msk)) | CLK_CLKSEL0_HCLKSEL_HIRC;

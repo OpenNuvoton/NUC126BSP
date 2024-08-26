@@ -44,6 +44,8 @@ void TMR2_IRQHandler(void)
 
 void SYS_Init(void)
 {
+	uint32_t u32TimeOutCnt;
+
     /*---------------------------------------------------------------------------------------------------------*/
     /* Init System Clock                                                                                       */
     /*---------------------------------------------------------------------------------------------------------*/
@@ -51,7 +53,9 @@ void SYS_Init(void)
     CLK->PWRCTL |= CLK_PWRCTL_HIRCEN_Msk;
 
     /* Waiting for HIRC clock ready */
-    while(!(CLK->STATUS & CLK_STATUS_HIRCSTB_Msk));
+    u32TimeOutCnt = __HIRC;
+    while(!(CLK->STATUS & CLK_STATUS_HIRCSTB_Msk))
+		if(--u32TimeOutCnt == 0) break;
 
     /* Switch HCLK clock source to HIRC */
     CLK->CLKSEL0 = CLK_CLKSEL0_HCLKSEL_HIRC;
@@ -66,8 +70,12 @@ void SYS_Init(void)
     CLK->PLLCTL = PLLCTL_SETTING;
 
     /* Waiting for clock ready */
-    while(!(CLK->STATUS & CLK_STATUS_PLLSTB_Msk));
-    while(!(CLK->STATUS & CLK_STATUS_HXTSTB_Msk));
+    u32TimeOutCnt = __HIRC;
+    while(!(CLK->STATUS & CLK_STATUS_PLLSTB_Msk))
+		if(--u32TimeOutCnt == 0) break;
+    u32TimeOutCnt = __HIRC;
+    while(!(CLK->STATUS & CLK_STATUS_HXTSTB_Msk))
+		if(--u32TimeOutCnt == 0) break;
     while(!(CLK->STATUS & CLK_STATUS_LIRCSTB_Msk));
 
     /* Switch STCLK source to HCLK/2 and HCLK clock source to PLL */

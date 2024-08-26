@@ -95,6 +95,10 @@ typedef enum IRQn
 #define __MPU_PRESENT           0       /*!< armikcmu does not provide a MPU present or not       */
 #define __NVIC_PRIO_BITS        2       /*!< armikcmu Supports 2 Bits for the Priority Levels     */
 #define __Vendor_SysTickConfig  0       /*!< Set to 1 if different SysTick Config is used         */
+#define __FPU_PRESENT           0
+#ifndef __SOFTFP__
+# define __SOFTFP__             1
+#endif
 
 
 #include "core_cm0.h"                   /*!< Cortex-M0 processor and core peripherals             */
@@ -204,7 +208,7 @@ typedef struct
      * |[0]     |ACMPIF0   |Comparator 0 Interrupt Flag
      * |        |          |This bit is set by hardware when the edge condition defined by INTPOL (ACMP_CTL0[9:8]) is detected on comparator 0 output
      * |        |          |This will generate an interrupt if ACMPIE (ACMP_CTL0[1]) is set to 1.
-     * |        |          |Note: Write 1 to clear this bit to 0. 
+     * |        |          |Note: Write 1 to clear this bit to 0.
      * |[1]     |ACMPIF1   |Comparator 1 Interrupt Flag
      * |        |          |This bit is set by hardware when the edge condition defined by INTPOL (ACMP_CTL1[9:8]) is detected on comparator 1 output
      * |        |          |This will cause an interrupt if ACMPIE (ACMP_CTL1[1]) is set to 1.
@@ -11227,7 +11231,7 @@ typedef struct
      * |        |          |110 = 128 system clock (HCLK).
      * |        |          |111 = 256 system clock (HCLK).
      * |        |          |Note: These bits are write protected. Refer to the SYS_REGLCTL register.
-     * |[16]    |VDETEN    |Voltage Detector Enable Bit   
+     * |[16]    |VDETEN    |Voltage Detector Enable Bit
      * |        |          |0 = VDET detect external input voltage function Disabled.
      * |        |          |1 = VDET detect external input voltage function Enabled.
      * |        |          |Note1: This function is still active in whole chip power-down mode.
@@ -11240,7 +11244,7 @@ typedef struct
      * |        |          |Note2: If VDET_P1 is selected, multi-function pin must be selected correctly in PB1MFP (SYS_GPB_MFPL[7:4]).
      * |[18]    |VDETIEN   |Voltage Detector Interrupt Enable Bit
      * |        |          |0 = VDET interrupt Disabled.
-     * |        |          |1 = VDET interrupt Enabled.          
+     * |        |          |1 = VDET interrupt Enabled.
      * |[19]    |VDETIF    |Voltage Detector Interrupt Flag
      * |        |          |0 = VDET does not detect any voltage draft at external pin down through or up through the voltage of Bandgap.
      * |        |          |1 = When VDET detects the external pin is dropped down through the voltage of Bandgap or the external pin is raised up through the voltage of Bandgap, this bit is set to 1 and the brown-out interrupt is requested if brown-out interrupt is enabled.
@@ -11249,8 +11253,8 @@ typedef struct
      * |        |          |0 = VDET output status is 0.
      * |        |          |It means the detected voltage is higher than Bandgap or VDETEN is 0.
      * |        |          |1 = VDET output status is 1.
-     * |        |          |It means the detected voltage is lower than Bandgap. 
-     * |        |          |If the VDETEN is 0, VDET function disabled, this bit always responds 0. 
+     * |        |          |It means the detected voltage is lower than Bandgap.
+     * |        |          |If the VDETEN is 0, VDET function disabled, this bit always responds 0.
      * |[27:25] |VDETDGSEL |Voltage Detector Output De-glitch Time Select (Write Protect)
      * |        |          |000 = VDET output is sampled by VDET clock.
      * |        |          |001 = 16 system clock (HCLK).
@@ -11260,7 +11264,7 @@ typedef struct
      * |        |          |101 = 256 system clock (HCLK).
      * |        |          |110 = 512 system clock (HCLK).
      * |        |          |111 = 1024 system clock (HCLK).
-     * |        |          |Note: These bits are write protected. Refer to the SYS_REGLCTL register.     
+     * |        |          |Note: These bits are write protected. Refer to the SYS_REGLCTL register.
      * @var SYS_T::IVSCTL
      * Offset: 0x1C  Internal Voltage Source Control Register
      * ---------------------------------------------------------------------------------------------------
@@ -17560,7 +17564,3 @@ typedef volatile unsigned short vu16;
 #include "usci_uart.h"
 #include "usci_i2c.h"
 #endif
-
-
-
-

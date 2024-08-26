@@ -336,6 +336,8 @@ void UI2C_LB_SlaveTRx(uint32_t u32Status)
 
 void SYS_Init(void)
 {
+	uint32_t u32TimeOutCnt;
+
     /*---------------------------------------------------------------------------------------------------------*/
     /* Init System Clock                                                                                       */
     /*---------------------------------------------------------------------------------------------------------*/
@@ -344,14 +346,18 @@ void SYS_Init(void)
     CLK->PWRCTL |= CLK_PWRCTL_HIRCEN_Msk;
 
     /* Wait for HIRC clock ready */
-    while(!(CLK->STATUS & CLK_STATUS_HIRCSTB_Msk));
+    u32TimeOutCnt = __HIRC;
+    while(!(CLK->STATUS & CLK_STATUS_HIRCSTB_Msk))
+		if(--u32TimeOutCnt == 0) break;
 
     /* Select HCLK clock source as HIRC and HCLK clock divider as 1 */
     CLK->CLKSEL0 = (CLK->CLKSEL0 & (~CLK_CLKSEL0_HCLKSEL_Msk)) | CLK_CLKSEL0_HCLKSEL_HXT;
     CLK->CLKDIV0 = (CLK->CLKDIV0 & (~CLK_CLKDIV0_HCLKDIV_Msk)) | CLK_CLKDIV0_HCLK(1);
 
     CLK->PWRCTL |= CLK_PWRCTL_HXTEN_Msk;
-    while(!(CLK->STATUS & CLK_STATUS_HXTSTB_Msk));
+    u32TimeOutCnt = __HIRC;
+    while(!(CLK->STATUS & CLK_STATUS_HXTSTB_Msk))
+		if(--u32TimeOutCnt == 0) break;
 
     /* Update System Core Clock */
     SystemCoreClockUpdate();
@@ -603,7 +609,7 @@ int main()
     printf(" == No Mask Address ==\n");
     if (0 > (i32Ret1 = Read_Write_SLAVE(0x116)))
         printf("SLAVE Address(0x116) test FAIL.\n");
-        
+
     if (0 > (i32Ret2 = Read_Write_SLAVE(0x136)))
         printf("SLAVE Address(0x136) test FAIL.\n");
 
@@ -616,7 +622,7 @@ int main()
         printf("SLAVE Address Mask(0x112) test FAIL.\n");
 
     if (0 > (i32Ret2 = Read_Write_SLAVE(0x136 & ~0x02)))
-        printf("SLAVE Address Mask(0x134) test FAIL.\n");    
+        printf("SLAVE Address Mask(0x134) test FAIL.\n");
 
     if ((i32Ret1 == 0) && (i32Ret2 == 0))
         printf("SLAVE Address Mask test OK.\n");

@@ -33,6 +33,8 @@ int32_t g_FMC_i32ErrCode;
 
 void SYS_Init(void)
 {
+	uint32_t u32TimeOutCnt;
+
     /*---------------------------------------------------------------------------------------------------------*/
     /* Init System Clock                                                                                       */
     /*---------------------------------------------------------------------------------------------------------*/
@@ -41,7 +43,9 @@ void SYS_Init(void)
     CLK->PWRCTL |= CLK_PWRCTL_HIRCEN_Msk;
 
     /* Waiting for HIRC clock ready */
-    while(!(CLK->STATUS & CLK_STATUS_HIRCSTB_Msk));
+    u32TimeOutCnt = __HIRC;
+    while(!(CLK->STATUS & CLK_STATUS_HIRCSTB_Msk))
+		if(--u32TimeOutCnt == 0) break;
 
     /* Select HCLK clock source as HIRC and HCLK clock divider as 1 */
     CLK->CLKSEL0 &= ~CLK_CLKSEL0_HCLKSEL_Msk;
@@ -53,11 +57,15 @@ void SYS_Init(void)
     CLK->PWRCTL |= CLK_PWRCTL_HXTEN_Msk;
 
     /* Waiting for HXT clock ready */
-    while(!(CLK->STATUS & CLK_STATUS_HXTSTB_Msk));
+    u32TimeOutCnt = __HIRC;
+    while(!(CLK->STATUS & CLK_STATUS_HXTSTB_Msk))
+		if(--u32TimeOutCnt == 0) break;
 
     /* Set core clock as PLL_CLOCK from PLL */
     CLK->PLLCTL = PLLCTL_SETTING;
-    while(!(CLK->STATUS & CLK_STATUS_PLLSTB_Msk));
+    u32TimeOutCnt = __HIRC;
+    while(!(CLK->STATUS & CLK_STATUS_PLLSTB_Msk))
+		if(--u32TimeOutCnt == 0) break;
     CLK->CLKSEL0 &= (~CLK_CLKSEL0_HCLKSEL_Msk);
     CLK->CLKSEL0 |= CLK_CLKSEL0_HCLKSEL_PLL;
 
@@ -169,13 +177,13 @@ void FMC_LDROM_Test(void)
 uint32_t GetFuncTable(void)
 {
     uint32_t u32Addr;
-    
+
     for(u32Addr = 0x100000;u32Addr < 0x101000;u32Addr += 4)
     {
         if(M32(u32Addr) == SIG_KEY)
             return (u32Addr - 16);
     }
-    
+
     return 0;
 
 }
@@ -270,7 +278,7 @@ int32_t main(void)
         /* Erase LDROM, program LD sample code to LDROM, and verify LD sample code */
         FMC_LDROM_Test();
     }
-    
+
     /* Get function table */
     g_au32funcTable = (uint32_t *) GetFuncTable();
     if(g_au32funcTable == 0)
@@ -278,7 +286,7 @@ int32_t main(void)
         printf("Fail to locate LDROM functions\n");
         goto lexit;
     }
-        
+
     for(i = 0; i < 4; i++)
     {
         /* Call the function of LDROM */
@@ -307,5 +315,3 @@ lexit:
 
 
 /*** (C) COPYRIGHT 2016 Nuvoton Technology Corp. ***/
-
-
