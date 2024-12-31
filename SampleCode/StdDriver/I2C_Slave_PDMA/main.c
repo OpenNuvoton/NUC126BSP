@@ -148,7 +148,33 @@ void I2C_MasterTx(uint32_t u32Status)
     {
         /* TO DO */
         printf("Status 0x%x is NOT processed\n", u32Status);
+        if(u32Status == 0x38)                   /* Master arbitration lost, stop I2C and clear SI */
+        {
+            I2C_SET_CONTROL_REG(I2C0, I2C_CTL_STO_SI);
+            I2C_SET_CONTROL_REG(I2C0, I2C_CTL_SI);
+	    }
+        else if(u32Status == 0x00)              /* Master bus error, stop I2C and clear SI */
+        {
+            I2C_SET_CONTROL_REG(I2C0, I2C_CTL_STO_SI);
+            I2C_SET_CONTROL_REG(I2C0, I2C_CTL_SI);
+        }
+        else if(u32Status == 0x30)              /* Master transmit data NACK, stop I2C and clear SI */
+        {
+            I2C_SET_CONTROL_REG(I2C0, I2C_CTL_STO_SI);
+            I2C_SET_CONTROL_REG(I2C0, I2C_CTL_SI);
+        }
+        else if(u32Status == 0x48)              /* Master receive address NACK, stop I2C and clear SI */
+        {
+            I2C_SET_CONTROL_REG(I2C0, I2C_CTL_STO_SI);
+            I2C_SET_CONTROL_REG(I2C0, I2C_CTL_SI);
+        }
+        else
+        {
+            I2C_SET_CONTROL_REG(I2C0, I2C_CTL_STO_SI);
+            I2C_SET_CONTROL_REG(I2C0, I2C_CTL_SI);
+	    }
     }
+    I2C_WAIT_SI_CLEAR(I2C0);
 }
 
 /*---------------------------------------------------------------------------------------------------------*/
@@ -187,7 +213,21 @@ void I2C_PDMA_SlaveRx(uint32_t u32Status)
     {
         /* TO DO */
         printf("Status 0x%x is NOT processed\n", u32Status);
+        if(u32Status == 0x68)               /* Slave receive arbitration lost, clear SI */
+        {
+            I2C_SET_CONTROL_REG(I2C1, I2C_CTL_SI_AA);
+        }
+        else if(u32Status == 0xB0)          /* Address transmit arbitration lost, clear SI  */
+        {
+            I2C_SET_CONTROL_REG(I2C1, I2C_CTL_SI_AA);
+        }
+        else                                /* Slave bus error, stop I2C and clear SI */
+        {
+            I2C_SET_CONTROL_REG(I2C1, I2C_CTL_STO_SI);
+            I2C_SET_CONTROL_REG(I2C1, I2C_CTL_SI);
+        }
     }
+    I2C_WAIT_SI_CLEAR(I2C1);
 }
 
 /*---------------------------------------------------------------------------------------------------------*/
