@@ -2,7 +2,7 @@
  * @file     main.c
  * @brief
  *           Demonstrate how to implement a USB mouse device.
- *           It use PC0 ~ PC5 to control mouse direction and mouse key.
+ *           It uses PC0 ~ PC5 to control mouse direction and mouse key.
  *           It also supports USB suspend and remote wakeup.
  * @note
  * @copyright SPDX-License-Identifier: Apache-2.0

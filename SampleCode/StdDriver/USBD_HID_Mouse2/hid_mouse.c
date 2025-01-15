@@ -1,6 +1,6 @@
 /******************************************************************************
  * @file     hid_mouse.c
- * @brief    NUC126 series USBD HID mouse sample file
+ * @brief    USBD HID mouse sample file
  *
  * @note
  * @copyright SPDX-License-Identifier: Apache-2.0
@@ -198,14 +198,14 @@ void HID_Init(void)
 
 void HID_ClassRequest(void)
 {
-    uint8_t buf[8];
+    uint8_t au8Buf[8];
 
-    USBD_GetSetupPacket(buf);
+    USBD_GetSetupPacket(au8Buf);
 
-    if(buf[0] & 0x80)    /* request data transfer direction */
+    if(au8Buf[0] & 0x80)    /* request data transfer direction */
     {
         // Device to host
-        switch(buf[1])
+        switch(au8Buf[1])
         {
             case GET_REPORT:
 //            {
@@ -213,18 +213,18 @@ void HID_ClassRequest(void)
 //            }
             case GET_IDLE:
             {
-                USBD_SET_PAYLOAD_LEN(EP1, buf[6]);
+                USBD_SET_PAYLOAD_LEN(EP1, au8Buf[6]);
                 /* Data stage */
-                USBD_PrepareCtrlIn(&g_u8Idle, buf[6]);
+                USBD_PrepareCtrlIn(&g_u8Idle, au8Buf[6]);
                 /* Status stage */
                 USBD_PrepareCtrlOut(0, 0);
                 break;
             }
             case GET_PROTOCOL:
             {
-                USBD_SET_PAYLOAD_LEN(EP1, buf[6]);
+                USBD_SET_PAYLOAD_LEN(EP1, au8Buf[6]);
                 /* Data stage */
-                USBD_PrepareCtrlIn(&g_u8Protocol, buf[6]);
+                USBD_PrepareCtrlIn(&g_u8Protocol, au8Buf[6]);
                 /* Status stage */
                 USBD_PrepareCtrlOut(0, 0);
                 break;
@@ -241,11 +241,11 @@ void HID_ClassRequest(void)
     else
     {
         // Host to device
-        switch(buf[1])
+        switch(au8Buf[1])
         {
             case SET_REPORT:
             {
-                if(buf[3] == 3)
+                if(au8Buf[3] == 3)
                 {
                     /* Request Type = Feature */
                     USBD_SET_DATA1(EP1);
@@ -255,7 +255,7 @@ void HID_ClassRequest(void)
             }
             case SET_IDLE:
             {
-                g_u8Idle = buf[3];
+                g_u8Idle = au8Buf[3];
                 /* Status stage */
                 USBD_SET_DATA1(EP0);
                 USBD_SET_PAYLOAD_LEN(EP0, 0);
@@ -263,7 +263,7 @@ void HID_ClassRequest(void)
             }
             case SET_PROTOCOL:
             {
-                g_u8Protocol = buf[2];
+                g_u8Protocol = au8Buf[2];
                 /* Status stage */
                 USBD_SET_DATA1(EP0);
                 USBD_SET_PAYLOAD_LEN(EP0, 0);
@@ -283,10 +283,11 @@ void HID_ClassRequest(void)
 
 void HID_UpdateMouseData(void)
 {
-    uint8_t *buf;
+    uint8_t *pu8Buf;
     uint32_t u32Reg;
-    static int32_t x = 0, y = 0;
-    uint32_t u32MouseKey;
+    static int32_t i32X = 0, i32Y = 0;
+    uint8_t u8MouseKey;
+    static uint32_t u8MousePreKey = 0xFF;
 
     /*
        Key definition:
@@ -300,47 +301,50 @@ void HID_UpdateMouseData(void)
 
     if(g_u8EP2Ready)
     {
-        buf = (uint8_t *)(USBD_BUF_BASE + USBD_GET_EP_BUF_ADDR(EP2));
+        pu8Buf = (uint8_t *)(USBD_BUF_BASE + USBD_GET_EP_BUF_ADDR(EP2));
 
         u32Reg = PC->PIN & 0x3F;
 
         /* To control Y axis */
         if((u32Reg & 1) == 0)
-            y += 1;
+            i32Y += 1;
         else if((u32Reg & 4) == 0)
-            y += -1;
+            i32Y += -1;
         else
-            y = 0;
-        if(y > 48) y = 48;
-        if(y < -48) y = -48;
+            i32Y = 0;
+        if(i32Y > 48) i32Y = 48;
+        if(i32Y < -48) i32Y = -48;
 
         /* To control X axis */
         if((u32Reg & 2) == 0)
-            x += 1;
+            i32X += 1;
         else if((u32Reg & 0x10) == 0)
-            x += -1;
+            i32X += -1;
         else
-            x = 0;
-        if(x > 48) x = 48;
-        if(x < -48) x = -48;
+            i32X = 0;
+        if(i32X > 48) i32X = 48;
+        if(i32X < -48) i32X = -48;
 
         /* Mouse key */
-        u32MouseKey = 0;
+        u8MouseKey = 0;
         if((u32Reg & 0x20) == 0)
-            u32MouseKey |= 1; /* Left key */
+            u8MouseKey |= 1; /* Left key */
         if((u32Reg & 0x8) == 0)
-            u32MouseKey |= 2; /* Right key */
+            u8MouseKey |= 2; /* Right key */
 
         /* Update new report data */
-        buf[0] = u32MouseKey;
-        buf[1] = x >> 2;
-        buf[2] = y >> 2;
-        buf[3] = 0x00;
+        pu8Buf[0] = u8MouseKey;
+        pu8Buf[1] = (uint8_t)(i32X >> 2);
+        pu8Buf[2] = (uint8_t)(i32Y >> 2);
+        pu8Buf[3] = 0x00;
 
-        g_u8EP2Ready = 0;
-        /* Set transfer length and trigger IN transfer */
-        USBD_SET_PAYLOAD_LEN(EP2, 4);
-
+        if(i32X | i32Y | (u8MousePreKey != u8MouseKey))
+        {
+            u8MousePreKey = u8MouseKey;
+            g_u8EP2Ready = 0;
+            /* Set transfer length and trigger IN transfer */
+            USBD_SET_PAYLOAD_LEN(EP2, 4);
+        }
     }
 }
 
