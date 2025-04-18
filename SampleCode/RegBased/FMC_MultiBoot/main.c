@@ -17,7 +17,7 @@
 #define PLLCTL_SETTING      CLK_PLLCTL_72MHz_HXT
 #define PLL_CLOCK           72000000
 
-#if !defined(__ICCARM__)
+#if !defined(__ICCARM__) && !defined(__GNUC__)
 extern uint32_t Image$$RO$$Base;
 #endif
 
@@ -127,11 +127,16 @@ int32_t main(void)
 
         To use this sample code, please:
         1. Build all targets and download to device individually. The targets are:
-            FMC_MultiBoot, RO=0x0
-            FMC_Boot0, RO=0x1000
-            FMC_Boot1, RO=0x2000
-            FMC_Boot2, RO=0x3000
-            FMC_Boot3, RO=0x4000
+           For Keil/IAR project,
+               FMC_MultiBoot, RO=0x0
+               FMC_Boot0, RO=0x2000
+               FMC_Boot1, RO=0x4000
+               FMC_Boot2, RO=0x6000
+               FMC_Boot3, RO=0x8000
+           For GCC project,
+               FMC_MultiBoot, RO=0x0
+               FMC_Boot1, RO=0x4000
+               FMC_Boot3, RO=0x8000
         2. Reset MCU to execute FMC_MultiBoot.
 
     */
@@ -143,7 +148,7 @@ int32_t main(void)
 
     printf("\nCPU @ %dHz\n\n", SystemCoreClock);
 
-#if defined(__ICCARM__)
+#if defined(__ICCARM__) || defined(__GNUC__)
     printf("VECMAP = 0x%x\n", FMC_GetVECMAP());
 #else
     printf("Current RO Base = 0x%x, VECMAP = 0x%x\n", (uint32_t)&Image$$RO$$Base, FMC_GetVECMAP());
@@ -178,32 +183,52 @@ int32_t main(void)
         }
     }
 
+#if (defined(__ARMCC_VERSION) || defined(__ICCARM__))
     printf("Select one boot image: \n");
-    printf("[0] Boot 0, base = 0x1000\n");
-    printf("[1] Boot 1, base = 0x2000\n");
-    printf("[2] Boot 2, base = 0x3000\n");
-    printf("[3] Boot 3, base = 0x4000\n");
+    printf("[0] Boot 0, base = 0x2000\n");
+    printf("[1] Boot 1, base = 0x4000\n");
+    printf("[2] Boot 2, base = 0x6000\n");
+    printf("[3] Boot 3, base = 0x8000\n");
     printf("[Others] Boot, base = 0x0\n");
 
     ch = getchar();
     switch(ch)
     {
         case '0':
-            FMC_SetVectorPageAddr(0x1000);
-            break;
-        case '1':
             FMC_SetVectorPageAddr(0x2000);
             break;
+        case '1':
+            FMC_SetVectorPageAddr(0x4000);
+            break;
         case '2':
-            FMC_SetVectorPageAddr(0x3000);
+            FMC_SetVectorPageAddr(0x6000);
             break;
         case '3':
-            FMC_SetVectorPageAddr(0x4000);
+            FMC_SetVectorPageAddr(0x8000);
             break;
         default:
             FMC_SetVectorPageAddr(0x0);
             break;
     }
+#else
+	printf("Select one boot image: \n");
+    printf("[1] Boot 1, base = 0x4000\n");
+    printf("[3] Boot 3, base = 0x8000\n");
+    printf("[Others] Boot, base = 0x0\n");
+
+    ch = getchar();
+    switch(ch) {
+    case '1':
+        FMC_SetVectorPageAddr(0x4000);
+        break;
+    case '3':
+        FMC_SetVectorPageAddr(0x8000);
+        break;
+    default:
+        FMC_SetVectorPageAddr(0x0);
+        break;
+    }
+#endif
 
     /* Reset CPU only to reset to new vector page */
     SYS->IPRST0 |= SYS_IPRST0_CPURST_Msk;

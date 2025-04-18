@@ -24,7 +24,7 @@
  *             before using this function. User can check the status of
  *             Register Write-Protection Function with SYS_IsRegLocked().
  */
-int FMC_Write_User(unsigned int u32Addr, unsigned int u32Data)
+int FMC_Write_User(uint32_t u32Addr, uint32_t u32Data)
 {
     unsigned int Reg;
     FMC->ISPCMD = FMC_ISPCMD_PROGRAM;
@@ -56,7 +56,7 @@ int FMC_Write_User(unsigned int u32Addr, unsigned int u32Data)
  *              before using this function. User can check the status of
  *              Register Write-Protection Function with SYS_IsRegLocked().
  */
-int FMC_Read_User(unsigned int u32Addr, unsigned int *data)
+int FMC_Read_User(uint32_t u32Addr, uint32_t *data)
 {
     unsigned int Reg;
     FMC->ISPCMD = FMC_ISPCMD_READ;
@@ -88,7 +88,7 @@ int FMC_Read_User(unsigned int u32Addr, unsigned int *data)
  *             before using this function. User can check the status of
  *             Register Write-Protection Function with SYS_IsRegLocked().
  */
-int FMC_Erase_User(unsigned int u32Addr)
+int FMC_Erase_User(uint32_t u32Addr)
 {
     unsigned int Reg;
     FMC->ISPCMD = FMC_ISPCMD_PAGE_ERASE;
@@ -105,7 +105,7 @@ int FMC_Erase_User(unsigned int u32Addr)
     return 0;
 }
 
-void ReadData(unsigned int addr_start, unsigned int addr_end, unsigned int *data)    // Read data from flash
+void ReadData(uint32_t addr_start, uint32_t addr_end, uint32_t *data)    // Read data from flash
 {
     unsigned int rLoop;
 
@@ -117,7 +117,7 @@ void ReadData(unsigned int addr_start, unsigned int addr_end, unsigned int *data
     return;
 }
 
-void WriteData(unsigned int addr_start, unsigned int addr_end, unsigned int *data)  // Write data into flash
+void WriteData(uint32_t addr_start, uint32_t addr_end, uint32_t *data)  // Write data into flash
 {
     unsigned int wLoop;
 

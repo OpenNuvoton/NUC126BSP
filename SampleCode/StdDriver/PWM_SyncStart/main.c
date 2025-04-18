@@ -60,12 +60,12 @@ void SYS_Init(void)
 
     /* PWM clock frequency can be set equal or double to HCLK by choosing case 1 or case 2 */
     /* case 1.PWM clock frequency is set equal to HCLK: select PWM module clock source as PCLK */
-    CLK_SetModuleClock(PWM0_MODULE, CLK_CLKSEL1_PWM0SEL_PCLK0, NULL);
-    CLK_SetModuleClock(PWM1_MODULE, CLK_CLKSEL1_PWM1SEL_PCLK1, NULL);
+    CLK_SetModuleClock(PWM0_MODULE, CLK_CLKSEL1_PWM0SEL_PCLK0, 0);
+    CLK_SetModuleClock(PWM1_MODULE, CLK_CLKSEL1_PWM1SEL_PCLK1, 0);
 
     /* case 2.PWM clock frequency is set double to HCLK: select PWM module clock source as PLL */
-    //CLK_SetModuleClock(PWM0_MODULE, CLK_CLKSEL1_PWM0SEL_PLL, NULL);
-    //CLK_SetModuleClock(PWM1_MODULE, CLK_CLKSEL1_PWM1SEL_PLL, NULL);
+    //CLK_SetModuleClock(PWM0_MODULE, CLK_CLKSEL1_PWM0SEL_PLL, 0);
+    //CLK_SetModuleClock(PWM1_MODULE, CLK_CLKSEL1_PWM1SEL_PLL, 0);
     /*---------------------------------------------------------------------------------------------------------*/
 
     /* Enable UART module clock */

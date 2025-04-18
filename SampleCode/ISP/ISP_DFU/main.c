@@ -25,6 +25,9 @@ static volatile uint32_t s_u32DefaultTrim, s_u32LastTrim;
 
 uint32_t g_apromSize;
 
+void ProcessHardFault(void) {}
+void SH_Return(void) {}
+	
 uint32_t GetApromSize()
 {
     //the smallest of APROM size is 2K

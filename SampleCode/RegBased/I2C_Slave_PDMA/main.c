@@ -32,7 +32,7 @@ volatile uint8_t g_u8EndFlag = 0;
 volatile uint8_t g_u8DataLen1;
 volatile uint8_t g_u8SlvTestLen;
 volatile uint8_t g_u8SlvDataLen;
-volatile uint8_t g_au8SlvData[256];
+volatile uint8_t g_au8SlvData[512];
 volatile int32_t g_u32IsTestOver;
 volatile uint8_t g_au8MstTxData[256];
 volatile uint8_t g_u8MstDataLen;

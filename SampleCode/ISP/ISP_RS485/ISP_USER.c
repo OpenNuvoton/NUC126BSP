@@ -47,7 +47,7 @@ static uint16_t CalCheckSum(uint32_t start, uint32_t len)
 }
 
 //bAprom == TRUE erase all aprom besides data flash
-void EraseAP(unsigned int addr_start, unsigned int addr_end)
+void EraseAP(uint32_t addr_start, uint32_t addr_end)
 {
     unsigned int eraseLoop = addr_start;
 
@@ -58,7 +58,7 @@ void EraseAP(unsigned int addr_start, unsigned int addr_end)
     return;
 }
 
-void UpdateConfig(unsigned int *data, unsigned int *res)
+void UpdateConfig(uint32_t *data, uint32_t *res)
 {
     FMC_ENABLE_CFG_UPDATE();
     FMC_Erase_User(Config0);

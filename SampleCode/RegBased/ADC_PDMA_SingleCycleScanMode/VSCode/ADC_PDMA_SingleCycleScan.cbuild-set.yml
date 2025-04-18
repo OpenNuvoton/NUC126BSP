@@ -1,0 +1,4 @@
+cbuild-set:
+  generated-by: csolution version 2.5.0
+  contexts:
+    - context: ADC_PDMA_SingleCycleScan.debug+ARMCLANG

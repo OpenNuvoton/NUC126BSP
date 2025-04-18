@@ -15,6 +15,9 @@
 
 static volatile uint32_t s_u32DefaultTrim, s_u32LastTrim;
 
+void ProcessHardFault(void) {}
+void SH_Return(void) {}
+
 int32_t SYS_Init(void)
 {
     uint32_t u32TimeOutCnt;

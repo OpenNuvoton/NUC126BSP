@@ -22,13 +22,13 @@
 #define _FMC_DISABLE_CFG_UPDATE()  (FMC->ISPCTL &= ~FMC_ISPCTL_CFGUEN_Msk) /*!< Disable CONFIG Update Function */
 
 
-extern void EraseAP(unsigned int addr_start, unsigned int addr_end);
-extern void ReadData(unsigned int addr_start, unsigned int addr_end, unsigned int *data);
-extern void WriteData(unsigned int addr_start, unsigned int addr_end, unsigned int *data);
+extern void EraseAP(uint32_t addr_start, uint32_t addr_end);
+extern void ReadData(uint32_t addr_start, uint32_t addr_end, uint32_t *data);
+extern void WriteData(uint32_t addr_start, uint32_t addr_end, uint32_t *data);
 extern void GetDataFlashInfo(uint32_t *addr, uint32_t *size);
-int FMC_Write_User(unsigned int u32Addr, unsigned int u32Data);
-int FMC_Read_User(unsigned int u32Addr, unsigned int *data);
-int FMC_Erase_User(unsigned int u32Addr);
+int FMC_Write_User(uint32_t u32Addr, uint32_t u32Data);
+int FMC_Read_User(uint32_t u32Addr, uint32_t *data);
+int FMC_Erase_User(uint32_t u32Addr);
 
 #endif
 
