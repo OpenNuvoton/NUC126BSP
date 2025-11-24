@@ -12,7 +12,6 @@
 
 
 #define PLLCTL_SETTING  CLK_PLLCTL_72MHz_HIRC
-#define PLL_CLOCK       72000000
 
 
 /* check CBS and flash lock before running this sample code,
@@ -25,7 +24,7 @@ int32_t g_FMC_i32ErrCode;
 
 void SYS_Init(void)
 {
-	uint32_t u32TimeOutCnt;
+    uint32_t u32TimeOutCnt;
 
 
     /*---------------------------------------------------------------------------------------------------------*/
@@ -51,7 +50,7 @@ void SYS_Init(void)
     CLK->PLLCTL = PLLCTL_SETTING;
     u32TimeOutCnt = __HIRC;
     while(!(CLK->STATUS & CLK_STATUS_PLLSTB_Msk))
-		if(--u32TimeOutCnt == 0) break;
+            if(--u32TimeOutCnt == 0) break;
     CLK->CLKSEL0 = (CLK->CLKSEL0 & (~CLK_CLKSEL0_HCLKSEL_Msk)) | CLK_CLKSEL0_HCLKSEL_PLL;
 
     /* Update System Core Clock */

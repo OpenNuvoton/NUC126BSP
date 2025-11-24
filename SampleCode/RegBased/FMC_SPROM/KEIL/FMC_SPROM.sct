@@ -2,7 +2,7 @@ LR_IROM1 0x00000000 0x00040000  {
   ER_IROM1 0x00000000 0x00040000  {
    *.o (RESET, +First)
    *(InRoot$$Sections)
-    startup_NUC126.o (+RO) 
+    startup_NUC126.o (+RO)
     main.o (+RO)
    .ANY (+RO)
   }

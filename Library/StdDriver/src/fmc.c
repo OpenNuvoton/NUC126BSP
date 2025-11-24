@@ -105,7 +105,7 @@ void FMC_DisableConfigUpdate(void)
   * @param    None
   *
   * @return   None
-
+  *
   * @details  Disable LDROM update function will forbid LDROM programming.
   *           LDROM update is default to be disable.
   */
@@ -267,6 +267,8 @@ int32_t FMC_ReadConfig(uint32_t *u32Config, uint32_t u32Count)
     uint32_t i;
     int32_t i32ret = 0;
 
+    g_FMC_i32ErrCode = 0;
+
     for(i = 0; i < u32Count; i++)
     {
         u32Config[i] = FMC_Read(FMC_CONFIG_BASE + i * 4);
@@ -298,6 +300,8 @@ int32_t FMC_WriteConfig(uint32_t *u32Config, uint32_t u32Count)
 {
     uint32_t i;
     int32_t i32ret = 0;
+
+    g_FMC_i32ErrCode = 0;
 
     for(i = 0; i < u32Count; i++)
     {
