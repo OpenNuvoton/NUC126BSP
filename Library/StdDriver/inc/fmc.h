@@ -680,6 +680,7 @@ static __INLINE uint32_t FMC_GetCheckSum(uint32_t u32Addr, int32_t i32Size)
  * @brief      Program Multi-Word data into specified address of flash
  *
  * @param[in]  u32Addr  Flash address include APROM, LDROM, Data Flash, and CONFIG
+                        This address must be 16-bytes aligned to flash address.
  * @param[in]  pu32Buf  A data pointer is point to a data buffer start address;
  *
  * @retval     0   Success
@@ -690,6 +691,7 @@ static __INLINE uint32_t FMC_GetCheckSum(uint32_t u32Addr, int32_t i32Size)
  *
  * @note       Global error code g_FMC_i32ErrCode
  *             -1  Program failed or time-out
+ *             -2  Invalid address
  *
  */
 static __INLINE int32_t FMC_Write256(uint32_t u32Addr, uint32_t *pu32Buf)
@@ -697,6 +699,7 @@ static __INLINE int32_t FMC_Write256(uint32_t u32Addr, uint32_t *pu32Buf)
     int32_t i, idx;
     volatile uint32_t *pu32IspData;
     uint32_t u32TimeOutCnt;
+    uint32_t u32MPStatus = 0;
     //int32_t i32Err;
 
     //i32Err = 0;
@@ -705,10 +708,21 @@ static __INLINE int32_t FMC_Write256(uint32_t u32Addr, uint32_t *pu32Buf)
     FMC->ISPCMD = FMC_ISPCMD_MULTI_PROG;
     FMC->ISPADDR = u32Addr;
 
+    if((u32Addr % 16) != 0)
+    {
+        g_FMC_i32ErrCode = -2;
+        return -2;
+    }
+
 retrigger:
 
     //if(i32Err)
     //    printf("idx=%d  ISPADDR = 0x%08x\n",idx, FMC->ISPADDR);
+
+    if(idx >= (256 / 4))
+    {
+        return 0;
+    }
 
     FMC->MPDAT0 = pu32Buf[idx + 0];
     FMC->MPDAT1 = pu32Buf[idx + 1];
@@ -724,15 +738,13 @@ retrigger:
 
     for(i = idx; i < 256 / 4; i += 4) // Max data length is 256 bytes (256/4 words)
     {
-        __set_PRIMASK(1); // Mask interrupt to avoid status check coherence error
         u32TimeOutCnt = FMC_TIMEOUT_WRITE;
         do
         {
             if((FMC->MPSTS & FMC_MPSTS_MPBUSY_Msk) == 0)
             {
-                __set_PRIMASK(0);
                 //printf("%d %x\n", i, FMC->MPADDR);
-                FMC->ISPADDR = FMC->MPADDR & (~0xful);
+                FMC->ISPADDR = (FMC->MPADDR + 8) & (~0xful);
                 idx = (FMC->ISPADDR - u32Addr) / 4;
                 //i32Err = -1;
                 goto retrigger;
@@ -740,7 +752,6 @@ retrigger:
 
             if(--u32TimeOutCnt== 0)
             {
-                __set_PRIMASK(0);
                 g_FMC_i32ErrCode = -1;
                 return -1;
             }
@@ -756,9 +767,8 @@ retrigger:
         {
             if((FMC->MPSTS & FMC_MPSTS_MPBUSY_Msk) == 0)
             {
-                __set_PRIMASK(0);
                 //printf("%d %x\n", i, FMC->MPADDR);
-                FMC->ISPADDR = FMC->MPADDR & (~0xful);
+                FMC->ISPADDR = (FMC->MPADDR + 8) & (~0xful);
                 idx = (FMC->ISPADDR - u32Addr) / 4;
                 //i32Err = -1;
                 goto retrigger;
@@ -766,7 +776,6 @@ retrigger:
 
             if(--u32TimeOutCnt== 0)
             {
-                __set_PRIMASK(0);
                 g_FMC_i32ErrCode = -1;
                 return -1;
             }
@@ -776,7 +785,29 @@ retrigger:
         // Update new data for D2
         pu32IspData[2] = pu32Buf[i + 2];
         pu32IspData[3] = pu32Buf[i + 3];
-        __set_PRIMASK(0);
+
+        if(i + 4u >= (256 / 4u))
+        {
+            u32TimeOutCnt = FMC_TIMEOUT_WRITE;
+            do
+            {
+                u32MPStatus = FMC->MPSTS;
+                if(((u32MPStatus & FMC_MPSTS_MPBUSY_Msk) == 0) && (u32MPStatus & (0xF << FMC_MPSTS_D0_Pos)))
+                {
+                    FMC->ISPADDR = (FMC->MPADDR + 8) & (~0xful);
+                    idx = (FMC->ISPADDR - u32Addr) / 4;
+                    //i32Err = -1;
+                    goto retrigger;
+                }
+
+                if(--u32TimeOutCnt== 0)
+                {
+                    g_FMC_i32ErrCode = -1;
+                    return -1;
+                }
+            }
+            while(u32MPStatus & (0xF << FMC_MPSTS_D0_Pos));
+        }
     }
 
     u32TimeOutCnt = FMC_TIMEOUT_WRITE;
