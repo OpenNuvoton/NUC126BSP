@@ -17,6 +17,12 @@
 void ProcessHardFault(void){}
 void SH_Return(void){}
 
+/* Add implementations to fix linker warnings from the newlib-nano C library in VSCode-GCC14.3.1 */
+void _close(void) {}
+void _lseek(void) {}
+void _read_r(void) {}
+void _write_r(void) {}
+
 uint32_t TIMER_Open(TIMER_T *timer, uint32_t u32Mode, uint32_t u32Freq)
 {
     uint32_t u32Clk = __HIRC; // TIMER_GetModuleClock(timer);

@@ -6,18 +6,6 @@ project:
       C: [-std=c99, -fno-rtti, -funsigned-char, -fshort-enums, -fshort-wchar, -ffunction-sections, -fdata-sections, -D__MICROLIB, -gdwarf-4]
       ASM: [-D__MICROLIB]
       Link: [--library_type=microlib, --map, --load_addr_map_info, --symbols, --info sizes, --info totals, --entry Reset_Handler, --summary_stderr, --info summarysizes, --diag_suppress=6314]
-    - for-compiler: GCC
-      C: [-std=gnu11, -Wall -Wno-format, -Wno-return-type, -Wno-unused-but-set-variable, -fdata-sections, -ffunction-sections, -fno-builtin,
-          -fshort-enums, -funsigned-char, -mthumb, -Wno-main, -gdwarf-4, -flto]
-      Link:
-        - -Xlinker
-        - --gc-sections
-        - --specs=nano.specs
-        - -Wl,--gc-sections,-Map="$elf()$.map"
-  linker:
-      - for-compiler: GCC
-        script: gcc_arm_ldrom.ld
-      - regions: regions_ld.h
   setups:
     - output:
         type: ["elf", "bin"]
@@ -30,8 +18,6 @@ project:
       files:
         - file: ../../../../Library/Device/Nuvoton/NUC126/Source/ARM/startup_NUC126.S
           for-compiler: AC6
-        - file: ../../../../Library/Device/Nuvoton/NUC126/Source/gcc/startup_NUC126.S
-          for-compiler: GCC
         - file: ../../../../Library/Device/Nuvoton/NUC126/Source/system_NUC126.c
     - group: Library
       files:

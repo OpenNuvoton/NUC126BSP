@@ -3,16 +3,12 @@ solution:
   created-for: CMSIS-Toolbox@2.4.0
   select-compiler:
     - compiler: AC6@>=5.19.0
-    - compiler: GCC@>=10.3.1
   build-types:
     - type: debug
       optimize: size
   target-types:
     - type: ARMCLANG
       compiler: AC6
-      device: Nuvoton::NUC126VG4AE
-    - type: GNUC
-      compiler: GCC
       device: Nuvoton::NUC126VG4AE
   projects:
     - project: FMC_IAP_APROM.cproject.yml

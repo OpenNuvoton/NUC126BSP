@@ -17,6 +17,8 @@ project:
   setups:
     - output:
         type: ["elf", "bin"]
+  define:
+    - DEBUG_PORT: UUART0
   linker:
     - for-compiler: GCC
       script: ../../../../Library/Device/Nuvoton/NUC126/Source/gcc/gcc_arm.ld
@@ -35,10 +37,4 @@ project:
     - group: User
       files:
         - file: ../main.c
-    - group: Library
-      files:
-        - file: ../../../../Library/StdDriver/src/clk.c
-        - file: ../../../../Library/StdDriver/src/retarget.c
-        - file: ../../../../Library/StdDriver/src/sys.c
-        - file: ../../../../Library/StdDriver/src/uart.c
-        - file: ../../../../Library/StdDriver/src/usci_uart.c
+        - file: ../myretarget.c
